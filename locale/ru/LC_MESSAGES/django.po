@@ -1611,7 +1611,7 @@ msgstr "Контакты"
 
 #: templates/components/footer.html:48
 msgid "Контакти і реквізити"
-msgstr ""
+msgstr "Контакты и реквизиты"
 
 #: templates/components/footer.html:56
 msgid "Усі права захищено"

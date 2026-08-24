@@ -1,0 +1,66 @@
+.messages {
+  display: grid;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+}
+
+.message {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  align-items: start;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-3) var(--sp-3) var(--sp-4);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--c-accent);
+  background: var(--c-paper);
+  font-size: var(--fs-sm);
+  line-height: 1.45;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity var(--transition), transform var(--transition);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.message.is-leaving {
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+}
+
+.message__text {
+  padding-block: 0.35em;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.message__close {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-md);
+  color: var(--c-muted);
+  transition: background var(--transition), color var(--transition);
+}
+
+.message__close:hover,
+.message__close:focus-visible {
+  background: var(--c-card);
+  color: var(--c-head);
+}
+
+.message--error {
+  border-left-color: var(--c-sale);
+}
+
+.message--success {
+  border-left-color: var(--c-success);
+}
+
+.message--info {
+  border-left-color: var(--c-accent);
+}
+
+.message--warning {
+  border-left-color: var(--c-warning);
+}

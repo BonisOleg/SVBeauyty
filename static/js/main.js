@@ -1,6 +1,7 @@
 import { initCart } from './modules/cart.js';
 import { initChat } from './modules/chat.js';
 import { initCopy } from './modules/copy.js';
+import { initMessages } from './modules/messages.js';
 import { initNovaPoshta } from './modules/nova-poshta.js';
 import { initGallery, initPanel, initQuantity, initTabs, initVariantPicker } from './modules/ui.js';
 
@@ -50,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initHeader();
   initCart();
   initCopy();
+  initMessages();
   initChat();
   initNovaPoshta();
   initTabs();

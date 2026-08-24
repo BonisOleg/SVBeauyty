@@ -89,6 +89,13 @@
   background: var(--c-card);
   border: 1px solid var(--c-line-soft);
   border-radius: var(--radius-md);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color var(--transition);
+}
+
+.requisite:hover {
+  border-color: var(--c-line);
 }
 
 .requisite__label {
@@ -104,8 +111,6 @@
   font-weight: 500;
   color: var(--c-ink);
   word-break: break-all;
-  -webkit-user-select: all;
-  user-select: all;
 }
 
 .requisite__copy {

@@ -58,8 +58,8 @@ class PricingSettings(SingletonModel, TimeStampedModel):
     )
 
     class Meta:
-        verbose_name = _("Ціни та умови")
-        verbose_name_plural = _("Ціни та умови")
+        verbose_name = _("Налаштування цін")
+        verbose_name_plural = _("Налаштування цін")
 
     def __str__(self):
         return "Ціни та умови"

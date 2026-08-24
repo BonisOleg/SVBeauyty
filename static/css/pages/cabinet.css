@@ -38,6 +38,20 @@
   color: var(--c-btn-text);
 }
 
+.cabinet__nav-logout {
+  margin-left: auto;
+  border-color: #e2b4b1;
+  color: var(--c-sale);
+  background: #fdf6f5;
+}
+
+.cabinet__nav-logout:hover,
+.cabinet__nav-logout:focus-visible {
+  border-color: var(--c-sale);
+  color: var(--c-sale);
+  background: #faeeec;
+}
+
 .cabinet__card {
   padding: var(--sp-5);
   border: 1px solid var(--c-line-soft);
@@ -204,5 +218,12 @@
     overflow: visible;
     position: sticky;
     top: calc(var(--header-h) + var(--sp-4));
+  }
+
+  .cabinet__nav-logout {
+    margin-left: 0;
+    margin-top: var(--sp-3);
+    padding-top: calc(var(--sp-2) + 2px);
+    border-style: dashed;
   }
 }

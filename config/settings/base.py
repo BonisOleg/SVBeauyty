@@ -125,6 +125,11 @@ UNFOLD = {
     "SITE_TITLE": "SVbeauty",
     "SITE_HEADER": "SVbeauty — адміністрування",
     "SITE_SYMBOL": "spa",
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": False,
+        "navigation": "config.unfold_sidebar.navigation",
+    },
     "COLORS": {
         "primary": {
             "50": "239 249 248",

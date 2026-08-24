@@ -2,4 +2,7 @@
 <div id="cart-popup-body" hx-swap-oob="innerHTML">
   {% include "commerce/_cart_popup.html" %}
 </div>
+<div id="cart-popup-foot" class="cart-popup__foot" data-cart-popup-foot hx-swap-oob="innerHTML">
+  {% include "commerce/_cart_popup_foot.html" %}
+</div>
 <span id="cart-count" class="icon-btn__badge" data-cart-count hx-swap-oob="outerHTML" {% if summary.count == 0 %}hidden{% endif %}>{{ summary.count }}</span>

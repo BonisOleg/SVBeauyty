@@ -14,8 +14,8 @@ class ShippingSettings(SingletonModel, TimeStampedModel):
     use_test_data = models.BooleanField(_("Примусово тестові дані"), default=False)
 
     class Meta:
-        verbose_name = _("Доставка")
-        verbose_name_plural = _("Доставка")
+        verbose_name = _("Налаштування доставки")
+        verbose_name_plural = _("Налаштування доставки")
 
     def __str__(self):
         return "Налаштування доставки"

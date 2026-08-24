@@ -7,4 +7,8 @@ def cart_context(request):
     cart = get_cart(request, create=False)
     user = request.user if request.user.is_authenticated else None
     summary = cart_summary(cart, user)
-    return {"cart_count": summary["count"], "cart_subtotal": summary["subtotal"]}
+    return {
+        "cart_count": summary["count"],
+        "cart_subtotal": summary["subtotal"],
+        "cart_summary": summary,
+    }

@@ -7,7 +7,7 @@ from django.urls import reverse
 from apps.accounts.models import ClientType, User
 from apps.catalog.forms import VariantAdminForm
 from apps.catalog.models import Brand, Category, Product, Variant
-from apps.commerce.models import Order, OrderStatus
+from apps.commerce.models import CartItem, Order, OrderStatus
 from apps.content.models import SiteSettings
 from apps.loyalty import services as loyalty
 from apps.loyalty.models import LoyaltySettings, TransactionKind
@@ -151,6 +151,26 @@ class CartTests(ShopTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["count"], 2)
         self.assertEqual(response.json()["subtotal"], "2000.00")
+        self.assertIn('href=', response.json()["popup_foot"])
+        self.assertIn("checkout", response.json()["popup_foot"])
+
+    def test_empty_cart_popup_shows_catalog_cta(self):
+        response = self.client.get(reverse("core:home"))
+        self.assertContains(response, "data-cart-catalog")
+        self.assertContains(response, "До каталогу")
+        self.assertNotContains(response, "data-cart-checkout")
+
+    def test_remove_last_item_shows_catalog_cta_in_htmx(self):
+        self.client.post(reverse("commerce:cart_add"), {"variant_id": self.variant.id, "quantity": 1})
+        response = self.client.post(
+            reverse("commerce:cart_remove"),
+            {"item_id": CartItem.objects.get().id},
+            headers={"HX-Request": "true"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "data-cart-catalog")
+        self.assertContains(response, "До каталогу")
+        self.assertNotContains(response, "data-cart-checkout")
 
     def test_quantity_is_capped_by_stock(self):
         self.client.post(reverse("commerce:cart_add"), {"variant_id": self.variant.id, "quantity": 500})

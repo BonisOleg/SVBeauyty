@@ -33,6 +33,9 @@ def _cart_payload(request):
         "count": summary["count"],
         "subtotal": str(summary["subtotal"]),
         "popup": render_to_string("commerce/_cart_popup.html", {"summary": summary}, request=request),
+        "popup_foot": render_to_string(
+            "commerce/_cart_popup_foot.html", {"summary": summary}, request=request
+        ),
     }
 
 

@@ -36,7 +36,9 @@ async function postJson(url, data) {
 function renderPopupFromJson(payload) {
   const popup = document.querySelector('[data-cart-popup]');
   const body = popup && popup.querySelector('[data-cart-popup-body]');
+  const foot = popup && popup.querySelector('[data-cart-popup-foot]');
   if (body && payload.popup) body.innerHTML = payload.popup;
+  if (foot && payload.popup_foot) foot.innerHTML = payload.popup_foot;
   syncCount(payload.count);
   return popup;
 }

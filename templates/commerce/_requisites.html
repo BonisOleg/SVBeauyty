@@ -3,7 +3,7 @@
   <p class="footer__title">{% translate "Реквізити для оплати" %}</p>
 
   {% if bank_details.recipient %}
-    <div class="requisite">
+    <div class="requisite" title="{% translate 'Натисніть, щоб скопіювати' %}">
       <span>
         <span class="requisite__label">{% translate "Отримувач" %}</span>
         <span class="requisite__value" data-copy-line="{% translate 'Отримувач' %}">{{ bank_details.recipient }}</span>
@@ -16,7 +16,7 @@
   {% endif %}
 
   {% if bank_details.iban %}
-    <div class="requisite">
+    <div class="requisite" title="{% translate 'Натисніть, щоб скопіювати' %}">
       <span>
         <span class="requisite__label">IBAN</span>
         <span class="requisite__value" data-copy-line="IBAN">{{ bank_details.iban }}</span>
@@ -29,7 +29,7 @@
   {% endif %}
 
   {% if bank_details.tax_id %}
-    <div class="requisite">
+    <div class="requisite" title="{% translate 'Натисніть, щоб скопіювати' %}">
       <span>
         <span class="requisite__label">{% translate "ІПН / ЄДРПОУ" %}</span>
         <span class="requisite__value" data-copy-line="{% translate 'ІПН' %}">{{ bank_details.tax_id }}</span>
@@ -42,7 +42,7 @@
   {% endif %}
 
   {% if bank_details.bank %}
-    <div class="requisite">
+    <div class="requisite" title="{% translate 'Натисніть, щоб скопіювати' %}">
       <span>
         <span class="requisite__label">{% translate "Банк" %}</span>
         <span class="requisite__value" data-copy-line="{% translate 'Банк' %}">{{ bank_details.bank }}</span>
@@ -55,7 +55,7 @@
   {% endif %}
 
   {% if bank_details.purpose %}
-    <div class="requisite">
+    <div class="requisite" title="{% translate 'Натисніть, щоб скопіювати' %}">
       <span>
         <span class="requisite__label">{% translate "Призначення платежу" %}</span>
         <span class="requisite__value" data-copy-line="{% translate 'Призначення' %}">{{ bank_details.purpose }}</span>
@@ -67,7 +67,7 @@
     </div>
   {% endif %}
 
-  <div class="requisite">
+  <div class="requisite" title="{% translate 'Натисніть, щоб скопіювати' %}">
     <span>
       <span class="requisite__label">{% translate "Сума" %}</span>
       <span class="requisite__value" data-copy-line="{% translate 'Сума' %}">{{ order.total_uah }}</span>

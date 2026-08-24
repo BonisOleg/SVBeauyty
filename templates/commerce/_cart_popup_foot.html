@@ -1,0 +1,11 @@
+{% load i18n %}
+{% if summary.count %}
+  <a href="{% url 'commerce:cart' %}" class="btn btn--outline btn--block">{% translate "Перейти в кошик" %}</a>
+  <a href="{% url 'commerce:checkout' %}" class="btn btn--primary btn--block" data-cart-checkout>
+    {% translate "Оформити замовлення" %}
+  </a>
+{% else %}
+  <a href="{% url 'catalog:catalog' %}" class="btn btn--primary btn--block" data-cart-catalog>
+    {% translate "До каталогу" %}
+  </a>
+{% endif %}

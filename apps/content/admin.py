@@ -66,7 +66,16 @@ class BannerAdmin(ModelAdmin):
     list_editable = ["is_active", "sort_order"]
     fieldsets = [
         (None, {"fields": ["title_uk", "title_ru", "subtitle_uk", "subtitle_ru"]}),
-        ("Зображення", {"fields": ["image", "image_mobile"]}),
+        (
+            "Зображення",
+            {
+                "fields": ["image", "image_mobile"],
+                "description": (
+                    "Десктоп — 21:9 (1680×720 або 1920×823). "
+                    "Мобільний — 3:4 (900×1200), до 599 px. Формат JPG/WebP."
+                ),
+            },
+        ),
         ("Кнопка", {"fields": ["button_text_uk", "button_text_ru", "button_url"]}),
         ("Публікація", {"fields": ["is_active", "sort_order"]}),
     ]

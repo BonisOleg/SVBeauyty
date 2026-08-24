@@ -91,7 +91,7 @@
   flex: 1 1 auto;
   text-align: center;
   color: #e65100;
-  font-size: var(--fs-xs);
+  font-size: calc(var(--fs-xs) * 1.2);
   font-weight: 500;
   line-height: 1.4;
   -webkit-text-size-adjust: 100%;

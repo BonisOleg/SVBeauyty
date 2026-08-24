@@ -105,8 +105,18 @@ class Banner(TimeStampedModel, PublishedModel):
     title_ru = models.CharField(_("Заголовок (рос)"), max_length=255, blank=True)
     subtitle_uk = models.CharField(_("Підзаголовок (укр)"), max_length=300, blank=True)
     subtitle_ru = models.CharField(_("Підзаголовок (рос)"), max_length=300, blank=True)
-    image = models.ImageField(_("Зображення (десктоп)"), upload_to="banners/", blank=True)
-    image_mobile = models.ImageField(_("Зображення (мобільне)"), upload_to="banners/", blank=True)
+    image = models.ImageField(
+        _("Зображення (десктоп)"),
+        upload_to="banners/",
+        blank=True,
+        help_text=_("Співвідношення 21:9. Рекомендовано 1680×720 або 1920×823 px, JPG/WebP."),
+    )
+    image_mobile = models.ImageField(
+        _("Зображення (мобільне)"),
+        upload_to="banners/",
+        blank=True,
+        help_text=_("Співвідношення 3:4. Рекомендовано 900×1200 px, JPG/WebP. Показується до 599 px."),
+    )
     button_text_uk = models.CharField(_("Кнопка (укр)"), max_length=60, blank=True)
     button_text_ru = models.CharField(_("Кнопка (рос)"), max_length=60, blank=True)
     button_url = models.CharField(_("Посилання кнопки"), max_length=255, blank=True)

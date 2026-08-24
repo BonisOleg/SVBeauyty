@@ -8,6 +8,8 @@
   border: 1px solid var(--c-line-soft);
   border-radius: var(--radius-lg);
   transition: border-color var(--transition), box-shadow var(--transition);
+  container-type: inline-size;
+  container-name: product-card;
 }
 
 .card:hover {
@@ -86,6 +88,7 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: var(--sp-2);
+  min-width: 0;
 }
 
 .price {
@@ -93,6 +96,7 @@
   flex-direction: column;
   gap: 2px;
   line-height: 1.15;
+  min-width: 0;
 }
 
 .price__value {
@@ -127,8 +131,8 @@
   opacity: 0.55;
 }
 
-/* На вузьких екранах ціна й кнопка не вміщаються в один рядок */
-@media (max-width: 599px) {
+/* Стек, поки в картці не вміщаються ціна + «Купити» в один ряд */
+@container product-card (max-width: 280px) {
   .card__foot {
     flex-direction: column;
     align-items: stretch;
@@ -148,7 +152,10 @@
   .card__name {
     font-size: var(--fs-md);
   }
+}
 
+/* Hover-reveal лише на широких десктопах */
+@media (min-width: 1440px) {
   .card__buy {
     opacity: 0;
     transition: opacity var(--transition);

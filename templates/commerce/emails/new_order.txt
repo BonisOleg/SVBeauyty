@@ -1,0 +1,17 @@
+Нове замовлення {{ order.number }} від {{ order.created_at|date:"d.m.Y H:i" }}
+
+Клієнт: {{ order.customer_name }} ({{ order.get_client_type_display|default:order.client_type }})
+Телефон: {{ order.phone }}
+Email: {{ order.email|default:"—" }}
+
+Доставка: {{ order.delivery_city }}, {{ order.delivery_branch }}
+Оплата: {{ order.get_payment_method_display }}
+
+Позиції:
+{% for item in order.items.all %}- {{ item.product_name }} / {{ item.volume }} / {{ item.sku }} — {{ item.quantity }} шт × {{ item.unit_price_uah }} = {{ item.line_total_uah }} грн ({{ item.price_source }})
+{% endfor %}
+Сума позицій: {{ order.subtotal_uah }} грн
+{% if order.loyalty_spent_points %}Списано балів: {{ order.loyalty_spent_points }} (−{{ order.loyalty_discount_uah }} грн)
+{% endif %}До сплати: {{ order.total_uah }} грн
+
+Коментар: {{ order.comment|default:"—" }}

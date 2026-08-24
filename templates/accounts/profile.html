@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Мій кабінет" %} — {{ site_settings.site_name }}{% endblock %}
+{% block meta_extra %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+
+{% block content %}
+  <h1 class="page-title">{% translate "Мій кабінет" %}</h1>
+
+  <div class="cabinet">
+    {% include "accounts/_nav.html" with active='profile' %}
+
+    <div>
+      <div class="stat-grid">
+        <div class="stat">
+          <p class="stat__value">{{ orders_count }}</p>
+          <p class="stat__label">{% translate "Замовлень" %}</p>
+        </div>
+        <div class="stat">
+          <p class="stat__value">{{ loyalty_balance }}</p>
+          <p class="stat__label">{% translate "Бонусних балів" %}</p>
+        </div>
+        <div class="stat">
+          <p class="stat__value" style="font-size: var(--fs-lg)">
+            {% if user.is_pro %}
+              <span class="status-pill status-pill--pro">{% translate "Косметолог" %}</span>
+            {% elif user.client_type == 'pending_cosmo' %}
+              <span class="status-pill status-pill--pending">{% translate "Заявка на розгляді" %}</span>
+            {% else %}
+              <span class="status-pill status-pill--regular">{% translate "Звичайний клієнт" %}</span>
+            {% endif %}
+          </p>
+          <p class="stat__label">{% translate "Статус" %}</p>
+        </div>
+      </div>
+
+      {% if user.is_pro and delivery_note %}
+        <div class="pro-hint" style="margin-bottom: var(--sp-5); white-space: pre-line">{{ delivery_note }}</div>
+      {% endif %}
+
+      {% if pending_request %}
+        <div class="message">{% translate "Ваша заявка на статус косметолога розглядається менеджером." %}</div>
+      {% endif %}
+
+      <div class="cabinet__card">
+        <h2 class="section__title" style="font-size: var(--fs-lg); margin-bottom: var(--sp-4)">
+          {% translate "Особисті дані" %}
+        </h2>
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div class="form-grid form-grid--2">
+            {% include "components/_field.html" with field=form.first_name %}
+            {% include "components/_field.html" with field=form.last_name %}
+          </div>
+          {% include "components/_field.html" with field=form.phone %}
+          <p class="field__hint">{% translate "Email" %}: {{ user.email }}</p>
+          <button type="submit" class="btn btn--primary" style="margin-top: var(--sp-4)">
+            {% translate "Зберегти" %}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

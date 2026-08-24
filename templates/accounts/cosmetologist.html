@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Заявка косметолога" %} — {{ site_settings.site_name }}{% endblock %}
+{% block meta_extra %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+
+{% block content %}
+  <h1 class="page-title">{% translate "Статус косметолога" %}</h1>
+
+  <div class="cabinet">
+    {% include "accounts/_nav.html" with active='cosmetologist' %}
+
+    <div>
+      {% if existing %}
+        <div class="message">
+          {% translate "Заявку вже надіслано. Менеджер перевірить дані та надасть професійні ціни." %}
+        </div>
+      {% else %}
+        <div class="cabinet__card">
+          <p class="form-note">
+            {% translate "Заповніть форму — після підтвердження менеджером ви побачите професійні ціни та окремі умови доставки." %}
+          </p>
+
+          <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+            {% include "components/_field.html" with field=form.full_name %}
+            {% include "components/_field.html" with field=form.phone %}
+            {% include "components/_field.html" with field=form.workplace %}
+            {% include "components/_field.html" with field=form.document %}
+            {% include "components/_field.html" with field=form.comment %}
+            <button type="submit" class="btn btn--primary btn--lg">{% translate "Надіслати заявку" %}</button>
+          </form>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

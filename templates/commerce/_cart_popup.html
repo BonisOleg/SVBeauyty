@@ -1,0 +1,28 @@
+{% load i18n catalog_tags %}
+{% if summary.rows %}
+  {% for row in summary.rows %}
+    <div class="cart-line">
+      <div class="cart-line__media">
+        {% if row.product.main_image %}
+          <img src="{{ row.product.main_image.image.url }}" alt="{{ row.product.name }}" loading="lazy" width="64" height="64">
+        {% endif %}
+      </div>
+      <div>
+        <a class="cart-line__name" href="{{ row.product.get_absolute_url }}">{{ row.product.name }}</a>
+        <p class="cart-line__meta">{{ row.variant.volume }} &middot; {{ row.item.quantity }} {% translate "шт" %}</p>
+        <button type="button" class="cart-line__remove" data-cart-remove="{{ row.item.id }}">{% translate "Видалити" %}</button>
+      </div>
+      <span class="cart-line__price">{{ row.line_total|uah }} ₴</span>
+    </div>
+  {% endfor %}
+
+  <div class="cart-total">
+    <span>{% translate "Разом" %}</span>
+    <span>{{ summary.subtotal|uah }} ₴</span>
+  </div>
+  {% if summary.saved %}
+    <p class="cart-saved">{% translate "Ваша вигода" %}: {{ summary.saved|uah }} ₴</p>
+  {% endif %}
+{% else %}
+  <p class="chat__intro">{% translate "Кошик порожній." %}</p>
+{% endif %}

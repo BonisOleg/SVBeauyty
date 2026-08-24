@@ -1,0 +1,10 @@
+{% load i18n %}
+<nav class="cabinet__nav" aria-label="{% translate 'Кабінет' %}">
+  <a href="{% url 'accounts:profile' %}" class="{% if active == 'profile' %}is-active{% endif %}">{% translate "Профіль" %}</a>
+  <a href="{% url 'accounts:orders' %}" class="{% if active == 'orders' %}is-active{% endif %}">{% translate "Замовлення" %}</a>
+  <a href="{% url 'accounts:loyalty' %}" class="{% if active == 'loyalty' %}is-active{% endif %}">{% translate "Бонуси" %}</a>
+  {% if not user.is_pro %}
+    <a href="{% url 'accounts:cosmetologist' %}" class="{% if active == 'cosmetologist' %}is-active{% endif %}">{% translate "Косметологам" %}</a>
+  {% endif %}
+  <a href="{% url 'accounts:logout' %}">{% translate "Вийти" %}</a>
+</nav>

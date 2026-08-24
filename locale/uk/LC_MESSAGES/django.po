@@ -1,0 +1,1690 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-24 14:21+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != "
+"11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % "
+"100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || "
+"(n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
+
+#: apps/accounts/admin.py:19 templates/accounts/profile.html:47
+msgid "Особисті дані"
+msgstr ""
+
+#: apps/accounts/admin.py:20
+msgid "Статус клієнта"
+msgstr ""
+
+#: apps/accounts/admin.py:21
+msgid "Права"
+msgstr ""
+
+#: apps/accounts/admin.py:22
+msgid "Дати"
+msgstr ""
+
+#: apps/accounts/admin.py:43
+msgid "Схвалити: надати статус косметолога"
+msgstr ""
+
+#: apps/accounts/admin.py:55
+msgid "Відхилити заявку"
+msgstr ""
+
+#: apps/accounts/forms.py:14 apps/accounts/forms.py:38
+#: apps/accounts/models.py:40 apps/commerce/forms.py:11
+#: apps/commerce/models.py:85 apps/content/models.py:15
+#: templates/accounts/profile.html:56
+msgid "Email"
+msgstr ""
+
+#: apps/accounts/forms.py:18
+msgid "Невірний email або пароль."
+msgstr ""
+
+#: apps/accounts/forms.py:19
+msgid "Обліковий запис вимкнено."
+msgstr ""
+
+#: apps/accounts/forms.py:25
+msgid "Пароль"
+msgstr ""
+
+#: apps/accounts/forms.py:28
+msgid "Повторіть пароль"
+msgstr ""
+
+#: apps/accounts/forms.py:30 apps/commerce/forms.py:21
+#: templates/accounts/register.html:32
+msgid "Погоджуюсь на обробку персональних даних"
+msgstr ""
+
+#: apps/accounts/forms.py:36 apps/accounts/forms.py:67 apps/chat/models.py:18
+#: apps/commerce/forms.py:8 apps/commerce/models.py:82
+msgid "Ім'я"
+msgstr ""
+
+#: apps/accounts/forms.py:37 apps/accounts/forms.py:67 apps/commerce/forms.py:9
+#: apps/commerce/models.py:83
+msgid "Прізвище"
+msgstr ""
+
+#: apps/accounts/forms.py:39 apps/accounts/forms.py:67
+#: apps/accounts/models.py:41 apps/accounts/models.py:85 apps/chat/models.py:19
+#: apps/commerce/forms.py:10 apps/commerce/models.py:84
+#: apps/content/models.py:14 templates/components/chat.html:35
+msgid "Телефон"
+msgstr ""
+
+#: apps/accounts/forms.py:45
+msgid "Такий email вже зареєстровано."
+msgstr ""
+
+#: apps/accounts/forms.py:51
+msgid "Паролі не збігаються."
+msgstr ""
+
+#: apps/accounts/models.py:10 templates/accounts/profile.html:30
+msgid "Звичайний клієнт"
+msgstr ""
+
+#: apps/accounts/models.py:11 apps/accounts/models.py:101
+#: templates/accounts/cosmetologist.html:4
+msgid "Заявка косметолога"
+msgstr ""
+
+#: apps/accounts/models.py:12 templates/accounts/profile.html:26
+msgid "Косметолог"
+msgstr ""
+
+#: apps/accounts/models.py:43
+msgid "Тип клієнта"
+msgstr ""
+
+#: apps/accounts/models.py:48
+msgid "Змінюється лише адміністратором."
+msgstr ""
+
+#: apps/accounts/models.py:50
+msgid "Статус змінено"
+msgstr ""
+
+#: apps/accounts/models.py:58 apps/accounts/models.py:82 apps/chat/models.py:16
+#: apps/chat/models.py:36 apps/commerce/models.py:24 apps/commerce/models.py:78
+#: apps/loyalty/models.py:45
+msgid "Клієнт"
+msgstr ""
+
+#: apps/accounts/models.py:59
+msgid "Клієнти"
+msgstr ""
+
+#: apps/accounts/models.py:75
+msgid "Нова"
+msgstr ""
+
+#: apps/accounts/models.py:76
+msgid "Схвалена"
+msgstr ""
+
+#: apps/accounts/models.py:77
+msgid "Відхилена"
+msgstr ""
+
+#: apps/accounts/models.py:84
+msgid "ПІБ"
+msgstr ""
+
+#: apps/accounts/models.py:86
+msgid "Місце роботи"
+msgstr ""
+
+#: apps/accounts/models.py:88
+msgid "Документ"
+msgstr ""
+
+#: apps/accounts/models.py:92
+msgid "PDF або зображення до 5 МБ."
+msgstr ""
+
+#: apps/accounts/models.py:94 apps/commerce/forms.py:19
+#: apps/loyalty/models.py:78
+msgid "Коментар"
+msgstr ""
+
+#: apps/accounts/models.py:96 apps/commerce/models.py:27
+#: apps/commerce/models.py:96 templates/accounts/profile.html:33
+msgid "Статус"
+msgstr ""
+
+#: apps/accounts/models.py:98
+msgid "Нотатка менеджера"
+msgstr ""
+
+#: apps/accounts/models.py:102
+msgid "Заявки косметологів"
+msgstr ""
+
+#: apps/accounts/validators.py:26
+msgid "Дозволені формати: PDF, JPG, PNG, WEBP."
+msgstr ""
+
+#: apps/accounts/validators.py:30
+msgid "Тип файлу не підтримується. Завантажте PDF або зображення."
+msgstr ""
+
+#: apps/accounts/validators.py:34
+#, python-format
+msgid "Файл завеликий (макс. %(size)s)."
+msgstr ""
+
+#: apps/accounts/views.py:29
+msgid "Вітаємо! Обліковий запис створено."
+msgstr ""
+
+#: apps/accounts/views.py:47
+msgid "Дані збережено."
+msgstr ""
+
+#: apps/accounts/views.py:94
+msgid "Статус косметолога вже активний."
+msgstr ""
+
+#: apps/accounts/views.py:106
+msgid "Заявку надіслано. Менеджер зв'яжеться з вами."
+msgstr ""
+
+#: apps/catalog/models.py:10
+msgid "Назва"
+msgstr ""
+
+#: apps/catalog/models.py:11 apps/catalog/models.py:27
+#: apps/catalog/models.py:61 apps/content/models.py:71
+msgid "URL"
+msgstr ""
+
+#: apps/catalog/models.py:12 apps/catalog/models.py:29
+#: apps/catalog/models.py:64
+msgid "Опис (укр)"
+msgstr ""
+
+#: apps/catalog/models.py:13 apps/catalog/models.py:30
+#: apps/catalog/models.py:65
+msgid "Опис (рос)"
+msgstr ""
+
+#: apps/catalog/models.py:16 apps/catalog/models.py:54
+#: templates/catalog/_filters.html:15
+msgid "Бренд"
+msgstr ""
+
+#: apps/catalog/models.py:17
+msgid "Бренди"
+msgstr ""
+
+#: apps/catalog/models.py:25 apps/catalog/models.py:59
+msgid "Назва (укр)"
+msgstr ""
+
+#: apps/catalog/models.py:26 apps/catalog/models.py:60
+msgid "Назва (рос)"
+msgstr ""
+
+#: apps/catalog/models.py:28
+msgid "Фото категорії"
+msgstr ""
+
+#: apps/catalog/models.py:33 apps/catalog/models.py:57
+msgid "Категорія"
+msgstr ""
+
+#: apps/catalog/models.py:34 templates/catalog/_filters.html:7
+#: templates/components/drawer.html:24 templates/components/header.html:62
+#: templates/core/home.html:41
+msgid "Категорії"
+msgstr ""
+
+#: apps/catalog/models.py:62
+msgid "Короткий опис (укр)"
+msgstr ""
+
+#: apps/catalog/models.py:63
+msgid "Короткий опис (рос)"
+msgstr ""
+
+#: apps/catalog/models.py:66
+msgid "Склад (укр)"
+msgstr ""
+
+#: apps/catalog/models.py:67
+msgid "Склад (рос)"
+msgstr ""
+
+#: apps/catalog/models.py:68
+msgid "Хіт продажу"
+msgstr ""
+
+#: apps/catalog/models.py:69 templates/catalog/_product_card.html:11
+#: templates/catalog/product.html:82
+msgid "Новинка"
+msgstr ""
+
+#: apps/catalog/models.py:72 apps/catalog/models.py:123
+#: apps/catalog/models.py:193 apps/commerce/models.py:142
+#: templates/accounts/order_detail.html:23 templates/commerce/thanks.html:22
+msgid "Товар"
+msgstr ""
+
+#: apps/catalog/models.py:73
+msgid "Товари"
+msgstr ""
+
+#: apps/catalog/models.py:125 apps/commerce/models.py:143
+#: templates/catalog/product.html:79 templates/commerce/cart.html:22
+msgid "Артикул"
+msgstr ""
+
+#: apps/catalog/models.py:126 apps/commerce/models.py:144
+msgid "Об'єм"
+msgstr ""
+
+#: apps/catalog/models.py:129
+msgid "Закупівельна ціна, грн"
+msgstr ""
+
+#: apps/catalog/models.py:133
+msgid "Службове поле, на сайті не показується. Від нього рахуються інші ціни."
+msgstr ""
+
+#: apps/catalog/models.py:136
+msgid "Роздрібна ціна, грн"
+msgstr ""
+
+#: apps/catalog/models.py:141 apps/catalog/models.py:154
+msgid "Порожньо — порахується автоматично від закупівельної плюс націнка."
+msgstr ""
+
+#: apps/catalog/models.py:144
+msgid "Роздрібна ціна вручну"
+msgstr ""
+
+#: apps/catalog/models.py:146 apps/catalog/models.py:159
+msgid "Увімкніть, щоб автоперерахунок не перезаписував цю ціну."
+msgstr ""
+
+#: apps/catalog/models.py:149
+msgid "Ціна для косметологів, грн"
+msgstr ""
+
+#: apps/catalog/models.py:157
+msgid "Ціна косметолога вручну"
+msgstr ""
+
+#: apps/catalog/models.py:162
+msgid "Залишок"
+msgstr ""
+
+#: apps/catalog/models.py:165
+msgid "Варіант (об'єм)"
+msgstr ""
+
+#: apps/catalog/models.py:166
+msgid "Варіанти (об'єми)"
+msgstr ""
+
+#: apps/catalog/models.py:195
+msgid "Зображення"
+msgstr ""
+
+#: apps/catalog/models.py:196
+msgid "Alt (укр)"
+msgstr ""
+
+#: apps/catalog/models.py:197
+msgid "Alt (рос)"
+msgstr ""
+
+#: apps/catalog/models.py:198
+msgid "Головне фото"
+msgstr ""
+
+#: apps/catalog/models.py:201
+msgid "Фото товару"
+msgstr ""
+
+#: apps/catalog/models.py:202
+msgid "Фото товарів"
+msgstr ""
+
+#: apps/catalog/urls.py:9
+msgctxt "url"
+msgid "catalog/"
+msgstr ""
+
+#: apps/catalog/urls.py:10
+msgctxt "url"
+msgid "search/"
+msgstr ""
+
+#: apps/catalog/urls.py:11
+msgctxt "url"
+msgid "catalog/<slug:slug>/"
+msgstr ""
+
+#: apps/catalog/urls.py:12
+msgctxt "url"
+msgid "product/<slug:slug>/"
+msgstr ""
+
+#: apps/chat/models.py:9
+msgid "Ключ сесії"
+msgstr ""
+
+#: apps/chat/models.py:20
+msgid "Закрито"
+msgstr ""
+
+#: apps/chat/models.py:23 apps/chat/models.py:42
+msgid "Діалог"
+msgstr ""
+
+#: apps/chat/models.py:24
+msgid "Діалоги"
+msgstr ""
+
+#: apps/chat/models.py:37
+msgid "Менеджер"
+msgstr ""
+
+#: apps/chat/models.py:44
+msgid "Автор"
+msgstr ""
+
+#: apps/chat/models.py:45 apps/chat/models.py:49 apps/chat/models.py:50
+msgid "Повідомлення"
+msgstr ""
+
+#: apps/chat/models.py:46
+msgid "Прочитано"
+msgstr ""
+
+#: apps/chat/views.py:15
+msgid "Дякуємо! Повідомлення отримано. Менеджер відповість у робочі години."
+msgstr ""
+
+#: apps/commerce/forms.py:13 apps/commerce/models.py:87
+msgid "Місто"
+msgstr ""
+
+#: apps/commerce/forms.py:15
+msgid "Відділення Нової Пошти"
+msgstr ""
+
+#: apps/commerce/forms.py:18
+msgid "Спосіб оплати"
+msgstr ""
+
+#: apps/commerce/forms.py:20 templates/commerce/checkout.html:112
+msgid "Списати балів"
+msgstr ""
+
+#: apps/commerce/forms.py:34
+msgid "Вкажіть коректний номер телефону."
+msgstr ""
+
+#: apps/commerce/forms.py:40
+#, python-format
+msgid "Доступно максимум %(n)s балів."
+msgstr ""
+
+#: apps/commerce/models.py:11
+msgid "Активний"
+msgstr ""
+
+#: apps/commerce/models.py:12
+msgid "Оформлений"
+msgstr ""
+
+#: apps/commerce/models.py:13
+msgid "Покинутий"
+msgstr ""
+
+#: apps/commerce/models.py:17
+msgid "Сесія"
+msgstr ""
+
+#: apps/commerce/models.py:31 apps/commerce/models.py:40
+#: templates/commerce/cart.html:4 templates/commerce/cart.html:7
+#: templates/components/cart_popup.html:4
+#: templates/components/cart_popup.html:6 templates/components/header.html:51
+msgid "Кошик"
+msgstr ""
+
+#: apps/commerce/models.py:32
+msgid "Кошики"
+msgstr ""
+
+#: apps/commerce/models.py:42 apps/commerce/models.py:140
+msgid "Варіант"
+msgstr ""
+
+#: apps/commerce/models.py:44 apps/commerce/models.py:150
+#: templates/catalog/product.html:133 templates/commerce/cart.html:28
+msgid "Кількість"
+msgstr ""
+
+#: apps/commerce/models.py:47
+msgid "Позиція кошика"
+msgstr ""
+
+#: apps/commerce/models.py:48
+msgid "Позиції кошика"
+msgstr ""
+
+#: apps/commerce/models.py:56
+msgid "Нове"
+msgstr ""
+
+#: apps/commerce/models.py:57
+msgid "В обробці"
+msgstr ""
+
+#: apps/commerce/models.py:58
+msgid "Очікує оплати"
+msgstr ""
+
+#: apps/commerce/models.py:59
+msgid "Оплачено"
+msgstr ""
+
+#: apps/commerce/models.py:60
+msgid "Відправлено"
+msgstr ""
+
+#: apps/commerce/models.py:61
+msgid "Виконано"
+msgstr ""
+
+#: apps/commerce/models.py:62
+msgid "Скасовано"
+msgstr ""
+
+#: apps/commerce/models.py:66 apps/payments/services.py:22
+msgid "Переказ на рахунок ФОП"
+msgstr ""
+
+#: apps/commerce/models.py:67
+msgid "Картка онлайн (LiqPay)"
+msgstr ""
+
+#: apps/commerce/models.py:71
+msgid "Номер"
+msgstr ""
+
+#: apps/commerce/models.py:80
+msgid "Тип клієнта на момент покупки"
+msgstr ""
+
+#: apps/commerce/models.py:88
+msgid "Ref міста"
+msgstr ""
+
+#: apps/commerce/models.py:89
+msgid "Відділення"
+msgstr ""
+
+#: apps/commerce/models.py:90
+msgid "Ref відділення"
+msgstr ""
+
+#: apps/commerce/models.py:93 templates/accounts/order_detail.html:51
+#: templates/commerce/checkout.html:61
+msgid "Оплата"
+msgstr ""
+
+#: apps/commerce/models.py:99
+msgid "Сума позицій"
+msgstr ""
+
+#: apps/commerce/models.py:100 templates/accounts/order_detail.html:38
+#: templates/commerce/thanks.html:37
+msgid "Списано балів"
+msgstr ""
+
+#: apps/commerce/models.py:102
+msgid "Знижка балами, грн"
+msgstr ""
+
+#: apps/commerce/models.py:104 templates/accounts/order_detail.html:43
+#: templates/commerce/checkout.html:120 templates/commerce/thanks.html:42
+msgid "До сплати"
+msgstr ""
+
+#: apps/commerce/models.py:106
+msgid "Реквізити"
+msgstr ""
+
+#: apps/commerce/models.py:107
+msgid "Коментар клієнта"
+msgstr ""
+
+#: apps/commerce/models.py:108
+msgid "Згода на обробку даних"
+msgstr ""
+
+#: apps/commerce/models.py:109
+msgid "Мова"
+msgstr ""
+
+#: apps/commerce/models.py:112 apps/commerce/models.py:113
+#: apps/commerce/models.py:133 apps/commerce/models.py:173
+#: apps/loyalty/models.py:73 templates/accounts/_nav.html:4
+#: templates/accounts/order_detail.html:4
+#: templates/accounts/order_detail.html:8
+msgid "Замовлення"
+msgstr ""
+
+#: apps/commerce/models.py:145
+msgid "Ціна за одиницю"
+msgstr ""
+
+#: apps/commerce/models.py:147
+msgid "Закупівельна за одиницю"
+msgstr ""
+
+#: apps/commerce/models.py:149
+msgid "Джерело ціни"
+msgstr ""
+
+#: apps/commerce/models.py:151 templates/accounts/order_detail.html:25
+#: templates/commerce/_requisites.html:72
+#: templates/commerce/_requisites.html:73 templates/commerce/checkout.html:99
+#: templates/commerce/thanks.html:24
+msgid "Сума"
+msgstr ""
+
+#: apps/commerce/models.py:154
+msgid "Позиція замовлення"
+msgstr ""
+
+#: apps/commerce/models.py:155
+msgid "Позиції замовлення"
+msgstr ""
+
+#: apps/commerce/models.py:175
+msgid "Було"
+msgstr ""
+
+#: apps/commerce/models.py:176
+msgid "Стало"
+msgstr ""
+
+#: apps/commerce/models.py:182
+msgid "Хто змінив"
+msgstr ""
+
+#: apps/commerce/models.py:186
+msgid "Історія статусу"
+msgstr ""
+
+#: apps/commerce/models.py:187
+msgid "Історія статусів"
+msgstr ""
+
+#: apps/commerce/services.py:53
+msgid "Товару немає в наявності."
+msgstr ""
+
+#: apps/commerce/services.py:58
+msgid "Недостатньо товару на складі."
+msgstr ""
+
+#: apps/commerce/services.py:131 apps/commerce/views.py:116
+#: templates/commerce/_cart_popup.html:27 templates/commerce/cart.html:78
+#: templates/components/cart_popup.html:15
+msgid "Кошик порожній."
+msgstr ""
+
+#: apps/commerce/services.py:144 apps/commerce/services.py:190
+msgid "Недостатньо товару на складі. Оновіть кошик."
+msgstr ""
+
+#: apps/commerce/urls.py:9
+msgctxt "url"
+msgid "cart/"
+msgstr ""
+
+#: apps/commerce/urls.py:13
+msgctxt "url"
+msgid "checkout/"
+msgstr ""
+
+#: apps/commerce/urls.py:14
+msgctxt "url"
+msgid "thanks/<str:number>/"
+msgstr ""
+
+#: apps/commerce/views.py:71
+msgid "Товар додано до кошика."
+msgstr ""
+
+#: apps/content/models.py:10
+msgid "Назва сайту"
+msgstr ""
+
+#: apps/content/models.py:11
+msgid "Логотип"
+msgstr ""
+
+#: apps/content/models.py:12
+msgid "Акцентний колір (HEX)"
+msgstr ""
+
+#: apps/content/models.py:16
+msgid "Email менеджера (чат, замовлення)"
+msgstr ""
+
+#: apps/content/models.py:17
+msgid "Viber"
+msgstr ""
+
+#: apps/content/models.py:18
+msgid "Telegram"
+msgstr ""
+
+#: apps/content/models.py:19
+msgid "WhatsApp"
+msgstr ""
+
+#: apps/content/models.py:20
+msgid "Instagram"
+msgstr ""
+
+#: apps/content/models.py:21
+msgid "Графік роботи (укр)"
+msgstr ""
+
+#: apps/content/models.py:22
+msgid "Графік роботи (рос)"
+msgstr ""
+
+#: apps/content/models.py:24
+msgid "Показувати промо-смугу"
+msgstr ""
+
+#: apps/content/models.py:25
+msgid "Промо-текст (укр)"
+msgstr ""
+
+#: apps/content/models.py:26
+msgid "Промо-текст (рос)"
+msgstr ""
+
+#: apps/content/models.py:28 templates/commerce/_requisites.html:8
+#: templates/commerce/_requisites.html:9
+msgid "Отримувач"
+msgstr ""
+
+#: apps/content/models.py:29 templates/commerce/_requisites.html:34
+msgid "ІПН / ЄДРПОУ"
+msgstr ""
+
+#: apps/content/models.py:30
+msgid "IBAN"
+msgstr ""
+
+#: apps/content/models.py:31 templates/commerce/_requisites.html:47
+#: templates/commerce/_requisites.html:48
+msgid "Банк"
+msgstr ""
+
+#: apps/content/models.py:33 templates/commerce/_requisites.html:60
+msgid "Призначення платежу"
+msgstr ""
+
+#: apps/content/models.py:37
+#, python-brace-format
+msgid "Доступний плейсхолдер {order_number}."
+msgstr ""
+
+#: apps/content/models.py:41 apps/content/models.py:42
+msgid "Налаштування сайту"
+msgstr ""
+
+#: apps/content/models.py:72 apps/content/models.py:104
+msgid "Заголовок (укр)"
+msgstr ""
+
+#: apps/content/models.py:73 apps/content/models.py:105
+msgid "Заголовок (рос)"
+msgstr ""
+
+#: apps/content/models.py:74
+msgid "Текст (укр)"
+msgstr ""
+
+#: apps/content/models.py:75
+msgid "Текст (рос)"
+msgstr ""
+
+#: apps/content/models.py:76
+msgid "Текст для косметологів (укр)"
+msgstr ""
+
+#: apps/content/models.py:77
+msgid "Текст для косметологів (рос)"
+msgstr ""
+
+#: apps/content/models.py:80
+msgid "Сторінка"
+msgstr ""
+
+#: apps/content/models.py:81 templates/catalog/catalog.html:66
+msgid "Сторінки"
+msgstr ""
+
+#: apps/content/models.py:106
+msgid "Підзаголовок (укр)"
+msgstr ""
+
+#: apps/content/models.py:107
+msgid "Підзаголовок (рос)"
+msgstr ""
+
+#: apps/content/models.py:108
+msgid "Зображення (десктоп)"
+msgstr ""
+
+#: apps/content/models.py:109
+msgid "Зображення (мобільне)"
+msgstr ""
+
+#: apps/content/models.py:110
+msgid "Кнопка (укр)"
+msgstr ""
+
+#: apps/content/models.py:111
+msgid "Кнопка (рос)"
+msgstr ""
+
+#: apps/content/models.py:112
+msgid "Посилання кнопки"
+msgstr ""
+
+#: apps/content/models.py:115
+msgid "Банер"
+msgstr ""
+
+#: apps/content/models.py:116
+msgid "Банери"
+msgstr ""
+
+#: apps/core/models.py:6
+msgid "Створено"
+msgstr ""
+
+#: apps/core/models.py:7
+msgid "Оновлено"
+msgstr ""
+
+#: apps/core/models.py:14
+msgid "SEO Title (укр)"
+msgstr ""
+
+#: apps/core/models.py:15
+msgid "SEO Title (рос)"
+msgstr ""
+
+#: apps/core/models.py:16
+msgid "SEO Description (укр)"
+msgstr ""
+
+#: apps/core/models.py:17
+msgid "SEO Description (рос)"
+msgstr ""
+
+#: apps/core/models.py:24
+msgid "Показувати на сайті"
+msgstr ""
+
+#: apps/core/models.py:25
+msgid "Порядок"
+msgstr ""
+
+#: apps/loyalty/models.py:12
+msgid "Програма увімкнена"
+msgstr ""
+
+#: apps/loyalty/models.py:14
+msgid "Балів за 1 грн"
+msgstr ""
+
+#: apps/loyalty/models.py:18
+msgid "0.05 = 5 балів за кожні 100 грн."
+msgstr ""
+
+#: apps/loyalty/models.py:21
+msgid "Грн за 1 бал"
+msgstr ""
+
+#: apps/loyalty/models.py:24
+msgid "Максимум списання, % від суми"
+msgstr ""
+
+#: apps/loyalty/models.py:30
+msgid "Нараховувати косметологам"
+msgstr ""
+
+#: apps/loyalty/models.py:33 apps/loyalty/models.py:34
+msgid "Програма лояльності"
+msgstr ""
+
+#: apps/loyalty/models.py:47
+msgid "Баланс балів"
+msgstr ""
+
+#: apps/loyalty/models.py:50
+msgid "Бонусний рахунок"
+msgstr ""
+
+#: apps/loyalty/models.py:51
+msgid "Бонусні рахунки"
+msgstr ""
+
+#: apps/loyalty/models.py:58
+msgid "Нарахування"
+msgstr ""
+
+#: apps/loyalty/models.py:59
+msgid "Списання"
+msgstr ""
+
+#: apps/loyalty/models.py:60
+msgid "Ручна операція"
+msgstr ""
+
+#: apps/loyalty/models.py:65
+msgid "Рахунок"
+msgstr ""
+
+#: apps/loyalty/models.py:75
+msgid "Тип"
+msgstr ""
+
+#: apps/loyalty/models.py:76
+msgid "Бали"
+msgstr ""
+
+#: apps/loyalty/models.py:76
+msgid "Плюс — нарахування, мінус — списання."
+msgstr ""
+
+#: apps/loyalty/models.py:77
+msgid "Баланс після"
+msgstr ""
+
+#: apps/loyalty/models.py:81
+msgid "Бонусна операція"
+msgstr ""
+
+#: apps/loyalty/models.py:82
+msgid "Бонусні операції"
+msgstr ""
+
+#: apps/payments/services.py:23
+msgid ""
+"Реквізити надішлемо після оформлення — їх можна скопіювати одним натисканням."
+msgstr ""
+
+#: apps/payments/services.py:30
+msgid "Картка онлайн"
+msgstr ""
+
+#: apps/payments/services.py:31
+msgid "Оплата карткою через LiqPay."
+msgstr ""
+
+#: apps/pricing/models.py:9
+msgid "До копійки"
+msgstr ""
+
+#: apps/pricing/models.py:10
+msgid "До гривні"
+msgstr ""
+
+#: apps/pricing/models.py:11
+msgid "До 5 грн"
+msgstr ""
+
+#: apps/pricing/models.py:12
+msgid "До 10 грн"
+msgstr ""
+
+#: apps/pricing/models.py:17
+msgid "Націнка роздріб, %"
+msgstr ""
+
+#: apps/pricing/models.py:22
+msgid "Роздрібна ціна = закупівельна + ця націнка."
+msgstr ""
+
+#: apps/pricing/models.py:25
+msgid "Націнка для косметологів, %"
+msgstr ""
+
+#: apps/pricing/models.py:30
+msgid "Ціна для косметологів = закупівельна + ця націнка."
+msgstr ""
+
+#: apps/pricing/models.py:33
+msgid "Округлення цін"
+msgstr ""
+
+#: apps/pricing/models.py:39
+msgid "Мінімальне замовлення для косметологів, грн"
+msgstr ""
+
+#: apps/pricing/models.py:45
+msgid "Умови доставки для косметологів (укр)"
+msgstr ""
+
+#: apps/pricing/models.py:46
+msgid "Умови доставки для косметологів (рос)"
+msgstr ""
+
+#: apps/pricing/models.py:47
+msgid "Умови доставки роздріб (укр)"
+msgstr ""
+
+#: apps/pricing/models.py:48
+msgid "Умови доставки роздріб (рос)"
+msgstr ""
+
+#: apps/pricing/models.py:50
+msgid "Безкоштовна доставка від, грн"
+msgstr ""
+
+#: apps/pricing/models.py:53
+msgid "Безкоштовна доставка для косметологів від, грн"
+msgstr ""
+
+#: apps/pricing/models.py:61 apps/pricing/models.py:62
+msgid "Ціни та умови"
+msgstr ""
+
+#: apps/shipping/models.py:9
+msgid "API-ключ Нової Пошти"
+msgstr ""
+
+#: apps/shipping/models.py:12
+msgid "Без ключа працює тестовий довідник міст і відділень."
+msgstr ""
+
+#: apps/shipping/models.py:14
+msgid "Примусово тестові дані"
+msgstr ""
+
+#: apps/shipping/models.py:17 apps/shipping/models.py:18
+#: templates/accounts/order_detail.html:50
+msgid "Доставка"
+msgstr ""
+
+#: config/settings/base.py:90
+msgid "Українська"
+msgstr ""
+
+#: config/settings/base.py:90
+msgid "Русская"
+msgstr ""
+
+#: templates/accounts/_nav.html:2 templates/components/drawer.html:30
+#: templates/components/header.html:45
+msgid "Кабінет"
+msgstr ""
+
+#: templates/accounts/_nav.html:3
+msgid "Профіль"
+msgstr ""
+
+#: templates/accounts/_nav.html:5
+msgid "Бонуси"
+msgstr ""
+
+#: templates/accounts/_nav.html:7 templates/components/footer.html:38
+msgid "Косметологам"
+msgstr ""
+
+#: templates/accounts/_nav.html:9 templates/components/drawer.html:35
+msgid "Вийти"
+msgstr ""
+
+#: templates/accounts/cosmetologist.html:8
+msgid "Статус косметолога"
+msgstr ""
+
+#: templates/accounts/cosmetologist.html:16
+msgid ""
+"Заявку вже надіслано. Менеджер перевірить дані та надасть професійні ціни."
+msgstr ""
+
+#: templates/accounts/cosmetologist.html:21
+msgid ""
+"Заповніть форму — після підтвердження менеджером ви побачите професійні ціни "
+"та окремі умови доставки."
+msgstr ""
+
+#: templates/accounts/cosmetologist.html:31
+msgid "Надіслати заявку"
+msgstr ""
+
+#: templates/accounts/login.html:4 templates/accounts/login.html:9
+msgid "Вхід"
+msgstr ""
+
+#: templates/accounts/login.html:18 templates/accounts/register.html:41
+#: templates/components/drawer.html:37
+msgid "Увійти"
+msgstr ""
+
+#: templates/accounts/login.html:22
+msgid "Ще немає акаунта?"
+msgstr ""
+
+#: templates/accounts/login.html:22
+msgid "Зареєструватись"
+msgstr ""
+
+#: templates/accounts/loyalty.html:4 templates/accounts/loyalty.html:8
+#: templates/components/drawer.html:34
+msgid "Бонусні бали"
+msgstr ""
+
+#: templates/accounts/loyalty.html:16
+msgid "Доступно балів"
+msgstr ""
+
+#: templates/accounts/loyalty.html:21
+msgid "Історія операцій"
+msgstr ""
+
+#: templates/accounts/loyalty.html:35
+msgid "Операцій поки немає. Бали нараховуються після оформлення замовлення."
+msgstr ""
+
+#: templates/accounts/order_detail.html:24 templates/commerce/thanks.html:23
+msgid "К-сть"
+msgstr ""
+
+#: templates/accounts/orders.html:4 templates/accounts/orders.html:8
+#: templates/components/drawer.html:33
+msgid "Мої замовлення"
+msgstr ""
+
+#: templates/accounts/orders.html:33
+msgid "Деталі"
+msgstr ""
+
+#: templates/accounts/orders.html:39
+msgid "Замовлень поки немає."
+msgstr ""
+
+#: templates/accounts/orders.html:40 templates/commerce/cart.html:79
+#: templates/core/404.html:11 templates/core/home.html:24
+#: templates/core/home.html:34
+msgid "До каталогу"
+msgstr ""
+
+#: templates/accounts/profile.html:4 templates/accounts/profile.html:8
+msgid "Мій кабінет"
+msgstr ""
+
+#: templates/accounts/profile.html:17
+msgid "Замовлень"
+msgstr ""
+
+#: templates/accounts/profile.html:21
+msgid "Бонусних балів"
+msgstr ""
+
+#: templates/accounts/profile.html:28
+msgid "Заявка на розгляді"
+msgstr ""
+
+#: templates/accounts/profile.html:42
+msgid "Ваша заявка на статус косметолога розглядається менеджером."
+msgstr ""
+
+#: templates/accounts/profile.html:58
+msgid "Зберегти"
+msgstr ""
+
+#: templates/accounts/register.html:4 templates/accounts/register.html:9
+#: templates/components/drawer.html:38
+msgid "Реєстрація"
+msgstr ""
+
+#: templates/accounts/register.html:37
+msgid "Створити акаунт"
+msgstr ""
+
+#: templates/accounts/register.html:41
+msgid "Вже маєте акаунт?"
+msgstr ""
+
+#: templates/base.html:8 templates/base.html:23
+#: templates/components/footer.html:14
+msgid "Професійна косметика для домашнього та салонного догляду."
+msgstr ""
+
+#: templates/catalog/_filters.html:26
+msgid "Наявність"
+msgstr ""
+
+#: templates/catalog/_filters.html:29
+msgid "Тільки в наявності"
+msgstr ""
+
+#: templates/catalog/_filters.html:34
+msgid "Застосувати"
+msgstr ""
+
+#: templates/catalog/_filters.html:35
+msgid "Скинути"
+msgstr ""
+
+#: templates/catalog/_product_card.html:10 templates/catalog/product.html:81
+msgid "Хіт"
+msgstr ""
+
+#: templates/catalog/_product_card.html:12
+msgid "Немає"
+msgstr ""
+
+#: templates/catalog/_product_card.html:20
+#, python-format
+msgid "%(n)s обʼєм"
+msgid_plural "%(n)s обʼєми"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/catalog/_product_card.html:30 templates/commerce/cart.html:34
+msgid "ціна косметолога"
+msgstr ""
+
+#: templates/catalog/_product_card.html:45
+msgid "Купити"
+msgstr ""
+
+#: templates/catalog/_product_card.html:48 templates/catalog/product.html:80
+#: templates/catalog/product.html:137
+msgid "Немає в наявності"
+msgstr ""
+
+#: templates/catalog/_product_card.html:51
+msgid "Ціна за запитом"
+msgstr ""
+
+#: templates/catalog/catalog.html:5 templates/catalog/catalog.html:19
+#: templates/components/drawer.html:16 templates/components/header.html:20
+msgid "Пошук"
+msgstr ""
+
+#: templates/catalog/catalog.html:7 templates/catalog/catalog.html:15
+#: templates/catalog/catalog.html:21 templates/catalog/catalog.html:26
+#: templates/components/footer.html:23
+msgid "Каталог"
+msgstr ""
+
+#: templates/catalog/catalog.html:11 templates/catalog/product.html:46
+#: templates/content/page.html:8
+msgid "Навігація"
+msgstr ""
+
+#: templates/catalog/catalog.html:12 templates/catalog/product.html:12
+#: templates/catalog/product.html:47 templates/content/page.html:9
+msgid "Головна"
+msgstr ""
+
+#: templates/catalog/catalog.html:26
+msgid "Результати пошуку"
+msgstr ""
+
+#: templates/catalog/catalog.html:39
+#, python-format
+msgid "%(n)s товар"
+msgid_plural "%(n)s товарів"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/catalog/catalog.html:43 templates/catalog/catalog.html:93
+#: templates/catalog/catalog.html:95
+msgid "Фільтри"
+msgstr ""
+
+#: templates/catalog/catalog.html:52
+msgid "Сортування"
+msgstr ""
+
+#: templates/catalog/catalog.html:53
+msgid "Популярні"
+msgstr ""
+
+#: templates/catalog/catalog.html:54 templates/core/home.html:73
+msgid "Новинки"
+msgstr ""
+
+#: templates/catalog/catalog.html:55
+msgid "За назвою"
+msgstr ""
+
+#: templates/catalog/catalog.html:84
+msgid "За вашим запитом нічого не знайдено."
+msgstr ""
+
+#: templates/catalog/catalog.html:85
+msgid "Товарів у цій категорії поки немає."
+msgstr ""
+
+#: templates/catalog/catalog.html:96 templates/components/cart_popup.html:7
+#: templates/components/chat.html:13 templates/components/drawer.html:7
+msgid "Закрити"
+msgstr ""
+
+#: templates/catalog/product.html:80
+msgid "В наявності"
+msgstr ""
+
+#: templates/catalog/product.html:122
+msgid "Для вас діє професійна ціна косметолога."
+msgstr ""
+
+#: templates/catalog/product.html:125
+msgid "Косметологам — окремі ціни."
+msgstr ""
+
+#: templates/catalog/product.html:126 templates/core/home.html:86
+msgid "Подати заявку"
+msgstr ""
+
+#: templates/catalog/product.html:132 templates/commerce/cart.html:26
+msgid "Менше"
+msgstr ""
+
+#: templates/catalog/product.html:134 templates/commerce/cart.html:29
+msgid "Більше"
+msgstr ""
+
+#: templates/catalog/product.html:137
+msgid "Додати в кошик"
+msgstr ""
+
+#: templates/catalog/product.html:141
+msgid "Товар тимчасово недоступний."
+msgstr ""
+
+#: templates/catalog/product.html:147
+msgid "Опис"
+msgstr ""
+
+#: templates/catalog/product.html:149
+msgid "Склад"
+msgstr ""
+
+#: templates/catalog/product.html:151 templates/components/drawer.html:43
+#: templates/components/footer.html:35
+msgid "Доставка і оплата"
+msgstr ""
+
+#: templates/catalog/product.html:160
+msgid "Доставка Новою Поштою по всій Україні. Оплата переказом на рахунок ФОП."
+msgstr ""
+
+#: templates/catalog/product.html:161
+msgid "Докладніше"
+msgstr ""
+
+#: templates/catalog/product.html:170
+msgid "Схожі товари"
+msgstr ""
+
+#: templates/commerce/_cart_popup.html:12
+msgid "шт"
+msgstr ""
+
+#: templates/commerce/_cart_popup.html:13 templates/commerce/cart.html:37
+msgid "Видалити"
+msgstr ""
+
+#: templates/commerce/_cart_popup.html:20 templates/commerce/cart.html:56
+msgid "Разом"
+msgstr ""
+
+#: templates/commerce/_cart_popup.html:24 templates/commerce/cart.html:51
+msgid "Ваша вигода"
+msgstr ""
+
+#: templates/commerce/_requisites.html:3
+msgid "Реквізити для оплати"
+msgstr ""
+
+#: templates/commerce/_requisites.html:12
+msgid "Отримувача скопійовано"
+msgstr ""
+
+#: templates/commerce/_requisites.html:12
+#: templates/commerce/_requisites.html:51
+#: templates/commerce/_requisites.html:64
+msgid "Копіювати"
+msgstr ""
+
+#: templates/commerce/_requisites.html:25
+msgid "IBAN скопійовано"
+msgstr ""
+
+#: templates/commerce/_requisites.html:25
+msgid "Копіювати IBAN"
+msgstr ""
+
+#: templates/commerce/_requisites.html:35
+msgid "ІПН"
+msgstr ""
+
+#: templates/commerce/_requisites.html:38
+msgid "ІПН скопійовано"
+msgstr ""
+
+#: templates/commerce/_requisites.html:38
+msgid "Копіювати ІПН"
+msgstr ""
+
+#: templates/commerce/_requisites.html:51
+msgid "Банк скопійовано"
+msgstr ""
+
+#: templates/commerce/_requisites.html:61
+msgid "Призначення"
+msgstr ""
+
+#: templates/commerce/_requisites.html:64
+msgid "Призначення скопійовано"
+msgstr ""
+
+#: templates/commerce/_requisites.html:76
+msgid "Суму скопійовано"
+msgstr ""
+
+#: templates/commerce/_requisites.html:76
+msgid "Копіювати суму"
+msgstr ""
+
+#: templates/commerce/_requisites.html:82
+msgid "Усі реквізити скопійовано"
+msgstr ""
+
+#: templates/commerce/_requisites.html:83
+msgid "Скопіювати всі реквізити"
+msgstr ""
+
+#: templates/commerce/cart.html:46
+msgid "Товарів"
+msgstr ""
+
+#: templates/commerce/cart.html:62
+#, python-format
+msgid "Мінімальна сума замовлення — %(min_order)s ₴"
+msgstr ""
+
+#: templates/commerce/cart.html:65 templates/components/cart_popup.html:20
+msgid "Оформити замовлення"
+msgstr ""
+
+#: templates/commerce/cart.html:68 templates/commerce/thanks.html:55
+msgid "Продовжити покупки"
+msgstr ""
+
+#: templates/commerce/cart.html:71
+#, python-format
+msgid "Безкоштовна доставка від %(free_delivery_from)s ₴"
+msgstr ""
+
+#: templates/commerce/checkout.html:4 templates/commerce/checkout.html:8
+msgid "Оформлення замовлення"
+msgstr ""
+
+#: templates/commerce/checkout.html:19
+msgid "Контактні дані"
+msgstr ""
+
+#: templates/commerce/checkout.html:31 templates/core/home.html:98
+msgid "Доставка Новою Поштою"
+msgstr ""
+
+#: templates/commerce/checkout.html:38
+msgid "Почніть вводити місто"
+msgstr ""
+
+#: templates/commerce/checkout.html:50
+msgid "Спочатку оберіть місто"
+msgstr ""
+
+#: templates/commerce/checkout.html:75
+msgid "Додатково"
+msgstr ""
+
+#: templates/commerce/checkout.html:82
+msgid "Погоджуюсь на обробку персональних даних згідно з"
+msgstr ""
+
+#: templates/commerce/checkout.html:83
+msgid "політикою конфіденційності"
+msgstr ""
+
+#: templates/commerce/checkout.html:106
+#, python-format
+msgid "На рахунку: %(loyalty_balance)s балів. Можна списати до %(max_points)s."
+msgstr ""
+
+#: templates/commerce/checkout.html:124
+msgid "Підтвердити замовлення"
+msgstr ""
+
+#: templates/commerce/checkout.html:125
+msgid ""
+"Після оформлення ви побачите реквізити для оплати — їх можна скопіювати "
+"одним натисканням."
+msgstr ""
+
+#: templates/commerce/thanks.html:4
+msgid "Замовлення прийнято"
+msgstr ""
+
+#: templates/commerce/thanks.html:15
+msgid "Дякуємо за замовлення!"
+msgstr ""
+
+#: templates/commerce/thanks.html:17
+msgid "Менеджер звʼяжеться з вами найближчим часом для підтвердження."
+msgstr ""
+
+#: templates/commerce/thanks.html:51
+msgid "Перейдіть до оплати карткою."
+msgstr ""
+
+#: templates/components/cart_popup.html:19
+msgid "Перейти в кошик"
+msgstr ""
+
+#: templates/components/chat.html:5
+msgid "Не вдалось надіслати. Спробуйте ще раз."
+msgstr ""
+
+#: templates/components/chat.html:7 templates/components/chat.html:57
+msgid "Чат з менеджером"
+msgstr ""
+
+#: templates/components/chat.html:10
+msgid "Онлайн-консультант"
+msgstr ""
+
+#: templates/components/chat.html:11
+msgid "Відповідаємо у робочі години"
+msgstr ""
+
+#: templates/components/chat.html:21
+msgid "Вітаємо! Напишіть питання — менеджер відповість найближчим часом."
+msgstr ""
+
+#: templates/components/chat.html:34
+msgid "Ваше імʼя"
+msgstr ""
+
+#: templates/components/chat.html:45
+msgid "Ваше повідомлення"
+msgstr ""
+
+#: templates/components/chat.html:48
+msgid "Надіслати"
+msgstr ""
+
+#: templates/components/drawer.html:4 templates/components/drawer.html:6
+#: templates/components/header.html:10
+msgid "Меню"
+msgstr ""
+
+#: templates/components/drawer.html:17 templates/components/header.html:21
+msgid "Знайти"
+msgstr ""
+
+#: templates/components/drawer.html:25 templates/components/header.html:65
+#: templates/core/home.html:42
+msgid "Усі товари"
+msgstr ""
+
+#: templates/components/drawer.html:32
+msgid "Мій профіль"
+msgstr ""
+
+#: templates/components/drawer.html:41
+msgid "Інформація"
+msgstr ""
+
+#: templates/components/drawer.html:42 templates/components/footer.html:34
+msgid "Про нас"
+msgstr ""
+
+#: templates/components/drawer.html:44 templates/components/footer.html:36
+msgid "Публічна оферта"
+msgstr ""
+
+#: templates/components/footer.html:32
+msgid "Покупцям"
+msgstr ""
+
+#: templates/components/footer.html:37
+msgid "Політика конфіденційності"
+msgstr ""
+
+#: templates/components/footer.html:43
+msgid "Контакти"
+msgstr ""
+
+#: templates/components/footer.html:48
+msgid "Контакти і реквізити"
+msgstr ""
+
+#: templates/components/footer.html:56
+msgid "Усі права захищено"
+msgstr ""
+
+#: templates/components/footer.html:55
+msgid "Розробка сайту"
+msgstr "Розробка сайту"
+
+#: templates/components/header.html:19
+msgid "Пошук за назвою або артикулом"
+msgstr ""
+
+#: templates/content/page.html:25
+msgid "Ваші умови доставки"
+msgstr ""
+
+#: templates/core/404.html:8
+msgid "Сторінку не знайдено"
+msgstr ""
+
+#: templates/core/404.html:9
+msgid "Можливо, посилання застаріло або товар більше не продається."
+msgstr ""
+
+#: templates/core/home.html:4
+msgid "професійна косметика"
+msgstr ""
+
+#: templates/core/home.html:32
+msgid "Професійний догляд за шкірою"
+msgstr ""
+
+#: templates/core/home.html:33
+msgid ""
+"Пілінги, сироватки, креми та SPF для домашнього і салонного застосування."
+msgstr ""
+
+#: templates/core/home.html:61
+msgid "Хіти продажів"
+msgstr ""
+
+#: templates/core/home.html:62
+msgid "Дивитись усі"
+msgstr ""
+
+#: templates/core/home.html:84
+msgid "Ви косметолог?"
+msgstr ""
+
+#: templates/core/home.html:85
+msgid ""
+"Отримайте професійні ціни та окремі умови доставки. Надішліть заявку — "
+"менеджер підтвердить статус."
+msgstr ""
+
+#: templates/core/home.html:94
+msgid "Оригінальна продукція"
+msgstr ""
+
+#: templates/core/home.html:95
+msgid "Працюємо напряму з виробником."
+msgstr ""
+
+#: templates/core/home.html:99
+msgid "Відділення та поштомати по всій Україні."
+msgstr ""
+
+#: templates/core/home.html:102
+msgid "Бонусна програма"
+msgstr ""
+
+#: templates/core/home.html:103
+msgid "Накопичуйте бали та оплачуйте ними покупки."
+msgstr ""
+
+#: templates/core/home.html:106
+msgid "Консультація"
+msgstr ""
+
+#: templates/core/home.html:107
+msgid "Допоможемо підібрати догляд у чаті."
+msgstr ""

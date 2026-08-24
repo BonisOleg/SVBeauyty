@@ -1,0 +1,5 @@
+{% load i18n %}
+<div id="cart-popup-body" hx-swap-oob="innerHTML">
+  {% include "commerce/_cart_popup.html" %}
+</div>
+<span id="cart-count" class="icon-btn__badge" data-cart-count hx-swap-oob="outerHTML" {% if summary.count == 0 %}hidden{% endif %}>{{ summary.count }}</span>

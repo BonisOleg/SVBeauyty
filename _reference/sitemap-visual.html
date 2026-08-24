@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Карта сайту — SVbeauty</title>
+  <link rel="stylesheet" href="sitemap-visual.css">
+</head>
+
+<body>
+  <header class="doc-bar">
+    <h1>Карта сайту SVbeauty</h1>
+    <p>v1.0 · Договір № 0508202602 · ТЗ + зауваження 19.08.2026 · українська</p>
+  </header>
+
+  <p class="lead">
+    Інтернет-магазин косметики <strong>SVbeauty</strong> (ФОП Добчанська С. В.).
+    Вітрина за логікою Makeup: білий простір, логотип по центру шапки, повноекранний банер,
+    круги категорій, сітка карток. Кольори — бірюза логотипа та @cure_skin_gc.
+  </p>
+
+  <h2>1. Вигляд і бренд</h2>
+  <article class="card card--wide">
+    <p>
+      Без окремого Figma-макета (ТЗ §2.7): композиція як у Makeup, акценти з логотипа SVbeauty
+      та стрічки Instagram Cure Skin (м’ята, бірюза, білий, темний teal).
+      Кнопки «Купити / Детальніше» — темна бірюза на білому, не чорний Makeup 1:1.
+    </p>
+    <p class="swatch">
+      <span style="color:#20847C">#20847C акцент</span>
+      <span style="color:#15605D">#15605D шапка</span>
+      <span style="color:#9DE7DD">#9DE7DD м’ята</span>
+      <span style="color:#EFF9F8">#EFF9F8 фон</span>
+      <span style="color:#073835">#073835 текст</span>
+    </p>
+  </article>
+
+  <h2>2. Головна</h2>
+  <article class="card card--wide">
+    <ol class="flow">
+      <li>Верхня смуга (промо / доставка) — текст з адмінки.</li>
+      <li>Шапка як Makeup: меню каталогу, пошук, логотип SVbeauty по центру, кошик. При скролі лишається на екрані. Без кабінету покупця.</li>
+      <li>Банер на всю ширину: фото + заголовок + кнопка в каталог.</li>
+      <li>Ряд круглих ярликів категорій (фото в колі + підпис).</li>
+      <li>Блоки «Хіти продажу» та «Новинки» — товари з бази, позначки з адмінки.</li>
+      <li>Підвал: каталог, інфосторінки, контакти, соцмережі, іконки оплати.</li>
+      <li>Плаваюча кнопка чату справа внизу (окремий розділ 5).</li>
+    </ol>
+  </article>
+
+  <h2>3. Каталог і товар</h2>
+  <div class="card-grid card-grid--cols-2">
+    <article class="card">
+      <h3>Каталог / категорія</h3>
+      <p>Сітка карток, крихти, фільтри, сортування, «Показати ще». Фільтри зберігають обране. Приклад рубрик (з Instagram бренду): очищення, тоніки, пілінги, SPF, сироватки, очі, креми — фінальний список дає Замовник в адмінці.</p>
+    </article>
+    <article class="card">
+      <h3>Картка товару</h3>
+      <p>Галерея, назва, артикул, наявність, ціна, характеристики, опис, «До кошика». Модифікація (об’єм / варіант) змінює ціну й артикул.</p>
+    </article>
+    <article class="card">
+      <h3>Пошук</h3>
+      <p>З шапки: назва або артикул. Список або «Нічого не знайдено».</p>
+    </article>
+    <article class="card">
+      <h3>Картка в сітці</h3>
+      <p>Фото на білому, бейдж хіт/новинка, назва, ціна, швидке «До кошика». Як Makeup, без підкреслення назви при наведенні.</p>
+    </article>
+  </div>
+
+  <h2>4. Покупка</h2>
+  <div class="card-grid card-grid--cols-2">
+    <article class="card">
+      <h3>Кошик</h3>
+      <p>Popup і сторінка. Мініатюра, варіант, кількість +/−, видалення, сума одразу. Порожній стан — кнопка в каталог.</p>
+    </article>
+    <article class="card">
+      <h3>Оформлення</h3>
+      <p>Без реєстрації. ПІБ, телефон, email, доставка (1 сервіс, за замовчуванням Нова Пошта: місто / відділення), 1 каса на вибір Замовника, згода GDPR.</p>
+    </article>
+    <article class="card">
+      <h3>Дякуємо</h3>
+      <p>Після успішної оплати. Помилка — «Очікує оплати». Замовлення в адмінці, лист клієнту й менеджеру.</p>
+    </article>
+    <article class="card">
+      <h3>Не в цьому договорі</h3>
+      <p>Кабінет, реєстрація, лояльність, порівняння, ERP/CRM/1С, калькулятор доставки, друга мова — окрема угода (ТЗ §7.4, §5.3).</p>
+    </article>
+  </div>
+
+  <h2>5. Чат з покупцем</h2>
+  <article class="card card--wide">
+    <p>
+      Кругла кнопка «Написати» завжди на екрані. Відкривається діалог: стрічка повідомлень + одне поле тексту
+      (не форма «ім’я + телефон»). Повідомлення пишуться в базу. Покупець бачить свою історію в цьому браузері.
+      Менеджер читає й відповідає в адмінці. Форма на сторінках «Доставка» / «Про нас» лишається як запасний канал.
+    </p>
+  </article>
+
+  <h2>6. Інфо та меню</h2>
+  <div class="card-grid card-grid--cols-2">
+    <article class="card">
+      <h3>Сторінки</h3>
+      <p>Про нас, Доставка і оплата (форма зворотного зв’язку), оферта, політика. Тексти дає Замовник. До здачі — тимчасовий текст.</p>
+    </article>
+    <article class="card">
+      <h3>Меню</h3>
+      <p><strong>Зверху:</strong> каталог, пошук, логотип SVbeauty, кошик.<br>
+        <strong>Знизу:</strong> каталог, інфо, контакти, оферта, політика.<br>
+        Телефон / планшет / iOS Safari: липка шапка, кнопки ≥44px, відступи під смугу iPhone, без горизонтального скролу.</p>
+    </article>
+  </div>
+
+  <h2>7. Адмінка</h2>
+  <ul class="plain">
+    <li>Назва SVbeauty, логотип, контакти, соцмережі, HEX акценту — без переробки верстки.</li>
+    <li>Категорії, товари, фото, ціна, наявність, хіт / новинка. Зміни на вітрині до 1 хвилини.</li>
+    <li>Замовлення: Нове / В обробці / Відправлено / Виконано / Очікує оплати / Оплачено.</li>
+    <li>Діалоги чату: сесія, історія, відповідь менеджера.</li>
+    <li>Meta Title / Description / H1. Автоматичні sitemap.xml і robots.txt.</li>
+  </ul>
+
+  <h2>8. Адреси</h2>
+  <ul class="url-map">
+    <li class="url-map__item"><span>Головна</span><code>/</code></li>
+    <li class="url-map__item"><span>Каталог</span><code>/katalog/</code></li>
+    <li class="url-map__item"><span>Категорія</span><code>/katalog/&lt;slug&gt;/</code></li>
+    <li class="url-map__item"><span>Товар</span><code>/tovar/&lt;slug&gt;/</code></li>
+    <li class="url-map__item"><span>Пошук</span><code>/poshuk/</code></li>
+    <li class="url-map__item"><span>Кошик</span><code>/koshyk/</code></li>
+    <li class="url-map__item"><span>Оформлення</span><code>/oformlennya/</code></li>
+    <li class="url-map__item"><span>Дякуємо</span><code>/dyakuyemo/</code></li>
+    <li class="url-map__item"><span>Про нас</span><code>/pro-nas/</code></li>
+    <li class="url-map__item"><span>Доставка і оплата</span><code>/dostavka-i-oplata/</code></li>
+    <li class="url-map__item"><span>Оферта</span><code>/oferta/</code></li>
+    <li class="url-map__item"><span>Політика</span><code>/polityka-konfidentsiinosti/</code></li>
+    <li class="url-map__item"><span>SEO-файли</span><code>/sitemap.xml</code> <code>/robots.txt</code></li>
+  </ul>
+
+  <p class="foot">
+    Стек: HTML, CSS, JS, HTMX, Django. Тестовий каталог 15–20 товарів. Хостинг і домен — Замовника.
+    Строк за договором: 30 календарних днів після авансу й матеріалів.
+  </p>
+</body>
+
+</html>

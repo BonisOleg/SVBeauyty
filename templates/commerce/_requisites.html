@@ -1,0 +1,85 @@
+{% load i18n %}
+<div class="requisites" data-copy-scope>
+  <p class="footer__title">{% translate "Реквізити для оплати" %}</p>
+
+  {% if bank_details.recipient %}
+    <div class="requisite">
+      <span>
+        <span class="requisite__label">{% translate "Отримувач" %}</span>
+        <span class="requisite__value" data-copy-line="{% translate 'Отримувач' %}">{{ bank_details.recipient }}</span>
+      </span>
+      <button type="button" class="requisite__copy" data-copy="{{ bank_details.recipient }}"
+              data-copy-done="{% translate 'Отримувача скопійовано' %}" aria-label="{% translate 'Копіювати' %}">
+        {% include "components/_copy_icon.html" %}
+      </button>
+    </div>
+  {% endif %}
+
+  {% if bank_details.iban %}
+    <div class="requisite">
+      <span>
+        <span class="requisite__label">IBAN</span>
+        <span class="requisite__value" data-copy-line="IBAN">{{ bank_details.iban }}</span>
+      </span>
+      <button type="button" class="requisite__copy" data-copy="{{ bank_details.iban }}"
+              data-copy-done="{% translate 'IBAN скопійовано' %}" aria-label="{% translate 'Копіювати IBAN' %}">
+        {% include "components/_copy_icon.html" %}
+      </button>
+    </div>
+  {% endif %}
+
+  {% if bank_details.tax_id %}
+    <div class="requisite">
+      <span>
+        <span class="requisite__label">{% translate "ІПН / ЄДРПОУ" %}</span>
+        <span class="requisite__value" data-copy-line="{% translate 'ІПН' %}">{{ bank_details.tax_id }}</span>
+      </span>
+      <button type="button" class="requisite__copy" data-copy="{{ bank_details.tax_id }}"
+              data-copy-done="{% translate 'ІПН скопійовано' %}" aria-label="{% translate 'Копіювати ІПН' %}">
+        {% include "components/_copy_icon.html" %}
+      </button>
+    </div>
+  {% endif %}
+
+  {% if bank_details.bank %}
+    <div class="requisite">
+      <span>
+        <span class="requisite__label">{% translate "Банк" %}</span>
+        <span class="requisite__value" data-copy-line="{% translate 'Банк' %}">{{ bank_details.bank }}</span>
+      </span>
+      <button type="button" class="requisite__copy" data-copy="{{ bank_details.bank }}"
+              data-copy-done="{% translate 'Банк скопійовано' %}" aria-label="{% translate 'Копіювати' %}">
+        {% include "components/_copy_icon.html" %}
+      </button>
+    </div>
+  {% endif %}
+
+  {% if bank_details.purpose %}
+    <div class="requisite">
+      <span>
+        <span class="requisite__label">{% translate "Призначення платежу" %}</span>
+        <span class="requisite__value" data-copy-line="{% translate 'Призначення' %}">{{ bank_details.purpose }}</span>
+      </span>
+      <button type="button" class="requisite__copy" data-copy="{{ bank_details.purpose }}"
+              data-copy-done="{% translate 'Призначення скопійовано' %}" aria-label="{% translate 'Копіювати' %}">
+        {% include "components/_copy_icon.html" %}
+      </button>
+    </div>
+  {% endif %}
+
+  <div class="requisite">
+    <span>
+      <span class="requisite__label">{% translate "Сума" %}</span>
+      <span class="requisite__value" data-copy-line="{% translate 'Сума' %}">{{ order.total_uah }}</span>
+    </span>
+    <button type="button" class="requisite__copy" data-copy="{{ order.total_uah }}"
+            data-copy-done="{% translate 'Суму скопійовано' %}" aria-label="{% translate 'Копіювати суму' %}">
+      {% include "components/_copy_icon.html" %}
+    </button>
+  </div>
+
+  <button type="button" class="btn btn--primary btn--block requisites__all" data-copy
+          data-copy-done="{% translate 'Усі реквізити скопійовано' %}">
+    {% translate "Скопіювати всі реквізити" %}
+  </button>
+</div>

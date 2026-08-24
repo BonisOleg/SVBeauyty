@@ -1,0 +1,47 @@
+{% load i18n %}
+<div class="drawer" data-drawer aria-hidden="true">
+  <div class="drawer__overlay" data-drawer-overlay></div>
+  <div class="drawer__panel" role="dialog" aria-modal="true" aria-label="{% translate 'Меню' %}">
+    <div class="drawer__head">
+      <span class="drawer__title">{% translate "Меню" %}</span>
+      <button type="button" class="icon-btn" data-drawer-close aria-label="{% translate 'Закрити' %}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <path d="M6 6l12 12M18 6 6 18" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="drawer__body">
+      <form class="search" action="{% url 'catalog:search' %}" method="get" role="search">
+        <input type="search" name="q" placeholder="{% translate 'Пошук' %}" aria-label="{% translate 'Пошук' %}">
+        <button type="submit" class="search__submit" aria-label="{% translate 'Знайти' %}">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </form>
+
+      <p class="drawer__section-title">{% translate "Категорії" %}</p>
+      <a class="drawer__link" href="{% url 'catalog:catalog' %}">{% translate "Усі товари" %}</a>
+      {% for category in menu_categories %}
+        <a class="drawer__link" href="{{ category.get_absolute_url }}">{{ category.name }}</a>
+      {% endfor %}
+
+      <p class="drawer__section-title">{% translate "Кабінет" %}</p>
+      {% if user.is_authenticated %}
+        <a class="drawer__link" href="{% url 'accounts:profile' %}">{% translate "Мій профіль" %}</a>
+        <a class="drawer__link" href="{% url 'accounts:orders' %}">{% translate "Мої замовлення" %}</a>
+        <a class="drawer__link" href="{% url 'accounts:loyalty' %}">{% translate "Бонусні бали" %}</a>
+        <a class="drawer__link" href="{% url 'accounts:logout' %}">{% translate "Вийти" %}</a>
+      {% else %}
+        <a class="drawer__link" href="{% url 'accounts:login' %}">{% translate "Увійти" %}</a>
+        <a class="drawer__link" href="{% url 'accounts:register' %}">{% translate "Реєстрація" %}</a>
+      {% endif %}
+
+      <p class="drawer__section-title">{% translate "Інформація" %}</p>
+      <a class="drawer__link" href="{% url 'content:page' 'pro-nas' %}">{% translate "Про нас" %}</a>
+      <a class="drawer__link" href="{% url 'content:page' 'dostavka-i-oplata' %}">{% translate "Доставка і оплата" %}</a>
+      <a class="drawer__link" href="{% url 'content:page' 'oferta' %}">{% translate "Публічна оферта" %}</a>
+    </div>
+  </div>
+</div>

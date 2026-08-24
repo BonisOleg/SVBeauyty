@@ -1,0 +1,11 @@
+{% load i18n %}
+<div class="chat__msg chat__msg--customer" data-msg-id="{{ message.id }}">
+  {{ message.text }}
+  <span class="chat__time">{{ message_time }}</span>
+</div>
+{% if auto_reply %}
+<div class="chat__msg chat__msg--manager">
+  {{ auto_reply }}
+  <span class="chat__time">{{ reply_time }}</span>
+</div>
+{% endif %}

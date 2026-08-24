@@ -1,0 +1,37 @@
+{% load i18n %}
+<form class="{{ wrapper_class }}" method="get">
+  {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
+  {% if current_sort %}<input type="hidden" name="sort" value="{{ current_sort }}">{% endif %}
+
+  <div class="filters__group">
+    <p class="filters__title">{% translate "Категорії" %}</p>
+    {% for item in categories %}
+      <a class="filters__option" href="{{ item.get_absolute_url }}">{{ item.name }}</a>
+    {% endfor %}
+  </div>
+
+  {% if brands %}
+    <div class="filters__group">
+      <p class="filters__title">{% translate "Бренд" %}</p>
+      {% for brand in brands %}
+        <label class="filters__option">
+          <input type="checkbox" name="brand" value="{{ brand.slug }}" {% if brand.slug in current_brands %}checked{% endif %}>
+          <span>{{ brand.name }}</span>
+        </label>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="filters__group">
+    <p class="filters__title">{% translate "Наявність" %}</p>
+    <label class="filters__option">
+      <input type="checkbox" name="in_stock" value="1" {% if request.GET.in_stock == '1' %}checked{% endif %}>
+      <span>{% translate "Тільки в наявності" %}</span>
+    </label>
+  </div>
+
+  <div class="filters__actions">
+    <button type="submit" class="btn btn--primary btn--block btn--sm">{% translate "Застосувати" %}</button>
+    <a href="{{ request.path }}" class="btn btn--outline btn--block btn--sm">{% translate "Скинути" %}</a>
+  </div>
+</form>

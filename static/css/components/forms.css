@@ -1,0 +1,192 @@
+.field {
+  display: grid;
+  gap: var(--sp-1);
+  margin-bottom: var(--sp-4);
+}
+
+.field__label {
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--c-head);
+}
+
+.field__label .req {
+  color: var(--c-sale);
+}
+
+/* 16px — щоб iOS Safari не зумив сторінку при фокусі */
+.field input[type="text"],
+.field input[type="email"],
+.field input[type="tel"],
+.field input[type="password"],
+.field input[type="number"],
+.field input[type="search"],
+.field select,
+.field textarea,
+.input {
+  width: 100%;
+  min-height: 46px;
+  padding: var(--sp-2) var(--sp-3);
+  font-size: 16px;
+  color: var(--c-ink);
+  background: var(--c-card);
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius-md);
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.field textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.field select {
+  background-image: linear-gradient(45deg, transparent 50%, var(--c-head) 50%),
+    linear-gradient(135deg, var(--c-head) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: var(--sp-6);
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--c-accent);
+  box-shadow: 0 0 0 3px rgba(32, 132, 124, 0.14);
+  outline: none;
+}
+
+.field__error {
+  font-size: var(--fs-xs);
+  color: var(--c-sale);
+}
+
+.field__hint {
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}
+
+.field--invalid input,
+.field--invalid select,
+.field--invalid textarea {
+  border-color: var(--c-sale);
+}
+
+.field--check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+}
+
+.field--check input[type="checkbox"],
+.field--check input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  flex-shrink: 0;
+  accent-color: var(--c-accent);
+}
+
+.field--check label {
+  font-size: var(--fs-sm);
+  line-height: 1.4;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0 var(--sp-4);
+}
+
+.form-note {
+  font-size: var(--fs-sm);
+  color: var(--c-muted);
+  margin-bottom: var(--sp-4);
+}
+
+.radio-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--sp-2);
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+}
+
+.radio-card:hover {
+  border-color: var(--c-accent-soft);
+}
+
+.radio-card input {
+  margin-top: 3px;
+  accent-color: var(--c-accent);
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.radio-card.is-active {
+  border-color: var(--c-accent);
+  background: var(--c-paper);
+}
+
+.radio-card__title {
+  font-weight: 500;
+}
+
+.radio-card__hint {
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}
+
+.autocomplete {
+  position: relative;
+}
+
+.autocomplete__list {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(100% + 4px);
+  z-index: var(--z-popup);
+  max-height: 260px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--c-card);
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.autocomplete__list:empty,
+.autocomplete__list[hidden] {
+  display: none;
+}
+
+.autocomplete__item {
+  width: 100%;
+  padding: var(--sp-3);
+  text-align: left;
+  font-size: var(--fs-sm);
+  border-bottom: 1px solid var(--c-line-soft);
+}
+
+.autocomplete__item:last-child {
+  border-bottom: none;
+}
+
+.autocomplete__item:hover,
+.autocomplete__item.is-active {
+  background: var(--c-paper);
+}
+
+@media (min-width: 600px) {
+  .form-grid--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Вхід" %} — {{ site_settings.site_name }}{% endblock %}
+{% block meta_extra %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+
+{% block content %}
+  <div class="auth-card">
+    <h1 class="page-title">{% translate "Вхід" %}</h1>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="message message--error">{{ form.non_field_errors }}</div>
+      {% endif %}
+      {% include "components/_field.html" with field=form.username %}
+      {% include "components/_field.html" with field=form.password %}
+      <button type="submit" class="btn btn--primary btn--block btn--lg">{% translate "Увійти" %}</button>
+    </form>
+
+    <p class="auth-card__foot">
+      {% translate "Ще немає акаунта?" %} <a href="{% url 'accounts:register' %}">{% translate "Зареєструватись" %}</a>
+    </p>
+  </div>
+{% endblock %}

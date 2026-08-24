@@ -1,0 +1,71 @@
+{% load static i18n %}
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <div class="footer__brand">
+          {% if site_settings.logo %}
+            <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}" width="52" height="52">
+          {% else %}
+            <img src="{% static 'images/logo.png' %}" alt="{{ site_settings.site_name }}" width="52" height="52">
+          {% endif %}
+          <span class="header__logo-text">{{ site_settings.site_name }}</span>
+        </div>
+        <p class="footer__list">{% translate "Професійна косметика для домашнього та салонного догляду." %}</p>
+        <div class="footer__socials">
+          {% if site_settings.instagram %}<a class="footer__social" href="{{ site_settings.instagram }}" target="_blank" rel="noopener">Instagram</a>{% endif %}
+          {% if site_settings.telegram %}<a class="footer__social" href="{{ site_settings.telegram }}" target="_blank" rel="noopener">Telegram</a>{% endif %}
+          {% if site_settings.viber %}<a class="footer__social" href="{{ site_settings.viber }}" target="_blank" rel="noopener">Viber</a>{% endif %}
+        </div>
+      </div>
+
+      <div>
+        <p class="footer__title">{% translate "Каталог" %}</p>
+        <ul class="footer__list">
+          {% for category in menu_categories %}
+            <li><a href="{{ category.get_absolute_url }}">{{ category.name }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div>
+        <p class="footer__title">{% translate "Покупцям" %}</p>
+        <ul class="footer__list">
+          <li><a href="{% url 'content:page' 'pro-nas' %}">{% translate "Про нас" %}</a></li>
+          <li><a href="{% url 'content:page' 'dostavka-i-oplata' %}">{% translate "Доставка і оплата" %}</a></li>
+          <li><a href="{% url 'content:page' 'oferta' %}">{% translate "Публічна оферта" %}</a></li>
+          <li><a href="{% url 'content:page' 'polityka-konfidentsiinosti' %}">{% translate "Політика конфіденційності" %}</a></li>
+          <li><a href="{% url 'accounts:cosmetologist' %}">{% translate "Косметологам" %}</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="footer__title">{% translate "Контакти" %}</p>
+        <ul class="footer__list">
+          {% if site_settings.phone %}<li><a href="tel:{{ site_settings.phone_href }}">{{ site_settings.phone }}</a></li>{% endif %}
+          {% if site_settings.email %}<li><a href="mailto:{{ site_settings.email }}">{{ site_settings.email }}</a></li>{% endif %}
+          {% if site_settings.work_hours %}<li>{{ site_settings.work_hours }}</li>{% endif %}
+          <li><a href="{% url 'content:page' 'kontakty' %}">{% translate "Контакти і реквізити" %}</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <span>&copy; {% now "Y" %} {{ site_settings.site_name }}</span>
+      <p class="footer__credit">
+        {% translate "Розробка сайту" %}
+        {% if request.resolver_match.url_name == "home" %}
+          <a
+            class="footer__credit-link"
+            href="https://www.prometeylabs.com/internet-shop-v2/"
+            target="_blank"
+            rel="nofollow noopener noreferrer"
+          ><span class="footer__credit-prometey">Prometey</span><span class="footer__credit-labs">Labs</span></a>
+        {% else %}
+          <span class="footer__credit-name"><span class="footer__credit-prometey">Prometey</span><span class="footer__credit-labs">Labs</span></span>
+        {% endif %}
+      </p>
+      <span>{% translate "Усі права захищено" %}</span>
+    </div>
+  </div>
+</footer>

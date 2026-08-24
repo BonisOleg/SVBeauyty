@@ -1,0 +1,54 @@
+{% load i18n catalog_tags %}
+<article class="card {% if not product.in_stock %}card--out{% endif %}">
+  <a href="{{ product.get_absolute_url }}" class="card__media" tabindex="-1" aria-hidden="true">
+    {% if product.main_image %}
+      <img src="{{ product.main_image.image.url }}" alt="{{ product.main_image.alt }}" loading="lazy" width="320" height="320">
+    {% else %}
+      <span class="card__media-empty">{{ product.brand.name }}</span>
+    {% endif %}
+    <span class="card__badges">
+      {% if product.is_hit %}<span class="badge badge--hit">{% translate "Хіт" %}</span>{% endif %}
+      {% if product.is_new %}<span class="badge badge--new">{% translate "Новинка" %}</span>{% endif %}
+      {% if not product.in_stock %}<span class="badge badge--out">{% translate "Немає" %}</span>{% endif %}
+    </span>
+  </a>
+
+  <p class="card__brand">{{ product.brand.name }}</p>
+  <a href="{{ product.get_absolute_url }}" class="card__name">{{ product.name }}</a>
+  {% if variant %}
+    <p class="card__volume">
+      {{ variant.volume }}{% if variants_count > 1 %} &middot; {% blocktranslate count n=variants_count %}{{ n }} обʼєм{% plural %}{{ n }} обʼєми{% endblocktranslate %}{% endif %}
+    </p>
+  {% endif %}
+
+  <div class="card__foot">
+    {% if price %}
+      <div class="price">
+        <span class="price__value">{{ price.amount|uah }} ₴</span>
+        {% if price.has_discount %}
+          <span class="price__old">{{ price.base_amount|uah }} ₴</span>
+          <span class="price__pro-note">{% translate "ціна косметолога" %}</span>
+        {% endif %}
+      </div>
+
+      {% if product.in_stock %}
+        <form method="post"
+              action="{% url 'commerce:cart_add' %}"
+              data-cart-add
+              data-qa="cart-add"
+              class="card__buy"
+              hx-post="{% url 'commerce:cart_add' %}"
+              hx-swap="none">
+          {% csrf_token %}
+          <input type="hidden" name="variant_id" value="{{ variant.id }}">
+          <input type="hidden" name="quantity" value="1">
+          <button type="submit" class="btn btn--primary btn--sm" data-qa="buy-btn">{% translate "Купити" %}</button>
+        </form>
+      {% else %}
+        <span class="card__stock">{% translate "Немає в наявності" %}</span>
+      {% endif %}
+    {% else %}
+      <span class="card__stock">{% translate "Ціна за запитом" %}</span>
+    {% endif %}
+  </div>
+</article>

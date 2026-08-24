@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Реєстрація" %} — {{ site_settings.site_name }}{% endblock %}
+{% block meta_extra %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+
+{% block content %}
+  <div class="auth-card">
+    <h1 class="page-title">{% translate "Реєстрація" %}</h1>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="message message--error">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <div class="form-grid form-grid--2">
+        {% include "components/_field.html" with field=form.first_name %}
+        {% include "components/_field.html" with field=form.last_name %}
+      </div>
+      {% include "components/_field.html" with field=form.email %}
+      {% include "components/_field.html" with field=form.phone %}
+      <div class="form-grid form-grid--2">
+        {% include "components/_field.html" with field=form.password1 %}
+        {% include "components/_field.html" with field=form.password2 %}
+      </div>
+
+      <div class="field field--check {% if form.gdpr_accepted.errors %}field--invalid{% endif %}">
+        <input type="checkbox" name="gdpr_accepted" id="{{ form.gdpr_accepted.id_for_label }}"
+               {% if form.gdpr_accepted.value %}checked{% endif %}>
+        <label for="{{ form.gdpr_accepted.id_for_label }}">
+          {% translate "Погоджуюсь на обробку персональних даних" %}
+        </label>
+      </div>
+      {% for error in form.gdpr_accepted.errors %}<span class="field__error">{{ error }}</span>{% endfor %}
+
+      <button type="submit" class="btn btn--primary btn--block btn--lg">{% translate "Створити акаунт" %}</button>
+    </form>
+
+    <p class="auth-card__foot">
+      {% translate "Вже маєте акаунт?" %} <a href="{% url 'accounts:login' %}">{% translate "Увійти" %}</a>
+    </p>
+  </div>
+{% endblock %}

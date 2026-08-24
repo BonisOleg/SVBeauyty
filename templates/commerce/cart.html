@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load i18n catalog_tags %}
+
+{% block title %}{% translate "Кошик" %} — {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+  <h1 class="page-title">{% translate "Кошик" %}</h1>
+
+  {% if summary.rows %}
+    <div class="layout-two" data-cart-page>
+      <div class="cart-page__list">
+        {% for row in summary.rows %}
+          <div class="cart-row">
+            <div class="cart-row__media">
+              {% if row.product.main_image %}
+                <img src="{{ row.product.main_image.image.url }}" alt="{{ row.product.name }}" loading="lazy" width="110" height="110">
+              {% endif %}
+            </div>
+            <div>
+              <p class="card__brand">{{ row.product.brand.name }}</p>
+              <a class="cart-line__name" href="{{ row.product.get_absolute_url }}">{{ row.product.name }}</a>
+              <p class="cart-line__meta">{{ row.variant.volume }} &middot; {% translate "Артикул" %} {{ row.variant.sku }}</p>
+
+              <div class="cart-row__foot">
+                <span class="qty">
+                  <button type="button" class="qty__btn" data-cart-step="{{ row.item.quantity|add:-1 }}" data-item-id="{{ row.item.id }}" aria-label="{% translate 'Менше' %}">−</button>
+                  <input type="number" class="qty__input" value="{{ row.item.quantity }}" min="0" max="99" inputmode="numeric"
+                         data-cart-qty="{{ row.item.id }}" aria-label="{% translate 'Кількість' %}">
+                  <button type="button" class="qty__btn" data-cart-step="{{ row.item.quantity|add:1 }}" data-item-id="{{ row.item.id }}" aria-label="{% translate 'Більше' %}">+</button>
+                </span>
+
+                <div class="price">
+                  <span class="price__value">{{ row.line_total|uah }} ₴</span>
+                  {% if row.price.has_discount %}<span class="price__pro-note">{% translate "ціна косметолога" %}</span>{% endif %}
+                </div>
+
+                <button type="button" class="cart-line__remove" data-cart-remove="{{ row.item.id }}">{% translate "Видалити" %}</button>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <aside class="summary summary--sticky">
+        <div class="summary__row">
+          <span>{% translate "Товарів" %}</span>
+          <span>{{ summary.count }}</span>
+        </div>
+        {% if summary.saved %}
+          <div class="summary__row summary__row--discount">
+            <span>{% translate "Ваша вигода" %}</span>
+            <span>−{{ summary.saved|uah }} ₴</span>
+          </div>
+        {% endif %}
+        <div class="summary__row summary__row--total">
+          <span>{% translate "Разом" %}</span>
+          <span>{{ summary.subtotal|uah }} ₴</span>
+        </div>
+
+        {% if min_order and summary.subtotal < min_order %}
+          <p class="field__error">
+            {% blocktranslate %}Мінімальна сума замовлення — {{ min_order }} ₴{% endblocktranslate %}
+          </p>
+        {% else %}
+          <a href="{% url 'commerce:checkout' %}" class="btn btn--primary btn--block btn--lg">{% translate "Оформити замовлення" %}</a>
+        {% endif %}
+
+        <a href="{% url 'catalog:catalog' %}" class="btn btn--outline btn--block">{% translate "Продовжити покупки" %}</a>
+
+        {% if free_delivery_from %}
+          <p class="field__hint">{% blocktranslate %}Безкоштовна доставка від {{ free_delivery_from }} ₴{% endblocktranslate %}</p>
+        {% endif %}
+        {% if delivery_note %}<p class="field__hint" style="white-space: pre-line">{{ delivery_note }}</p>{% endif %}
+      </aside>
+    </div>
+  {% else %}
+    <p class="empty-state">
+      {% translate "Кошик порожній." %}<br><br>
+      <a href="{% url 'catalog:catalog' %}" class="btn btn--primary">{% translate "До каталогу" %}</a>
+    </p>
+  {% endif %}
+{% endblock %}

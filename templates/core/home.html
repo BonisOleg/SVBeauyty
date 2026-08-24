@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% load i18n static catalog_tags %}
+
+{% block title %}{{ site_settings.site_name }} — {% translate "професійна косметика" %}{% endblock %}
+
+{% block content %}
+  {% for banner in banners %}
+    {% if forloop.first %}
+      <section class="hero {% if banner.image %}hero--with-image{% endif %}">
+        {% if banner.image %}
+          <div class="hero__media">
+            <picture>
+              {% if banner.image_mobile %}
+                <source media="(max-width: 599px)" srcset="{{ banner.image_mobile.url }}">
+              {% endif %}
+              <img src="{{ banner.image.url }}" alt="{{ banner.title }}" width="1280" height="548" fetchpriority="high">
+            </picture>
+          </div>
+        {% endif %}
+        <div class="hero__body">
+          <h1 class="hero__title">{{ banner.title }}</h1>
+          {% if banner.subtitle %}<p class="hero__subtitle">{{ banner.subtitle }}</p>{% endif %}
+          {% if banner.button_url %}
+            <a href="{{ banner.button_url }}" class="btn btn--primary btn--lg">{{ banner.button_text|default:_("До каталогу") }}</a>
+          {% endif %}
+        </div>
+      </section>
+    {% endif %}
+  {% empty %}
+    <section class="hero">
+      <div class="hero__body">
+        <h1 class="hero__title">{% translate "Професійний догляд за шкірою" %}</h1>
+        <p class="hero__subtitle">{% translate "Пілінги, сироватки, креми та SPF для домашнього і салонного застосування." %}</p>
+        <a href="{% url 'catalog:catalog' %}" class="btn btn--primary btn--lg">{% translate "До каталогу" %}</a>
+      </div>
+    </section>
+  {% endfor %}
+
+  <section class="section">
+    <div class="section__head">
+      <h2 class="section__title">{% translate "Категорії" %}</h2>
+      <a href="{% url 'catalog:catalog' %}" class="section__link">{% translate "Усі товари" %}</a>
+    </div>
+    <div class="cats">
+      {% for category in categories %}
+        <a class="cat" href="{{ category.get_absolute_url }}">
+          <span class="cat__media">
+            {% if category.image %}
+              <img src="{{ category.image.url }}" alt="{{ category.name }}" loading="lazy" width="160" height="160">
+            {% endif %}
+          </span>
+          <span class="cat__name">{{ category.name }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+
+  {% if hits %}
+    <section class="section">
+      <div class="section__head">
+        <h2 class="section__title">{% translate "Хіти продажів" %}</h2>
+        <a href="{% url 'catalog:catalog' %}" class="section__link">{% translate "Дивитись усі" %}</a>
+      </div>
+      <div class="grid-products">
+        {% for product in hits %}{% product_card product %}{% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  {% if novelties %}
+    <section class="section">
+      <div class="section__head">
+        <h2 class="section__title">{% translate "Новинки" %}</h2>
+      </div>
+      <div class="grid-products">
+        {% for product in novelties %}{% product_card product %}{% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  {% if not is_pro_user %}
+    <section class="section">
+      <div class="pro-banner">
+        <p class="pro-banner__title">{% translate "Ви косметолог?" %}</p>
+        <p class="pro-banner__text">{% translate "Отримайте професійні ціни та окремі умови доставки. Надішліть заявку — менеджер підтвердить статус." %}</p>
+        <a href="{% url 'accounts:cosmetologist' %}" class="btn btn--ghost">{% translate "Подати заявку" %}</a>
+      </div>
+    </section>
+  {% endif %}
+
+  <section class="section">
+    <div class="usp">
+      <div class="usp__item">
+        <p class="usp__title">{% translate "Оригінальна продукція" %}</p>
+        <p class="usp__text">{% translate "Працюємо напряму з виробником." %}</p>
+      </div>
+      <div class="usp__item">
+        <p class="usp__title">{% translate "Доставка Новою Поштою" %}</p>
+        <p class="usp__text">{% translate "Відділення та поштомати по всій Україні." %}</p>
+      </div>
+      <div class="usp__item">
+        <p class="usp__title">{% translate "Бонусна програма" %}</p>
+        <p class="usp__text">{% translate "Накопичуйте бали та оплачуйте ними покупки." %}</p>
+      </div>
+      <div class="usp__item">
+        <p class="usp__title">{% translate "Консультація" %}</p>
+        <p class="usp__text">{% translate "Допоможемо підібрати догляд у чаті." %}</p>
+      </div>
+    </div>
+  </section>
+{% endblock %}

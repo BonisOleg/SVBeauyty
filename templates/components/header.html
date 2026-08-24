@@ -1,0 +1,74 @@
+{% load static i18n core_tags %}
+
+{% if site_settings.promo_is_active and site_settings.promo_text %}
+  <div class="promo">{{ site_settings.promo_text }}</div>
+{% endif %}
+
+<header class="header">
+  <div class="container">
+    <div class="header__bar">
+      <button type="button" class="icon-btn header__burger" data-drawer-open aria-label="{% translate 'Меню' %}">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <path d="M3 6h18M3 12h18M3 18h18" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <div class="header__search">
+        <form class="search" action="{% url 'catalog:search' %}" method="get" role="search">
+          <input type="search" name="q" value="{{ query|default:'' }}"
+                 placeholder="{% translate 'Пошук за назвою або артикулом' %}"
+                 aria-label="{% translate 'Пошук' %}" autocomplete="off">
+          <button type="submit" class="search__submit" aria-label="{% translate 'Знайти' %}">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </form>
+      </div>
+
+      <a href="{% url 'core:home' %}" class="header__logo" aria-label="{{ site_settings.site_name }}">
+        {% if site_settings.logo %}
+          <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}" width="60" height="60">
+        {% else %}
+          <img src="{% static 'images/logo.png' %}" alt="{{ site_settings.site_name }}" width="60" height="60">
+        {% endif %}
+        <span class="header__logo-text">{{ site_settings.site_name }}</span>
+      </a>
+
+      <div class="header__actions">
+        <div class="lang">
+          <a href="{% switch_language_url 'uk' %}" class="lang__item {% if LANGUAGE_CODE == 'uk' %}is-active{% endif %}">uk</a>
+          <a href="{% switch_language_url 'ru' %}" class="lang__item {% if LANGUAGE_CODE == 'ru' %}is-active{% endif %}">ru</a>
+        </div>
+
+        <a href="{% if user.is_authenticated %}{% url 'accounts:profile' %}{% else %}{% url 'accounts:login' %}{% endif %}"
+           class="icon-btn icon-btn--desktop" aria-label="{% translate 'Кабінет' %}">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+            <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5" stroke-linecap="round"/>
+          </svg>
+        </a>
+
+        <button type="button" class="icon-btn" data-cart-open aria-label="{% translate 'Кошик' %}">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+            <path d="M6 7h12l-1.2 12.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 7Z"/>
+            <path d="M9 7a3 3 0 0 1 6 0" stroke-linecap="round"/>
+          </svg>
+          <span id="cart-count" class="icon-btn__badge" data-cart-count {% if not cart_count %}hidden{% endif %}>{{ cart_count }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <nav class="header__nav" aria-label="{% translate 'Категорії' %}">
+    <div class="container">
+      <ul>
+        <li><a href="{% url 'catalog:catalog' %}">{% translate "Усі товари" %}</a></li>
+        {% for category in menu_categories %}
+          <li><a href="{{ category.get_absolute_url }}">{{ category.name }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </nav>
+</header>
+
+{% include "components/drawer.html" %}

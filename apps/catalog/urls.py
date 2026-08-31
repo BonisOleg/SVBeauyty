@@ -10,4 +10,12 @@ urlpatterns = [
     path(pgettext_lazy("url", "search/"), views.search, name="search"),
     path(pgettext_lazy("url", "catalog/<slug:slug>/"), views.category, name="category"),
     path(pgettext_lazy("url", "product/<slug:slug>/"), views.product, name="product"),
+    path(
+        pgettext_lazy("url", "product/<slug:slug>/review/"),
+        views.review_add,
+        name="review_add",
+    ),
+    path("wishlist/toggle/", views.wishlist_toggle, name="wishlist_toggle"),
+    path("wishlist/products/", views.wishlist_products, name="wishlist_products"),
+    path("wishlist/merge/", views.wishlist_merge, name="wishlist_merge"),
 ]

@@ -13,7 +13,7 @@ from apps.loyalty import services as loyalty
 from apps.loyalty.models import LoyaltySettings, TransactionKind
 from apps.pricing import services as pricing_services
 from apps.pricing.models import PricingSettings
-from apps.pricing.services import PRO_AUTO, PRO_MANUAL, RETAIL, get_price
+from apps.pricing.services import PRO_AUTO, PRO_MANUAL, RETAIL, SALE, get_price
 
 
 class ShopTestCase(TestCase):
@@ -55,6 +55,7 @@ class ShopTestCase(TestCase):
             "last_name": "Тест",
             "phone": "+380671234567",
             "email": "buyer@test.local",
+            "delivery_method": "nova_poshta",
             "delivery_city": "Київ",
             "delivery_city_ref": "city-kyiv",
             "delivery_branch": "Відділення №1",
@@ -140,6 +141,39 @@ class PricingTests(ShopTestCase):
         self.regular.save()
         self.assertEqual(get_price(self.variant, self.regular).source, RETAIL)
 
+    def test_active_sale_for_guest_and_regular(self):
+        self.variant.sale_price_uah = Decimal("800.00")
+        self.variant.save()
+
+        for user in (None, self.regular):
+            price = get_price(self.variant, user)
+            self.assertEqual(price.source, SALE)
+            self.assertEqual(price.amount, Decimal("800.00"))
+            self.assertEqual(price.base_amount, Decimal("1000.00"))
+            self.assertTrue(price.is_sale)
+            self.assertTrue(price.has_discount)
+
+    def test_sale_does_not_apply_to_cosmetologist(self):
+        self.variant.sale_price_uah = Decimal("800.00")
+        self.variant.save()
+
+        price = get_price(self.variant, self.pro)
+        self.assertEqual(price.source, PRO_AUTO)
+        self.assertEqual(price.amount, Decimal("700.00"))
+        self.assertFalse(price.is_sale)
+
+    def test_sale_equal_or_above_retail_is_inactive(self):
+        self.variant.sale_price_uah = Decimal("1000.00")
+        self.variant.save()
+        price = get_price(self.variant, self.regular)
+        self.assertEqual(price.source, RETAIL)
+        self.assertEqual(price.amount, Decimal("1000.00"))
+
+    def test_zero_sale_price_is_inactive(self):
+        self.variant.sale_price_uah = Decimal("0.00")
+        self.variant.save()
+        self.assertEqual(get_price(self.variant, None).source, RETAIL)
+
 
 class CartTests(ShopTestCase):
     def test_add_updates_counter_and_popup(self):
@@ -200,13 +234,31 @@ class CheckoutTests(ShopTestCase):
 
         order = Order.objects.get()
         self.assertRedirects(response, reverse("commerce:thanks", kwargs={"number": order.number}))
-        self.assertEqual(order.status, OrderStatus.NEW)
+        self.assertEqual(order.status, OrderStatus.AWAITING_PAYMENT)
         self.assertEqual(order.total_uah, Decimal("1000.00"))
         self.assertEqual(order.items.get().price_source, RETAIL)
         self.assertEqual(order.bank_details_snapshot["iban"], "UA123456789")
         self.assertIn(order.number, order.bank_details_snapshot["purpose"])
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertIn(order.number, mail.outbox[0].subject)
+        self.assertEqual(len(mail.outbox), 2)
+        subjects = {msg.subject for msg in mail.outbox}
+        self.assertTrue(any(order.number in s and "Нове замовлення" in s for s in subjects))
+        self.assertTrue(any(order.number in s and "прийнято" in s for s in subjects))
+        self.assertEqual({msg.to[0] for msg in mail.outbox}, {"manager@test.local", "buyer@test.local"})
+
+    def test_thanks_shows_awaiting_payment_until_paid(self):
+        self.client.post(reverse("commerce:cart_add"), {"variant_id": self.variant.id, "quantity": 1})
+        self.client.post(reverse("commerce:checkout"), self._checkout_payload())
+        order = Order.objects.get()
+
+        response = self.client.get(reverse("commerce:thanks", kwargs={"number": order.number}))
+        self.assertContains(response, "Очікує оплати")
+
+        from apps.commerce.services import mark_order_paid
+
+        mark_order_paid(order)
+        response = self.client.get(reverse("commerce:thanks", kwargs={"number": order.number}))
+        self.assertContains(response, "Дякуємо за замовлення")
+        self.assertNotContains(response, "Очікує оплати")
 
     def test_cosmetologist_order_uses_pro_price(self):
         self.client.force_login(self.pro)
@@ -220,6 +272,18 @@ class CheckoutTests(ShopTestCase):
         self.assertEqual(item.price_source, PRO_AUTO)
         self.assertEqual(item.unit_purchase_price_uah, Decimal("500.00"))
 
+    def test_guest_order_uses_active_sale_price(self):
+        self.variant.sale_price_uah = Decimal("800.00")
+        self.variant.save()
+
+        self.client.post(reverse("commerce:cart_add"), {"variant_id": self.variant.id, "quantity": 1})
+        self.client.post(reverse("commerce:checkout"), self._checkout_payload())
+
+        order = Order.objects.get()
+        item = order.items.get()
+        self.assertEqual(order.total_uah, Decimal("800.00"))
+        self.assertEqual(item.unit_price_uah, Decimal("800.00"))
+        self.assertEqual(item.price_source, SALE)
     def test_order_decrements_stock(self):
         self.assertEqual(self.variant.stock_qty, 10)
         self.client.post(reverse("commerce:cart_add"), {"variant_id": self.variant.id, "quantity": 2})
@@ -258,8 +322,20 @@ class CheckoutTests(ShopTestCase):
         self.client.post(reverse("commerce:cart_add"), {"variant_id": self.variant.id, "quantity": 1})
         self.client.post(reverse("commerce:checkout"), self._checkout_payload())
 
-        # 1000 грн × 0.05 = 50 балів
+        # 1000 грн × 0.05 = 50 балів (у холді 14 днів)
         self.assertEqual(loyalty.get_balance(self.regular), 50)
+        self.assertEqual(loyalty.pending_earn_points(self.regular), 50)
+        self.assertEqual(loyalty.get_available_balance(self.regular), 0)
+
+    def test_pending_earn_not_redeemable(self):
+        self.client.force_login(self.regular)
+        self.client.post(reverse("commerce:cart_add"), {"variant_id": self.variant.id, "quantity": 1})
+        self.client.post(reverse("commerce:checkout"), self._checkout_payload())
+
+        self.client.post(reverse("commerce:cart_add"), {"variant_id": self.variant.id, "quantity": 1})
+        response = self.client.get(reverse("commerce:checkout"))
+        self.assertEqual(response.context["max_points"], 0)
+        self.assertEqual(response.context["loyalty_pending"], 50)
 
     def test_gdpr_is_required(self):
         self.client.post(reverse("commerce:cart_add"), {"variant_id": self.variant.id, "quantity": 1})
@@ -268,6 +344,52 @@ class CheckoutTests(ShopTestCase):
         response = self.client.post(reverse("commerce:checkout"), payload)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(Order.objects.exists())
+
+    def test_nova_poshta_empty_city_single_error(self):
+        from apps.commerce.forms import CheckoutForm
+        from apps.payments.services import available_methods
+
+        form = CheckoutForm(
+            {
+                "first_name": "Оля",
+                "last_name": "Тест",
+                "phone": "+380671234567",
+                "delivery_method": "nova_poshta",
+                "delivery_city": "",
+                "delivery_city_ref": "",
+                "delivery_branch": "",
+                "delivery_branch_ref": "",
+                "payment_method": "bank_details",
+                "gdpr_accepted": True,
+            },
+            allowed_methods=available_methods(),
+        )
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors["delivery_city"], ["Вкажіть місто."])
+        self.assertEqual(form.errors["delivery_branch"], ["Вкажіть відділення Нової Пошти."])
+
+    def test_nova_poshta_typed_without_pick_single_error(self):
+        from apps.commerce.forms import CheckoutForm
+        from apps.payments.services import available_methods
+
+        form = CheckoutForm(
+            {
+                "first_name": "Оля",
+                "last_name": "Тест",
+                "phone": "+380671234567",
+                "delivery_method": "nova_poshta",
+                "delivery_city": "Івано-Франківськ",
+                "delivery_city_ref": "",
+                "delivery_branch": "345",
+                "delivery_branch_ref": "",
+                "payment_method": "bank_details",
+                "gdpr_accepted": True,
+            },
+            allowed_methods=available_methods(),
+        )
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors["delivery_city"], ["Оберіть місто зі списку."])
+        self.assertEqual(form.errors["delivery_branch"], ["Оберіть відділення зі списку."])
 
 
 class LocaleTests(ShopTestCase):

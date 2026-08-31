@@ -12,7 +12,7 @@
 
   {% if brands %}
     <div class="filters__group">
-      <p class="filters__title">{% translate "Бренд" %}</p>
+      <p class="filters__title">{% translate "За брендом" %}</p>
       {% for brand in brands %}
         <label class="filters__option">
           <input type="checkbox" name="brand" value="{{ brand.slug }}" {% if brand.slug in current_brands %}checked{% endif %}>
@@ -21,6 +21,39 @@
       {% endfor %}
     </div>
   {% endif %}
+
+  <div class="filters__group">
+    <p class="filters__title">{% translate "За ціною" %}</p>
+    <div class="filters__price">
+      <label class="filters__price-field">
+        <span class="filters__price-label">{% translate "від" %}</span>
+        <input type="number" name="price_min" min="0" step="1" inputmode="decimal" placeholder="0" value="{{ price_min }}">
+      </label>
+      <label class="filters__price-field">
+        <span class="filters__price-label">{% translate "до" %}</span>
+        <input type="number" name="price_max" min="0" step="1" inputmode="decimal" placeholder="∞" value="{{ price_max }}">
+      </label>
+    </div>
+  </div>
+
+  {% for block in filter_groups %}
+    <div class="filters__group">
+      <p class="filters__title">{{ block.group.name }}</p>
+      {% for attr in block.attributes %}
+        {% with key=block.group.slug|add:":"|add:attr.slug %}
+          <label class="filters__option">
+            <input
+              type="checkbox"
+              name="{{ block.group.slug }}"
+              value="{{ attr.slug }}"
+              {% if key in current_attr_keys %}checked{% endif %}
+            >
+            <span>{{ attr.name }}</span>
+          </label>
+        {% endwith %}
+      {% endfor %}
+    </div>
+  {% endfor %}
 
   <div class="filters__group">
     <p class="filters__title">{% translate "Наявність" %}</p>

@@ -1,0 +1,547 @@
+/* Specs — Makeup-like: mobile horizontal tabs, desktop vertical + scrollable pane */
+.pdp-specs {
+  margin-bottom: var(--sp-8);
+  padding-top: var(--sp-6);
+  border-top: 1px solid var(--c-line-soft);
+}
+
+.pdp-specs__nav {
+  display: flex;
+  gap: var(--sp-4);
+  border-bottom: 1px solid var(--c-line);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.pdp-specs__nav::-webkit-scrollbar {
+  display: none;
+}
+
+.pdp-specs__tab {
+  flex: 0 0 auto;
+  padding: var(--sp-3) 0;
+  font: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--c-muted);
+  white-space: nowrap;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.pdp-specs__tab.is-active {
+  color: var(--c-head);
+  border-bottom-color: var(--c-accent);
+}
+
+.pdp-specs__body {
+  min-width: 0;
+}
+
+.pdp-specs__panel {
+  display: none;
+  padding-top: var(--sp-4);
+}
+
+.pdp-specs__panel.is-active {
+  display: block;
+}
+
+.pdp-specs__text {
+  font-size: var(--fs-sm);
+  line-height: 1.7;
+  color: var(--c-ink);
+  white-space: pre-line;
+  max-width: 80ch;
+}
+
+/* Makeup-style: "Бренд: Value" inline rows, no table borders */
+.pdp-chars {
+  margin: 0;
+  max-width: 720px;
+}
+
+.pdp-chars__row {
+  display: block;
+  padding: 4px 0;
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--c-ink);
+  border: 0;
+}
+
+.pdp-chars__row dt {
+  display: inline;
+  margin: 0;
+  font-weight: 700;
+  color: var(--c-head);
+}
+
+.pdp-chars__row dd {
+  display: inline;
+  margin: 0;
+  font-weight: 400;
+  color: var(--c-ink);
+}
+
+.pdp-chars__row dd a {
+  color: var(--c-head);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.pdp-chars__row dd a:hover {
+  color: var(--c-accent-soft);
+}
+
+@media (min-width: 768px) {
+  .pdp-specs {
+    display: grid;
+    grid-template-columns: minmax(160px, 220px) minmax(0, 1fr);
+    gap: var(--sp-6);
+    align-items: start;
+  }
+
+  .pdp-specs__nav {
+    flex-direction: column;
+    gap: var(--sp-3);
+    border-bottom: 0;
+    border-right: 1px solid var(--c-line);
+    padding-right: var(--sp-5);
+    overflow: visible;
+  }
+
+  .pdp-specs__tab {
+    width: 100%;
+    padding: 4px 0;
+    text-align: left;
+    border-bottom: 0;
+    color: var(--c-head);
+    font-weight: 500;
+  }
+
+  .pdp-specs__tab.is-active {
+    font-weight: 700;
+    border-bottom-color: transparent;
+  }
+
+  .pdp-specs__body {
+    min-width: 0;
+    overflow: visible;
+  }
+
+  .pdp-specs__panel {
+    padding-top: 0;
+  }
+}
+
+
+/* Reviews */
+.pdp-reviews {
+  position: relative;
+  z-index: 2;
+  margin-bottom: var(--sp-8);
+  padding-top: var(--sp-6);
+  border-top: 1px solid var(--c-line-soft);
+}
+
+.pdp-reviews__intro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+
+.pdp-reviews__title {
+  flex: 1 1 220px;
+  margin: 0;
+  font-size: var(--fs-xl);
+  font-weight: 600;
+}
+
+.pdp-reviews__toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+  padding-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--c-line-soft);
+}
+
+.pdp-reviews__tab {
+  margin: 0;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.pdp-reviews__count {
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}
+
+.pdp-reviews__list {
+  list-style: none;
+  margin: 0 0 var(--sp-5);
+  padding: 0;
+  display: grid;
+  gap: var(--sp-4);
+}
+
+.pdp-review {
+  display: grid;
+  gap: var(--sp-3);
+  padding: var(--sp-4) 0;
+  border-bottom: 1px solid var(--c-line-soft);
+}
+
+.pdp-review__author {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  min-width: 0;
+}
+
+.pdp-review__avatar {
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #f2f2f2;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--c-head);
+  text-transform: uppercase;
+}
+
+.pdp-review__meta {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.pdp-review__name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  max-width: 100%;
+  font-size: var(--fs-sm);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.pdp-review__verified {
+  display: block;
+  font-size: var(--fs-xs);
+  color: var(--c-success);
+}
+
+.pdp-review__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-3);
+  margin-bottom: var(--sp-2);
+  font-size: var(--fs-sm);
+}
+
+.pdp-review__top time {
+  color: var(--c-muted);
+  font-size: var(--fs-xs);
+}
+
+.pdp-review__text {
+  margin: 0;
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.pdp-reviews__form {
+  display: grid;
+  gap: var(--sp-3);
+  max-width: 480px;
+  padding: var(--sp-4);
+  border: 1px solid var(--c-line-soft);
+  border-radius: var(--radius-md);
+  background: var(--c-card);
+}
+
+.pdp-reviews__form-title {
+  margin: 0;
+  font-size: var(--fs-md);
+  font-weight: 600;
+}
+
+.star-rating {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.star-rating > .field__label {
+  float: none;
+  width: auto;
+  padding: 0;
+  margin-bottom: var(--sp-2);
+}
+
+.star-rating__row {
+  position: relative;
+  display: inline-flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  gap: 2px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.star-rating__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.star-rating__star {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  font-size: 28px;
+  line-height: 1;
+  color: #d0d0d0;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.12s ease, transform 0.12s ease;
+}
+
+/* вибрана оцінка */
+.star-rating__input:checked ~ .star-rating__star {
+  color: #111;
+}
+
+/* прев’ю при наведенні: спочатку скидаємо, потім фарбуємо зірки до курсора */
+.star-rating__row:hover .star-rating__star {
+  color: #d0d0d0;
+}
+
+.star-rating__row:hover .star-rating__star:hover,
+.star-rating__row:hover .star-rating__star:hover ~ .star-rating__star {
+  color: #111;
+}
+
+.star-rating__row:hover .star-rating__star:hover {
+  transform: scale(1.08);
+}
+
+.star-rating__input:focus-visible + .star-rating__star {
+  outline: 2px solid var(--c-head, #111);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (max-width: 599px) {
+  .star-rating__star {
+    width: 40px;
+    height: 40px;
+    font-size: 26px;
+  }
+}
+
+/* FAQ */
+.pdp-faq {
+  position: relative;
+  z-index: 2;
+  margin-bottom: var(--sp-8);
+  padding-top: var(--sp-6);
+  border-top: 1px solid var(--c-line-soft);
+  max-width: 720px;
+}
+
+.pdp-faq__title {
+  margin: 0 0 var(--sp-4);
+  font-size: var(--fs-xl);
+  font-weight: 600;
+}
+
+.pdp-faq__item {
+  border-bottom: 1px solid var(--c-line-soft);
+}
+
+.pdp-faq__q {
+  padding: var(--sp-3) 0;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pdp-faq__q::-webkit-details-marker {
+  display: none;
+}
+
+.pdp-faq__a {
+  padding: 0 0 var(--sp-4);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--c-ink);
+}
+
+.pdp-faq__a a {
+  display: inline-block;
+  margin-top: var(--sp-2);
+}
+
+/* Carousels */
+.pdp-carousel {
+  margin-bottom: var(--sp-8);
+  padding-top: var(--sp-6);
+  border-top: 1px solid var(--c-line-soft);
+}
+
+.pdp-carousel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+
+.pdp-carousel__title {
+  margin: 0;
+  font-size: var(--fs-xl);
+  font-weight: 600;
+}
+
+.pdp-carousel__nav {
+  display: flex;
+  gap: var(--sp-2);
+}
+
+.pdp-carousel__btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--c-line);
+  border-radius: 50%;
+  background: #fff;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pdp-carousel__btn:hover {
+  border-color: #111;
+}
+
+.pdp-carousel__track {
+  display: flex;
+  align-items: stretch;
+  gap: var(--sp-4);
+  /* hidden: не створюємо scrollport, щоб wheel крутив сторінку над картками */
+  overflow-x: hidden;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding-bottom: var(--sp-2);
+}
+
+/* Свайп лише на touch — там браузер сам розрізняє вертикаль/горизонталь */
+@media (hover: none), (pointer: coarse) {
+  .pdp-carousel__track {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+.pdp-carousel__track::-webkit-scrollbar {
+  display: none;
+}
+
+.pdp-carousel__slide {
+  display: flex;
+  flex: 0 0 min(220px, 72vw);
+  scroll-snap-align: start;
+  min-width: 0;
+  overflow: visible;
+}
+
+.pdp-carousel__slide .card {
+  width: 100%;
+  height: 100%;
+}
+
+/* Місце під абсолютний hover «Купити», без вертикального скролу треку */
+@media (hover: hover) and (min-width: 1024px) {
+  .pdp-carousel {
+    position: relative;
+    z-index: 1;
+  }
+
+  .pdp-carousel:hover,
+  .pdp-carousel:focus-within {
+    z-index: 6;
+  }
+
+  .pdp-carousel__track {
+    padding-bottom: 168px;
+    margin-bottom: -156px;
+    /* порожній «хвіст» не перехоплює кліки по відгуках/FAQ нижче */
+    pointer-events: none;
+  }
+
+  .pdp-carousel__slide {
+    pointer-events: auto;
+  }
+}
+
+@media (min-width: 768px) {
+  .pdp-carousel__slide {
+    flex-basis: 240px;
+  }
+
+  .pdp-review {
+    grid-template-columns: minmax(0, 200px) minmax(0, 1fr);
+    align-items: start;
+    column-gap: var(--sp-5);
+  }
+}
+
+@media (min-width: 1024px) {
+  .pdp-carousel__slide {
+    flex-basis: 260px;
+  }
+}
+
+@media (max-width: 599px) {
+  .pdp-reviews__form {
+    padding: var(--sp-3);
+  }
+
+  .pdp-carousel__nav {
+    display: none;
+  }
+}
+
+@supports (-webkit-touch-callout: none) {
+  .pdp-carousel__btn {
+    min-height: 44px;
+  }
+}

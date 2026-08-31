@@ -70,16 +70,32 @@ class Command(BaseCommand):
         for banner in Banner.objects.all():
             if banner.image and not force:
                 continue
-            desktop = generator.banner_image(size=(1600, 620), layout="desktop")
+            seed = f"banner-{banner.pk}-{banner.sort_order}"
+            desktop = generator.banner_image(size=(1600, 620), layout="desktop", seed=f"{seed}-d")
             banner.image.save(f"banner-{banner.pk}.jpg", ContentFile(desktop.read()), save=True)
 
-            mobile = generator.banner_image(size=(900, 900), layout="mobile")
+            mobile = generator.banner_image(size=(900, 900), layout="mobile", seed=f"{seed}-m")
             banner.image_mobile.save(
                 f"banner-{banner.pk}-mobile.jpg", ContentFile(mobile.read()), save=True
             )
             count += 1
 
         settings_obj = SiteSettings.get_solo()
+        if force or not settings_obj.pro_cta_image:
+            desktop = generator.banner_image(size=(1600, 560), layout="desktop", seed="pro-cta-d")
+            settings_obj.pro_cta_image.save(
+                "pro-cta.jpg", ContentFile(desktop.read()), save=False
+            )
+            count += 1
+        if force or not settings_obj.pro_cta_image_mobile:
+            mobile = generator.banner_image(size=(900, 700), layout="mobile", seed="pro-cta-m")
+            settings_obj.pro_cta_image_mobile.save(
+                "pro-cta-mobile.jpg", ContentFile(mobile.read()), save=False
+            )
+            count += 1
+        if settings_obj.pro_cta_image or settings_obj.pro_cta_image_mobile:
+            settings_obj.save()
+
         if not settings_obj.logo:
             self.stdout.write("Логотип не заданий — використовується static/images/logo.png")
         return count

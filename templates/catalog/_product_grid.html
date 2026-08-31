@@ -1,0 +1,12 @@
+{% load catalog_tags %}
+<div
+  class="product-grid product-grid--cols-{{ grid_cols }}"
+  data-qa="product-grid"
+  data-grid-cols="{{ grid_cols }}"
+>
+  {% for product in products %}
+    <div class="product-grid__item">
+      {% product_card product %}
+    </div>
+  {% endfor %}
+</div>

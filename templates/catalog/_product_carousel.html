@@ -1,0 +1,19 @@
+{% load i18n catalog_tags %}
+{% if products %}
+  <section class="pdp-carousel" data-carousel>
+    <div class="pdp-carousel__head">
+      <h2 class="pdp-carousel__title">{{ title }}</h2>
+      <div class="pdp-carousel__nav">
+        <button type="button" class="pdp-carousel__btn" data-carousel-prev aria-label="{% translate 'Назад' %}">‹</button>
+        <button type="button" class="pdp-carousel__btn" data-carousel-next aria-label="{% translate 'Далі' %}">›</button>
+      </div>
+    </div>
+    <div class="pdp-carousel__track" data-carousel-track>
+      {% for item in products %}
+        <div class="pdp-carousel__slide">
+          {% product_card item %}
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+{% endif %}

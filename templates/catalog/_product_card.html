@@ -1,54 +1,117 @@
 {% load i18n catalog_tags %}
-<article class="card {% if not product.in_stock %}card--out{% endif %}">
-  <a href="{{ product.get_absolute_url }}" class="card__media" tabindex="-1" aria-hidden="true">
-    {% if product.main_image %}
-      <img src="{{ product.main_image.image.url }}" alt="{{ product.main_image.alt }}" loading="lazy" width="320" height="320">
-    {% else %}
-      <span class="card__media-empty">{{ product.brand.name }}</span>
-    {% endif %}
+<article class="card {% if not product.in_stock %}card--out{% endif %}" data-product-card data-product-id="{{ product.id }}">
+  <div class="card__media-wrap">
+    <a href="{{ product.get_absolute_url }}" class="card__media" tabindex="-1" aria-hidden="true">
+      {% if product.main_image %}
+        <img src="{{ product.main_image.image.url }}" alt="{{ product.main_image.alt }}" loading="lazy" width="320" height="320">
+      {% else %}
+        <span class="card__media-empty">{{ product.brand.name }}</span>
+      {% endif %}
+    </a>
     <span class="card__badges">
+      {% if price and price.is_sale %}<span class="badge badge--deal">DEAL</span>{% endif %}
       {% if product.is_hit %}<span class="badge badge--hit">{% translate "Хіт" %}</span>{% endif %}
       {% if product.is_new %}<span class="badge badge--new">{% translate "Новинка" %}</span>{% endif %}
       {% if not product.in_stock %}<span class="badge badge--out">{% translate "Немає" %}</span>{% endif %}
     </span>
-  </a>
+    {% include "catalog/_wishlist_btn.html" with product=product in_wishlist=in_wishlist btn_class="wish-btn--card" %}
+  </div>
 
-  <p class="card__brand">{{ product.brand.name }}</p>
-  <a href="{{ product.get_absolute_url }}" class="card__name">{{ product.name }}</a>
-  {% if variant %}
-    <p class="card__volume">
-      {{ variant.volume }}{% if variants_count > 1 %} &middot; {% blocktranslate count n=variants_count %}{{ n }} обʼєм{% plural %}{{ n }} обʼєми{% endblocktranslate %}{% endif %}
-    </p>
-  {% endif %}
+  <div class="card__body">
+    <a href="{{ product.get_absolute_url }}" class="card__name">{{ product.name }}</a>
+    <p class="card__subtitle">{{ product.brand.name }}{% if product.category %} · {{ product.category.name }}{% endif %}</p>
+    {% rating_stars product %}
 
-  <div class="card__foot">
     {% if price %}
-      <div class="price">
-        <span class="price__value">{{ price.amount|uah }} ₴</span>
-        {% if price.has_discount %}
-          <span class="price__old">{{ price.base_amount|uah }} ₴</span>
+      <div class="price" data-card-price>
+        <span class="price__value{% if price.is_sale %} price__value--sale{% endif %}" data-card-price-value>{{ price.amount|uah }} ₴</span>
+        <span class="price__old" data-card-price-old {% if not price.has_discount %}hidden{% endif %}>
+          {% if price.has_discount %}{{ price.base_amount|uah }} ₴{% endif %}
+        </span>
+        {% if price.is_pro_price %}
           <span class="price__pro-note">{% translate "ціна косметолога" %}</span>
         {% endif %}
       </div>
-
-      {% if product.in_stock %}
-        <form method="post"
-              action="{% url 'commerce:cart_add' %}"
-              data-cart-add
-              data-qa="cart-add"
-              class="card__buy"
-              hx-post="{% url 'commerce:cart_add' %}"
-              hx-swap="none">
-          {% csrf_token %}
-          <input type="hidden" name="variant_id" value="{{ variant.id }}">
-          <input type="hidden" name="quantity" value="1">
-          <button type="submit" class="btn btn--primary btn--sm" data-qa="buy-btn">{% translate "Купити" %}</button>
-        </form>
-      {% else %}
-        <span class="card__stock">{% translate "Немає в наявності" %}</span>
-      {% endif %}
     {% else %}
       <span class="card__stock">{% translate "Ціна за запитом" %}</span>
     {% endif %}
   </div>
+
+  {% if product.in_stock and variant_rows %}
+    <form method="post"
+          action="{% url 'commerce:cart_add' %}"
+          class="card__hover"
+          data-cart-add
+          data-card-buy
+          data-qa="cart-add"
+          hx-post="{% url 'commerce:cart_add' %}"
+          hx-swap="none">
+      {% csrf_token %}
+
+      <div class="card-variant{% if variants_count < 2 %} card-variant--single{% endif %}" data-card-variant-ui>
+        <input type="hidden"
+               name="variant_id"
+               value="{% for row in variant_rows %}{% if row.selected %}{{ row.variant.id }}{% endif %}{% endfor %}"
+               data-card-variant-input>
+
+        <button type="button"
+                class="card-variant__trigger"
+                data-card-variant-trigger
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-controls="card-variant-list-{{ product.id }}"
+                {% if variants_count < 2 %}aria-disabled="true"{% endif %}>
+          <span class="card-variant__thumb" data-card-variant-thumb>
+            {% if product.main_image %}
+              <img src="{{ product.main_image.image.url }}" alt="" width="28" height="28" loading="lazy">
+            {% endif %}
+          </span>
+          <span class="card-variant__label" data-card-variant-label>
+            {% for row in variant_rows %}{% if row.selected %}{{ row.variant.volume }}{% endif %}{% endfor %}
+          </span>
+          {% if variants_count > 1 %}
+            <span class="card-variant__chevron" aria-hidden="true"></span>
+          {% endif %}
+        </button>
+
+        {% if variants_count > 1 %}
+          <ul class="card-variant__list"
+              id="card-variant-list-{{ product.id }}"
+              role="listbox"
+              hidden
+              data-card-variant-list>
+            {% for row in variant_rows %}
+              <li role="option"
+                  class="card-variant__option{% if row.selected %} is-selected{% endif %}{% if not row.variant.in_stock %} is-disabled{% endif %}"
+                  tabindex="-1"
+                  data-card-variant-option
+                  data-value="{{ row.variant.id }}"
+                  data-label="{{ row.variant.volume }}"
+                  data-price="{{ row.price.amount|uah }} ₴"
+                  data-old-price="{% if row.price.has_discount %}{{ row.price.base_amount|uah }} ₴{% endif %}"
+                  data-is-sale="{% if row.price.is_sale %}1{% else %}0{% endif %}"
+                  data-in-stock="{% if row.variant.in_stock %}1{% else %}0{% endif %}"
+                  data-thumb="{% if product.main_image %}{{ product.main_image.image.url }}{% endif %}"
+                  aria-selected="{% if row.selected %}true{% else %}false{% endif %}"
+                  {% if not row.variant.in_stock %}aria-disabled="true"{% endif %}>
+                <span class="card-variant__thumb">
+                  {% if product.main_image %}
+                    <img src="{{ product.main_image.image.url }}" alt="" width="28" height="28" loading="lazy">
+                  {% endif %}
+                </span>
+                <span class="card-variant__label">{{ row.variant.volume }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+
+      <input type="hidden" name="quantity" value="1">
+      <button type="submit" class="btn btn--primary btn--block card__buy-btn" data-qa="buy-btn" data-card-buy-btn>
+        {% translate "Купити" %}
+      </button>
+    </form>
+  {% elif not product.in_stock %}
+    <p class="card__stock card__stock--footer">{% translate "Немає в наявності" %}</p>
+  {% endif %}
 </article>

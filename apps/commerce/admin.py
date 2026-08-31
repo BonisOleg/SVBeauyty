@@ -38,16 +38,45 @@ class OrderStatusLogInline(TabularInline):
 class OrderAdmin(ModelAdmin):
     list_display = ["number", "created_at", "customer_name", "phone", "client_type", "total_uah", "status"]
     list_editable = ["status"]
-    list_filter = ["status", "payment_method", "client_type", "created_at"]
-    search_fields = ["number", "phone", "email", "first_name", "last_name"]
+    list_filter = ["status", "payment_method", "delivery_method", "client_type", "created_at"]
+    search_fields = [
+        "number",
+        "phone",
+        "email",
+        "first_name",
+        "last_name",
+        "recipient_first_name",
+        "recipient_last_name",
+        "recipient_phone",
+    ]
     inlines = [OrderItemInline, OrderStatusLogInline]
     readonly_fields = ["number", "subtotal_uah", "total_uah", "bank_details_snapshot", "created_at"]
     fieldsets = [
         (None, {"fields": ["number", "status", "created_at"]}),
         ("Клієнт", {"fields": ["user", "client_type", "first_name", "last_name", "phone", "email"]}),
         (
+            "Отримувач",
+            {
+                "fields": [
+                    "other_recipient",
+                    "recipient_first_name",
+                    "recipient_last_name",
+                    "recipient_phone",
+                ]
+            },
+        ),
+        (
             "Доставка",
-            {"fields": ["delivery_city", "delivery_city_ref", "delivery_branch", "delivery_branch_ref"]},
+            {
+                "fields": [
+                    "delivery_method",
+                    "delivery_city",
+                    "delivery_city_ref",
+                    "delivery_branch",
+                    "delivery_branch_ref",
+                    "delivery_address",
+                ]
+            },
         ),
         ("Оплата", {"fields": ["payment_method", "bank_details_snapshot"]}),
         (

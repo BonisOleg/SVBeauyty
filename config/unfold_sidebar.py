@@ -1,35 +1,63 @@
+from django.conf import settings
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
 
 def navigation(request):
     """Меню Unfold: без дублів «розділ = єдина модель»."""
+    catalog_items = [
+        {
+            "title": _("Товари"),
+            "icon": "inventory_2",
+            "link": reverse_lazy("admin:catalog_product_changelist"),
+        },
+        {
+            "title": _("Категорії"),
+            "icon": "category",
+            "link": reverse_lazy("admin:catalog_category_changelist"),
+        },
+        {
+            "title": _("Бренди"),
+            "icon": "storefront",
+            "link": reverse_lazy("admin:catalog_brand_changelist"),
+        },
+        {
+            "title": _("Характеристики"),
+            "icon": "tune",
+            "link": reverse_lazy("admin:catalog_productattribute_changelist"),
+        },
+        {
+            "title": _("Групи характеристик"),
+            "icon": "account_tree",
+            "link": reverse_lazy("admin:catalog_productattributegroup_changelist"),
+        },
+        {
+            "title": _("Варіанти (обʼєми)"),
+            "icon": "straighten",
+            "link": reverse_lazy("admin:catalog_variant_changelist"),
+        },
+    ]
+    if settings.REVIEWS_ENABLED:
+        catalog_items.append(
+            {
+                "title": _("Відгуки"),
+                "icon": "rate_review",
+                "link": reverse_lazy("admin:catalog_productreview_changelist"),
+            }
+        )
+    catalog_items.append(
+        {
+            "title": _("Обране"),
+            "icon": "favorite",
+            "link": reverse_lazy("admin:catalog_wishlistitem_changelist"),
+        }
+    )
+
     return [
         {
             "title": _("Каталог"),
             "separator": False,
-            "items": [
-                {
-                    "title": _("Товари"),
-                    "icon": "inventory_2",
-                    "link": reverse_lazy("admin:catalog_product_changelist"),
-                },
-                {
-                    "title": _("Категорії"),
-                    "icon": "category",
-                    "link": reverse_lazy("admin:catalog_category_changelist"),
-                },
-                {
-                    "title": _("Бренди"),
-                    "icon": "storefront",
-                    "link": reverse_lazy("admin:catalog_brand_changelist"),
-                },
-                {
-                    "title": _("Варіанти (обʼєми)"),
-                    "icon": "straighten",
-                    "link": reverse_lazy("admin:catalog_variant_changelist"),
-                },
-            ],
+            "items": catalog_items,
         },
         {
             "title": _("Продажі"),

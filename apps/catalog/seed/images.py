@@ -11,40 +11,40 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 PALETTE = {
-    "ink": (7, 56, 53),
-    "head": (21, 96, 93),
-    "accent": (32, 132, 124),
-    "accent_soft": (63, 168, 157),
-    "line": (197, 228, 223),
-    "line_soft": (226, 241, 238),
-    "paper": (239, 249, 248),
+    "ink": (17, 17, 17),
+    "head": (26, 26, 26),
+    "accent": (42, 42, 42),
+    "accent_soft": (90, 90, 90),
+    "line": (214, 214, 214),
+    "line_soft": (235, 235, 235),
+    "paper": (245, 245, 245),
     "white": (255, 255, 255),
     "gold": (165, 118, 42),
 }
 
 BACKGROUNDS = [
-    ((239, 249, 248), (214, 238, 234)),
-    ((246, 250, 249), (223, 240, 236)),
-    ((238, 246, 245), (205, 232, 227)),
-    ((250, 250, 248), (229, 242, 238)),
+    ((245, 245, 245), (220, 220, 220)),
+    ((250, 250, 250), (230, 230, 230)),
+    ((242, 242, 242), (210, 210, 210)),
+    ((248, 248, 248), (226, 226, 226)),
 ]
 
 CAP_COLORS = [
-    (21, 96, 93),
-    (32, 132, 124),
-    (7, 56, 53),
-    (63, 168, 157),
+    (26, 26, 26),
+    (42, 42, 42),
+    (17, 17, 17),
+    (90, 90, 90),
     (165, 118, 42),
 ]
 
 BODY_COLORS = [
     (255, 255, 255),
-    (250, 253, 252),
-    (240, 248, 246),
-    (231, 243, 240),
+    (250, 250, 250),
+    (240, 240, 240),
+    (232, 232, 232),
 ]
 
-OUTLINE = (166, 205, 199)
+OUTLINE = (200, 200, 200)
 
 # Форма флакона під кожну категорію
 SHAPES = {
@@ -109,7 +109,7 @@ def _soft_shadow(canvas: Image.Image, box: tuple[int, int, int, int]) -> None:
     x0, _, x1, y1 = box
     layer = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
     draw = ImageDraw.Draw(layer)
-    draw.ellipse([x0 - 18, y1 - 14, x1 + 18, y1 + 30], fill=(7, 56, 53, 70))
+    draw.ellipse([x0 - 18, y1 - 14, x1 + 18, y1 + 30], fill=(0, 0, 0, 70))
     layer = layer.filter(ImageFilter.GaussianBlur(14))
     canvas.alpha_composite(layer)
 
@@ -297,23 +297,34 @@ def category_image(*, seed: str, slug: str) -> BytesIO:
     return buffer
 
 
-def banner_image(*, size: tuple[int, int], layout: str = "desktop") -> BytesIO:
+def banner_image(*, size: tuple[int, int], layout: str = "desktop", seed: str = "banner") -> BytesIO:
     """Декоративний фон банера. Заголовок накладає шаблон поверх зображення."""
+    rng = random.Random(seed)
     width, height = size
-    canvas = _stage(size, PALETTE["paper"], (206, 233, 229), floor_y=int(height * 0.74))
+    top, bottom = BACKGROUNDS[rng.randrange(len(BACKGROUNDS))]
+    canvas = _stage(size, top, bottom, floor_y=int(height * 0.74))
     draw = ImageDraw.Draw(canvas)
 
-    columns = (0.62, 0.75, 0.88) if layout == "desktop" else (0.24, 0.5, 0.76)
-    baseline = int(height * (0.78 if layout == "desktop" else 0.6))
+    shapes = ("dropper", "tall", "jar", "pump", "tube", "mini")
+    if layout == "desktop":
+        columns = (0.58 + rng.uniform(-0.04, 0.04), 0.74 + rng.uniform(-0.03, 0.03), 0.88)
+        baseline = int(height * (0.76 + rng.uniform(-0.02, 0.02)))
+        scales = (0.38 + rng.uniform(0, 0.08), 0.55 + rng.uniform(0, 0.1), 0.42 + rng.uniform(0, 0.08))
+    else:
+        columns = (0.22 + rng.uniform(-0.04, 0.04), 0.5, 0.78 + rng.uniform(-0.04, 0.04))
+        baseline = int(height * (0.58 + rng.uniform(-0.03, 0.03)))
+        scales = (0.4 + rng.uniform(0, 0.08), 0.58 + rng.uniform(0, 0.1), 0.44 + rng.uniform(0, 0.08))
+
+    shape_pick = rng.sample(shapes, 3)
     for index, offset in enumerate(columns):
         _draw_bottle(
             draw,
-            ("dropper", "tall", "jar")[index],
+            shape_pick[index],
             int(width * offset),
             baseline,
-            BODY_COLORS[index],
-            CAP_COLORS[index],
-            (0.42, 0.6, 0.46)[index] * (height / 620),
+            BODY_COLORS[rng.randrange(len(BODY_COLORS))],
+            CAP_COLORS[rng.randrange(len(CAP_COLORS))],
+            scales[index] * (height / 620),
         )
 
     buffer = BytesIO()

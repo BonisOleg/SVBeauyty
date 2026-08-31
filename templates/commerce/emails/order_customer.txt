@@ -1,0 +1,30 @@
+Замовлення {{ order.number }} прийнято
+
+Дякуємо, {{ order.first_name }}!
+
+Ваше замовлення отримано і має статус: {{ order.get_status_display }}.
+{% if order.status == "awaiting_payment" %}
+Очікуємо оплату. Після надходження коштів менеджер підтвердить замовлення.
+{% elif order.status == "paid" %}
+Оплату отримано. Менеджер звʼяжеться з вами щодо доставки.
+{% else %}
+Менеджер звʼяжеться з вами найближчим часом.
+{% endif %}
+
+Оплата: {{ order.get_payment_method_display }}
+Доставка: {{ order.delivery_summary }}
+{% if order.other_recipient %}Отримувач: {{ order.recipient_name }}, тел. {{ order.recipient_phone }}
+{% endif %}До сплати: {{ order.total_uah }} грн
+
+Позиції:
+{% for item in order.items.all %}- {{ item.product_name }}{% if item.volume %} / {{ item.volume }}{% endif %} — {{ item.quantity }} шт × {{ item.unit_price_uah }} = {{ item.line_total_uah }} грн
+{% endfor %}
+{% if order.payment_method == "bank_details" and order.bank_details_snapshot %}
+Реквізити для оплати:
+IBAN: {{ order.bank_details_snapshot.iban|default:"—" }}
+Отримувач: {{ order.bank_details_snapshot.recipient|default:"—" }}
+Призначення: {{ order.bank_details_snapshot.purpose|default:order.number }}
+{% endif %}
+З питаннями: {{ site_settings.phone|default:"" }} {{ site_settings.email|default:"" }}
+
+{{ site_settings.site_name }}

@@ -17,9 +17,9 @@
               {% endif %}
             </div>
             <div>
-              <p class="card__brand">{{ row.product.brand.name }}</p>
+              <p class="card__subtitle">{{ row.product.brand.name }}</p>
               <a class="cart-line__name" href="{{ row.product.get_absolute_url }}">{{ row.product.name }}</a>
-              <p class="cart-line__meta">{{ row.variant.volume }} &middot; {% translate "Артикул" %} {{ row.variant.sku }}</p>
+              <p class="cart-line__meta">{{ row.variant.volume }} · {% translate "Код" %} {{ row.variant.sku }}</p>
 
               <div class="cart-row__foot">
                 <span class="qty">
@@ -30,8 +30,13 @@
                 </span>
 
                 <div class="price">
-                  <span class="price__value">{{ row.line_total|uah }} ₴</span>
-                  {% if row.price.has_discount %}<span class="price__pro-note">{% translate "ціна косметолога" %}</span>{% endif %}
+                  <span class="price__value{% if row.price.is_sale %} price__value--sale{% endif %}">{{ row.line_total|uah }} ₴</span>
+                  {% if row.price.is_sale %}
+                    <span class="price__old">{{ row.price.base_amount|uah }} ₴</span>
+                  {% endif %}
+                  {% if row.price.is_pro_price %}
+                    <span class="price__pro-note">{% translate "ціна косметолога" %}</span>
+                  {% endif %}
                 </div>
 
                 <button type="button" class="cart-line__remove" data-cart-remove="{{ row.item.id }}">{% translate "Видалити" %}</button>
@@ -62,7 +67,7 @@
             {% blocktranslate %}Мінімальна сума замовлення — {{ min_order }} ₴{% endblocktranslate %}
           </p>
         {% else %}
-          <a href="{% url 'commerce:checkout' %}" class="btn btn--primary btn--block btn--lg">{% translate "Оформити замовлення" %}</a>
+          <a href="{% url 'commerce:checkout' %}" class="btn btn--checkout btn--block btn--lg">{% translate "Оформити замовлення" %}</a>
         {% endif %}
 
         <a href="{% url 'catalog:catalog' %}" class="btn btn--outline btn--block">{% translate "Продовжити покупки" %}</a>

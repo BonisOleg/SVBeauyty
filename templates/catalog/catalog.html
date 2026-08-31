@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n catalog_tags core_tags %}
+{% load i18n catalog_tags core_tags product_grid %}
 
 {% block title %}
   {% if is_search %}{% translate "Пошук" %}: {{ query }} — {{ site_settings.site_name }}
@@ -58,9 +58,7 @@
       </div>
 
       {% if page_obj.object_list %}
-        <div class="grid-products">
-          {% for product in page_obj %}{% product_card product %}{% endfor %}
-        </div>
+        {% product_grid page_obj.object_list cols=4 %}
 
         {% if page_obj.paginator.num_pages > 1 %}
           <nav class="pagination" aria-label="{% translate 'Сторінки' %}">

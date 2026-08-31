@@ -1,0 +1,11 @@
+{% load i18n %}
+{% if enabled and count %}
+  <span class="rating" aria-label="{% blocktranslate with avg=avg|floatformat:1 count=count %}Оцінка {{ avg }} з 5, {{ count }} відгуків{% endblocktranslate %}">
+    <span class="rating__stars" aria-hidden="true">
+      {% for i in "12345" %}
+        <span class="rating__star{% if forloop.counter <= filled %} is-filled{% endif %}">★</span>
+      {% endfor %}
+    </span>
+    {% if show_count %}<span class="rating__count">{{ count }}</span>{% endif %}
+  </span>
+{% endif %}

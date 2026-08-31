@@ -21,7 +21,7 @@
           <p class="stat__label">{% translate "Бонусних балів" %}</p>
         </div>
         <div class="stat">
-          <p class="stat__value" style="font-size: var(--fs-lg)">
+          <p class="stat__value stat__value--status">
             {% if user.is_pro %}
               <span class="status-pill status-pill--pro">{% translate "Косметолог" %}</span>
             {% elif user.client_type == 'pending_cosmo' %}
@@ -35,18 +35,62 @@
       </div>
 
       {% if user.is_pro and delivery_note %}
-        <div class="pro-hint" style="margin-bottom: var(--sp-5); white-space: pre-line">{{ delivery_note }}</div>
+        <div class="pro-hint cabinet__note">{{ delivery_note }}</div>
       {% endif %}
 
       {% if pending_request %}
         <div class="message">{% translate "Ваша заявка на статус косметолога розглядається менеджером." %}</div>
       {% endif %}
 
-      <div class="cabinet__card">
-        <h2 class="section__title" style="font-size: var(--fs-lg); margin-bottom: var(--sp-4)">
-          {% translate "Особисті дані" %}
-        </h2>
-        <form method="post" novalidate>
+      <div
+        class="cabinet__card profile-card{% if form.errors %} is-editing{% endif %}"
+        data-profile-card
+        {% if form.errors %}data-editing="true"{% endif %}
+      >
+        <div class="profile-card__head">
+          <h2 class="profile-card__title">{% translate "Особисті дані" %}</h2>
+          <button
+            type="button"
+            class="profile-card__edit"
+            data-profile-edit
+            aria-label="{% translate 'Змінити особисті дані' %}"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+              <path d="M12 20h9" stroke-linecap="round"/>
+              <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" stroke-linejoin="round"/>
+            </svg>
+            <span>{% translate "Змінити" %}</span>
+          </button>
+        </div>
+
+        <div class="profile-card__view" data-profile-view>
+          <dl class="profile-card__list">
+            <div class="profile-card__row">
+              <dt>{% translate "Ім'я" %}</dt>
+              <dd>{% firstof user.first_name "—" %}</dd>
+            </div>
+            <div class="profile-card__row">
+              <dt>{% translate "Прізвище" %}</dt>
+              <dd>{% firstof user.last_name "—" %}</dd>
+            </div>
+            <div class="profile-card__row">
+              <dt>{% translate "Телефон" %}</dt>
+              <dd>{% firstof user.phone "—" %}</dd>
+            </div>
+            <div class="profile-card__row">
+              <dt>{% translate "Email" %}</dt>
+              <dd>{{ user.email }}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <form
+          class="profile-card__form"
+          method="post"
+          novalidate
+          data-profile-form
+          {% if not form.errors %}hidden{% endif %}
+        >
           {% csrf_token %}
           <div class="form-grid form-grid--2">
             {% include "components/_field.html" with field=form.first_name %}
@@ -54,9 +98,12 @@
           </div>
           {% include "components/_field.html" with field=form.phone %}
           <p class="field__hint">{% translate "Email" %}: {{ user.email }}</p>
-          <button type="submit" class="btn btn--primary" style="margin-top: var(--sp-4)">
-            {% translate "Зберегти" %}
-          </button>
+          <div class="profile-card__actions">
+            <button type="submit" class="btn btn--primary">{% translate "Зберегти" %}</button>
+            <button type="button" class="btn btn--outline" data-profile-cancel>
+              {% translate "Скасувати" %}
+            </button>
+          </div>
         </form>
       </div>
     </div>

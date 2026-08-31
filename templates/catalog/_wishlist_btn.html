@@ -1,0 +1,32 @@
+{% load i18n %}
+<button
+  type="button"
+  class="wish-btn{% if in_wishlist %} is-active{% endif %}{% if btn_class %} {{ btn_class }}{% endif %}"
+  data-wishlist-toggle
+  data-product-id="{{ product.id }}"
+  aria-pressed="{% if in_wishlist %}true{% else %}false{% endif %}"
+  aria-label="{% if in_wishlist %}{% translate 'Прибрати з обраного' %}{% else %}{% translate 'Додати в обране' %}{% endif %}"
+  title="{% if in_wishlist %}{% translate 'Прибрати з обраного' %}{% else %}{% translate 'Додати в обране' %}{% endif %}"
+>
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path
+      class="wish-btn__outline"
+      d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.7"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <path
+      class="wish-btn__fill"
+      d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+      fill="currentColor"
+      stroke="currentColor"
+      stroke-width="1.7"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </svg>
+  {% if show_label %}<span class="wish-btn__label">{% translate "Обране" %}</span>{% endif %}
+</button>

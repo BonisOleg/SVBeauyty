@@ -1,0 +1,72 @@
+{% load i18n %}
+<section class="pdp-specs" id="specs" data-tabs>
+  <div class="pdp-specs__nav" role="tablist" aria-label="{% translate 'Інформація про товар' %}">
+    <button type="button"
+            class="pdp-specs__tab is-active"
+            data-tab-btn="chars"
+            role="tab"
+            aria-selected="true">{% translate "Характеристики" %}</button>
+    <button type="button"
+            class="pdp-specs__tab"
+            data-tab-btn="desc"
+            role="tab"
+            aria-selected="false">{% translate "Опис" %}</button>
+    <button type="button"
+            class="pdp-specs__tab"
+            data-tab-btn="composition"
+            role="tab"
+            aria-selected="false">{% translate "Склад" %}</button>
+  </div>
+
+  <div class="pdp-specs__body">
+    <div class="pdp-specs__panel is-active" data-tab-panel="chars" role="tabpanel">
+      <dl class="pdp-chars">
+        <div class="pdp-chars__row">
+          <dt>{% translate "Бренд" %}:</dt>
+          <dd>{{ product.brand.name }}</dd>
+        </div>
+        <div class="pdp-chars__row">
+          <dt>{% translate "Категорія" %}:</dt>
+          <dd><a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a></dd>
+        </div>
+        {% if product.active_variants %}
+          <div class="pdp-chars__row">
+            <dt>{% translate "Обʼєм" %}:</dt>
+            <dd>
+              {% for variant in product.active_variants %}
+                {{ variant.volume }}{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            </dd>
+          </div>
+        {% endif %}
+        {% if product.default_variant %}
+          <div class="pdp-chars__row">
+            <dt>{% translate "Артикул" %}:</dt>
+            <dd>{{ product.default_variant.sku }}</dd>
+          </div>
+        {% endif %}
+        {% if product.filter_attrs.all %}
+          {% regroup product.filter_attrs.all by group as attr_groups %}
+          {% for group in attr_groups %}
+            <div class="pdp-chars__row">
+              <dt>{{ group.grouper.name }}:</dt>
+              <dd>{% for attr in group.list %}{{ attr.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</dd>
+            </div>
+          {% endfor %}
+        {% endif %}
+      </dl>
+    </div>
+
+    <div class="pdp-specs__panel" data-tab-panel="desc" role="tabpanel">
+      <div class="pdp-specs__text">
+        {% if product.description %}{{ product.description }}{% elif product.short_description %}{{ product.short_description }}{% else %}{% translate "Опис зʼявиться незабаром." %}{% endif %}
+      </div>
+    </div>
+
+    <div class="pdp-specs__panel" data-tab-panel="composition" role="tabpanel">
+      <div class="pdp-specs__text">
+        {% if product.composition %}{{ product.composition }}{% else %}{% translate "Зʼявиться незабаром." %}{% endif %}
+      </div>
+    </div>
+  </div>
+</section>

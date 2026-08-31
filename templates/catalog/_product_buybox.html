@@ -1,0 +1,152 @@
+{% load i18n catalog_tags %}
+<form method="post"
+      action="{% url 'commerce:cart_add' %}"
+      data-cart-add
+      data-product-buybox
+      data-qa="product-cart-add"
+      class="buybox"
+      hx-post="{% url 'commerce:cart_add' %}"
+      hx-swap="none">
+  {% csrf_token %}
+
+  {% if product.active_variants %}
+    {% with selected=product.default_variant %}
+      {% if selected %}
+        {% variant_price selected as default_price %}
+        <input type="hidden" name="variant_id" value="{{ selected.id }}" data-variant-input>
+
+        <div class="buybox__price-row">
+          <div class="buybox__price">
+            <span class="product__price{% if default_price.is_sale %} product__price--sale{% endif %}" data-variant-price>{{ default_price.amount|uah }} ₴</span>
+            <span class="price__old" data-variant-old-price {% if not default_price.has_discount %}hidden{% endif %}>
+              {% if default_price.has_discount %}{{ default_price.base_amount|uah }} ₴{% endif %}
+            </span>
+          </div>
+          {% include "catalog/_wishlist_btn.html" with product=product in_wishlist=in_wishlist btn_class="wish-btn--buybox" %}
+        </div>
+
+        {# Desktop dropdown #}
+        <div class="product-variant product-variant--desktop{% if product.active_variants|length < 2 %} product-variant--single{% endif %}" data-product-variant-ui>
+          <button type="button"
+                  class="product-variant__trigger"
+                  data-product-variant-trigger
+                  aria-haspopup="listbox"
+                  aria-expanded="false"
+                  aria-controls="product-variant-list-{{ product.id }}"
+                  {% if product.active_variants|length < 2 %}aria-disabled="true"{% endif %}>
+            <span class="product-variant__thumb" data-product-variant-thumb>
+              {% if product.main_image %}
+                <img src="{{ product.main_image.image.url }}" alt="" width="32" height="32" loading="lazy">
+              {% endif %}
+            </span>
+            <span class="product-variant__label" data-product-variant-label>{{ selected.volume }}</span>
+            {% if product.active_variants|length > 1 %}
+              <span class="product-variant__chevron" aria-hidden="true"></span>
+            {% endif %}
+          </button>
+
+          <ul class="product-variant__list"
+              id="product-variant-list-{{ product.id }}"
+              role="listbox"
+              {% if product.active_variants|length > 1 %}hidden{% endif %}
+              data-product-variant-list>
+            {% for variant in product.active_variants %}
+              {% variant_price variant as vp %}
+              <li role="option"
+                  class="product-variant__option{% if selected.id == variant.id %} is-selected{% endif %}{% if not variant.in_stock %} is-disabled{% endif %}"
+                  tabindex="-1"
+                  data-variant="{{ variant.id }}"
+                  data-product-variant-option
+                  data-in-stock="{% if variant.in_stock %}1{% else %}0{% endif %}"
+                  data-price="{{ vp.amount|uah }} ₴"
+                  data-old-price="{% if vp.has_discount %}{{ vp.base_amount|uah }} ₴{% endif %}"
+                  data-is-sale="{% if vp.is_sale %}1{% else %}0{% endif %}"
+                  data-is-pro="{% if vp.is_pro_price %}1{% else %}0{% endif %}"
+                  data-label="{{ variant.volume }}"
+                  data-thumb="{% if product.main_image %}{{ product.main_image.image.url }}{% endif %}"
+                  aria-selected="{% if selected.id == variant.id %}true{% else %}false{% endif %}"
+                  {% if not variant.in_stock %}aria-disabled="true"{% endif %}>
+                <span class="product-variant__thumb">
+                  {% if product.main_image %}
+                    <img src="{{ product.main_image.image.url }}" alt="" width="32" height="32" loading="lazy">
+                  {% endif %}
+                </span>
+                <span class="product-variant__label">{{ variant.volume }}</span>
+                {% if not variant.in_stock %}
+                  <span class="product-variant__stock">{% translate "Немає" %}</span>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        {# Mobile horizontal volume strip #}
+        <div class="variant-strip" data-variant-strip>
+          {% if product.active_variants|length > 1 %}
+            <p class="variant-strip__label">{% translate "Усі обʼєми" %} ({{ product.active_variants|length }})</p>
+          {% endif %}
+          <div class="variant-strip__track">
+            {% for variant in product.active_variants %}
+              <button type="button"
+                      class="variant-strip__chip{% if selected.id == variant.id %} is-selected{% endif %}{% if not variant.in_stock %} is-disabled{% endif %}"
+                      data-variant-chip
+                      data-variant="{{ variant.id }}"
+                      {% if not variant.in_stock %}disabled aria-disabled="true"{% endif %}>
+                {% if product.main_image %}
+                  <span class="variant-strip__thumb">
+                    <img src="{{ product.main_image.image.url }}" alt="" width="28" height="28" loading="lazy">
+                  </span>
+                {% endif %}
+                <span class="variant-strip__vol">{{ variant.volume }}</span>
+              </button>
+            {% endfor %}
+          </div>
+        </div>
+
+        <p class="pro-hint" data-variant-pro-hint {% if not default_price.is_pro_price %}hidden{% endif %}>
+          {% translate "Для вас діє професійна ціна косметолога." %}
+        </p>
+        <p class="form-note" data-variant-cosmo-note {% if default_price.has_discount or is_pro_user %}hidden{% endif %}>
+          {% translate "Косметологам — окремі ціни." %}
+          <a href="{% url 'accounts:cosmetologist' %}">{% translate "Подати заявку" %}</a>
+        </p>
+
+        <div class="buybox__actions">
+          <span class="qty" data-qty {% if not selected.in_stock %}hidden{% endif %}>
+            <button type="button" class="qty__btn" data-qty-step="-1" aria-label="{% translate 'Менше' %}" {% if not selected.in_stock %}disabled{% endif %}>−</button>
+            <input type="number" class="qty__input" name="quantity" value="1" min="1" max="99" inputmode="numeric" aria-label="{% translate 'Кількість' %}" {% if not selected.in_stock %}disabled{% endif %}>
+            <button type="button" class="qty__btn" data-qty-step="1" aria-label="{% translate 'Більше' %}" {% if not selected.in_stock %}disabled{% endif %}>+</button>
+          </span>
+          <button
+            type="submit"
+            class="btn btn--primary btn--lg buybox__buy"
+            data-buy-btn
+            data-label-in="{% translate 'Купити' %}"
+            data-label-out="{% translate 'Немає в наявності' %}"
+            {% if not selected.in_stock %}disabled{% endif %}
+          >
+            {% if selected.in_stock %}{% translate "Купити" %}{% else %}{% translate "Немає в наявності" %}{% endif %}
+          </button>
+        </div>
+
+        <div class="buybox__meta">
+          <p class="product__stock{% if not selected.in_stock %} is-out{% endif %}"
+             data-stock-label
+             data-label-in="{% translate 'Є в наявності!' %}"
+             data-label-out="{% translate 'Немає в наявності' %}">
+            {% if selected.in_stock %}{% translate "Є в наявності!" %}{% else %}{% translate "Немає в наявності" %}{% endif %}
+          </p>
+          <span class="buybox__sku">{% translate "код товару" %}: {{ selected.sku }}</span>
+        </div>
+
+        <ul class="buybox__perks">
+          <li><a href="{% url 'content:page' 'dostavka-i-oplata' %}">{% translate "Доставка і оплата" %}</a></li>
+          <li><a href="{% url 'content:page' 'oferta' %}">{% translate "Обмін і повернення" %}</a></li>
+          <li><a href="{% url 'accounts:cosmetologist' %}">{% translate "Ціни для косметологів" %}</a></li>
+        </ul>
+      {% endif %}
+    {% endwith %}
+  {% else %}
+    <p class="empty-state">{% translate "Товар тимчасово недоступний." %}</p>
+  {% endif %}
+</form>

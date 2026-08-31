@@ -3,6 +3,8 @@ from django.shortcuts import render
 from apps.catalog.models import Category, Product
 from apps.content.models import Banner
 
+HOME_CATEGORIES_LIMIT = 8
+
 
 def home(request):
     user = request.user if request.user.is_authenticated else None
@@ -13,7 +15,9 @@ def home(request):
     )
     context = {
         "banners": Banner.objects.filter(is_active=True).order_by("sort_order", "id"),
-        "categories": Category.objects.filter(is_active=True).order_by("sort_order", "id"),
+        "categories": Category.objects.filter(is_active=True).order_by("sort_order", "id")[
+            :HOME_CATEGORIES_LIMIT
+        ],
         "hits": base_qs.filter(is_hit=True)[:8],
         "novelties": base_qs.filter(is_new=True)[:8],
         "user_for_pricing": user,

@@ -7,6 +7,7 @@ from apps.pricing.models import PricingSettings
 RETAIL = "retail"
 PRO_MANUAL = "pro_manual"
 PRO_AUTO = "pro_auto"
+SALE = "sale"
 
 CENTS = Decimal("0.01")
 HUNDRED = Decimal("100")
@@ -20,7 +21,15 @@ class PriceInfo:
 
     @property
     def has_discount(self) -> bool:
-        return self.source != RETAIL and self.amount < self.base_amount
+        return self.amount < self.base_amount
+
+    @property
+    def is_sale(self) -> bool:
+        return self.source == SALE
+
+    @property
+    def is_pro_price(self) -> bool:
+        return self.source in (PRO_MANUAL, PRO_AUTO)
 
     @property
     def discount_amount(self) -> Decimal:
@@ -69,15 +78,29 @@ def recalculate_all(queryset=None) -> int:
     return len(changed)
 
 
+def sale_is_active(variant) -> bool:
+    """Акція активна, якщо акційна ціна > 0 і менша за роздрібну."""
+    base = Decimal(getattr(variant, "price_uah", 0) or 0)
+    sale = Decimal(getattr(variant, "sale_price_uah", 0) or 0)
+    return sale > 0 and sale < base
+
+
 def get_price(variant, user=None) -> PriceInfo:
     """Єдине джерело ціни для вітрини, кошика й checkout."""
     base = Decimal(variant.price_uah or 0)
-    if not is_pro(user):
-        return PriceInfo(amount=base, source=RETAIL, base_amount=base)
+    if is_pro(user):
+        amount = Decimal(variant.price_pro_uah or 0) or base
+        source = PRO_MANUAL if variant.price_pro_is_manual else PRO_AUTO
+        return PriceInfo(amount=amount, source=source, base_amount=base)
 
-    amount = Decimal(variant.price_pro_uah or 0) or base
-    source = PRO_MANUAL if variant.price_pro_is_manual else PRO_AUTO
-    return PriceInfo(amount=amount, source=source, base_amount=base)
+    if sale_is_active(variant):
+        return PriceInfo(
+            amount=Decimal(variant.sale_price_uah).quantize(CENTS),
+            source=SALE,
+            base_amount=base,
+        )
+
+    return PriceInfo(amount=base, source=RETAIL, base_amount=base)
 
 
 def product_price_range(product, user=None):

@@ -5,8 +5,11 @@ from pathlib import Path
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from apps.catalog.models import Brand, Category, Product, Variant
+from apps.catalog.models import Brand, Category, Product, ProductAttribute, ProductAttributeGroup, ProductReview, Variant
+from apps.catalog.seed import attributes as attr_seed
 from apps.catalog.seed import content as content_seed
+from apps.catalog.seed import gift_promos as gift_seed
+from apps.catalog.seed import reviews as review_seed
 from apps.catalog.seed.taxonomy import BRANDS, CATEGORIES
 from apps.content.models import Banner, Page, SiteSettings
 from apps.loyalty.models import LoyaltySettings
@@ -34,14 +37,17 @@ class Command(BaseCommand):
         self._seed_settings()
         brands = self._seed_brands()
         categories = self._seed_categories()
-        self._seed_products(brands, categories)
+        attributes = self._seed_attributes()
+        self._seed_products(brands, categories, attributes)
+        self._seed_reviews()
         self._seed_content()
         pricing_services.recalculate_all()
 
         self.stdout.write(
             self.style.SUCCESS(
                 f"Готово: {Product.objects.count()} товарів, {Variant.objects.count()} варіантів, "
-                f"{Category.objects.count()} категорій"
+                f"{Category.objects.count()} категорій, {ProductAttribute.objects.count()} характеристик, "
+                f"{ProductReview.objects.count()} відгуків"
             )
         )
 
@@ -79,7 +85,36 @@ class Command(BaseCommand):
             result[data["slug"]] = category
         return result
 
-    def _seed_products(self, brands: dict, categories: dict) -> None:
+    def _seed_attributes(self) -> dict:
+        groups = {}
+        for data in attr_seed.ATTRIBUTE_GROUPS:
+            group, _ = ProductAttributeGroup.objects.update_or_create(
+                slug=data["slug"],
+                defaults={
+                    "name_uk": data["name_uk"],
+                    "name_ru": data["name_ru"],
+                    "sort_order": data["sort_order"],
+                    "is_active": True,
+                },
+            )
+            groups[data["slug"]] = group
+
+        attributes = {}
+        for data in attr_seed.ATTRIBUTES:
+            attr, _ = ProductAttribute.objects.update_or_create(
+                group=groups[data["group"]],
+                slug=data["slug"],
+                defaults={
+                    "name_uk": data["name_uk"],
+                    "name_ru": data["name_ru"],
+                    "sort_order": data["sort_order"],
+                    "is_active": True,
+                },
+            )
+            attributes[data["slug"]] = attr
+        return attributes
+
+    def _seed_products(self, brands: dict, categories: dict, attributes: dict) -> None:
         with PRODUCTS_JSON.open(encoding="utf-8") as fh:
             items = json.load(fh)
 
@@ -99,6 +134,7 @@ class Command(BaseCommand):
                     "sort_order": order,
                     "seo_title_uk": f"{item['name_uk']} — SVbeauty",
                     "seo_description_uk": description[:290],
+                    **gift_seed.GIFT_PROMO_SAMPLES.get(item["slug"], {}),
                 },
             )
             for index, variant in enumerate(item["variants"], start=1):
@@ -111,6 +147,29 @@ class Command(BaseCommand):
                         "stock_qty": DEFAULT_STOCK,
                         "sort_order": index,
                     },
+                )
+
+            attr_slugs = attr_seed.PRODUCT_ATTRIBUTES.get(item["slug"])
+            if not attr_slugs:
+                attr_slugs = attr_seed.FALLBACK_SETS[(order - 1) % len(attr_seed.FALLBACK_SETS)]
+            product.filter_attrs.set(
+                [attributes[slug] for slug in attr_slugs if slug in attributes]
+            )
+
+    def _seed_reviews(self) -> None:
+        products = list(Product.objects.filter(is_active=True).order_by("id")[:24])
+        samples = review_seed.SAMPLE_REVIEWS
+        for index, product in enumerate(products):
+            if product.reviews.exists():
+                continue
+            for offset in range(3):
+                rating, author, text = samples[(index + offset) % len(samples)]
+                ProductReview.objects.create(
+                    product=product,
+                    author_name=author,
+                    rating=rating,
+                    text=text,
+                    is_published=True,
                 )
 
     def _seed_settings(self) -> None:
@@ -129,6 +188,5 @@ class Command(BaseCommand):
     def _seed_content(self) -> None:
         for data in content_seed.PAGES:
             Page.objects.update_or_create(slug=data["slug"], defaults=data)
-        Banner.objects.update_or_create(
-            title_uk=content_seed.BANNER["title_uk"], defaults=content_seed.BANNER
-        )
+        for data in content_seed.BANNERS:
+            Banner.objects.update_or_create(title_uk=data["title_uk"], defaults=data)

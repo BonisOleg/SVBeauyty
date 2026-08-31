@@ -11,10 +11,40 @@
     {% include "accounts/_nav.html" with active='loyalty' %}
 
     <div>
-      <div class="stat" style="margin-bottom: var(--sp-5)">
-        <p class="stat__value">{{ balance }}</p>
-        <p class="stat__label">{% translate "Доступно балів" %}</p>
+      <div class="stat" style="margin-bottom: var(--sp-3)">
+        <p class="stat__value">{{ available }}</p>
+        <p class="stat__label">{% translate "Доступно до списання" %}</p>
       </div>
+      <p class="field__hint" style="margin-bottom: var(--sp-5)">
+        {% blocktranslate %}Усього на рахунку: {{ balance }} балів.{% endblocktranslate %}
+        {% if pending %}
+          {% blocktranslate %}В очікуванні: {{ pending }}.{% endblocktranslate %}
+        {% endif %}
+      </p>
+
+      {% if pending_releases %}
+        <div class="cabinet__card" style="margin-bottom: var(--sp-5)">
+          <h2 class="section__title" style="font-size: var(--fs-lg); margin-bottom: var(--sp-3)">
+            {% translate "Коли стануть доступні" %}
+          </h2>
+          <p class="field__hint" style="margin-bottom: var(--sp-3)">
+            {% blocktranslate %}Бали за покупку доступні через {{ earn_hold_days }} днів після нарахування.{% endblocktranslate %}
+          </p>
+          {% for item in pending_releases %}
+            <div class="txn">
+              <div>
+                <p>
+                  {% blocktranslate with points=item.points %}{{ points }} балів{% endblocktranslate %}
+                  {% if item.order %} — {{ item.order.number }}{% endif %}
+                </p>
+                <p class="order-card__date">
+                  {% blocktranslate with date=item.available_at|date:"d.m.Y" %}Доступні з {{ date }}{% endblocktranslate %}
+                </p>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
 
       <div class="cabinet__card">
         <h2 class="section__title" style="font-size: var(--fs-lg); margin-bottom: var(--sp-3)">

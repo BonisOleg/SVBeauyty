@@ -7,8 +7,10 @@ from django.utils.translation import gettext as _
 
 from apps.accounts.forms import CosmetologistRequestForm, LoginForm, ProfileForm, RegisterForm
 from apps.accounts.models import ClientType, CosmetologistRequest, RequestStatus
+from apps.catalog import wishlist as wishlist_services
 from apps.commerce.models import Order
 from apps.loyalty import services as loyalty
+from apps.loyalty.models import LoyaltySettings
 from apps.pricing.services import delivery_note
 
 
@@ -81,11 +83,30 @@ def order_detail(request, number):
 def loyalty_history(request):
     account = loyalty.get_account(request.user)
     transactions = account.transactions.select_related("order")[:100] if account else []
+    conf = LoyaltySettings.get_solo()
     context = {
         "balance": account.balance if account else 0,
+        "available": loyalty.get_available_balance(request.user),
+        "pending": loyalty.pending_earn_points(request.user),
+        "pending_releases": loyalty.pending_earn_releases(request.user),
+        "earn_hold_days": conf.earn_hold_days,
         "transactions": transactions,
     }
     return render(request, "accounts/loyalty.html", context)
+
+
+def wishlist(request):
+    if request.user.is_authenticated:
+        products = wishlist_services.list_products_for(request.user)
+        return render(
+            request,
+            "accounts/wishlist.html",
+            {
+                "products": products,
+                "wishlist_product_ids": {p.pk for p in products},
+            },
+        )
+    return render(request, "accounts/wishlist.html", {"products": [], "wishlist_product_ids": set()})
 
 
 @login_required

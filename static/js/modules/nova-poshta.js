@@ -6,6 +6,13 @@ function debounce(fn, delay = 280) {
   };
 }
 
+function clearFieldError(input) {
+  const field = input?.closest('.field');
+  if (!field) return;
+  field.classList.remove('field--invalid');
+  field.querySelectorAll('.field__error').forEach((el) => el.remove());
+}
+
 function renderList(list, items, onPick) {
   list.innerHTML = '';
   if (!items.length) {
@@ -60,6 +67,7 @@ export function initNovaPoshta() {
     renderList(cityList, items, (item) => {
       cityInput.value = item.name;
       cityRef.value = item.ref;
+      clearFieldError(cityInput);
       branchInput.value = '';
       branchRef.value = '';
       branchInput.disabled = false;
@@ -80,15 +88,25 @@ export function initNovaPoshta() {
     renderList(branchList, items.slice(0, 40), (item) => {
       branchInput.value = item.name;
       branchRef.value = item.ref;
+      clearFieldError(branchInput);
     });
   };
 
   cityInput.addEventListener('input', () => {
     cityRef.value = '';
+    clearFieldError(cityInput);
     searchCities();
   });
-  branchInput.addEventListener('input', filterBranches);
+  branchInput.addEventListener('input', () => {
+    branchRef.value = '';
+    clearFieldError(branchInput);
+    filterBranches();
+  });
   branchInput.addEventListener('focus', filterBranches);
+
+  if (cityRef.value) {
+    loadBranches(cityRef.value);
+  }
 
   document.addEventListener('click', (event) => {
     if (!root.contains(event.target)) {

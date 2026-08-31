@@ -7,7 +7,7 @@
 {% block content %}
   <h1 class="page-title">{% translate "Оформлення замовлення" %}</h1>
 
-  <form method="post" novalidate>
+  <form method="post" novalidate data-checkout-delivery>
     {% csrf_token %}
     <div class="layout-two">
       <div>
@@ -23,36 +23,95 @@
             {% include "components/_field.html" with field=form.phone %}
             {% include "components/_field.html" with field=form.email %}
           </div>
+
+          <div class="field field--check {% if form.other_recipient.errors %}field--invalid{% endif %}" style="margin-top: var(--sp-4)">
+            <input type="checkbox" name="other_recipient" id="{{ form.other_recipient.id_for_label }}"
+                   data-other-recipient
+                   {% if form.other_recipient.value %}checked{% endif %}>
+            <label for="{{ form.other_recipient.id_for_label }}">
+              {{ form.other_recipient.label }}
+              {% if form.other_recipient.help_text %}
+                <span class="field__hint">{{ form.other_recipient.help_text }}</span>
+              {% endif %}
+            </label>
+            {% for error in form.other_recipient.errors %}<span class="field__error">{{ error }}</span>{% endfor %}
+          </div>
+
+          <div class="recipient-panel form-grid form-grid--2" data-recipient-panel {% if not form.other_recipient.value %}hidden{% endif %}>
+            {% include "components/_field.html" with field=form.recipient_first_name %}
+            {% include "components/_field.html" with field=form.recipient_last_name %}
+            {% include "components/_field.html" with field=form.recipient_phone %}
+          </div>
         </section>
 
-        <section class="checkout__step" data-np
-                 data-np-cities-url="{% url 'shipping:cities' %}"
-                 data-np-branches-url="{% url 'shipping:branches' %}">
-          <h2 class="checkout__step-title"><span class="checkout__step-num">2</span>{% translate "Доставка Новою Поштою" %}</h2>
+        <section class="checkout__step">
+          <h2 class="checkout__step-title"><span class="checkout__step-num">2</span>{% translate "Доставка" %}</h2>
 
-          <div class="field {% if form.delivery_city.errors %}field--invalid{% endif %}">
-            <label class="field__label" for="{{ form.delivery_city.id_for_label }}">{{ form.delivery_city.label }}</label>
-            <div class="autocomplete">
-              <input type="text" name="delivery_city" id="{{ form.delivery_city.id_for_label }}"
-                     value="{{ form.delivery_city.value|default:'' }}" autocomplete="off"
-                     placeholder="{% translate 'Почніть вводити місто' %}" data-np-city>
-              <div class="autocomplete__list" data-np-city-list hidden></div>
-            </div>
-            {% for error in form.delivery_city.errors %}<span class="field__error">{{ error }}</span>{% endfor %}
+          <div class="delivery-methods">
+            {% for value, label in form.delivery_method.field.choices %}
+              <label class="radio-card {% if form.delivery_method.value == value or not form.delivery_method.value and forloop.first %}is-active{% endif %}">
+                <input type="radio" name="delivery_method" value="{{ value }}" data-delivery-method
+                       {% if form.delivery_method.value == value or not form.delivery_method.value and forloop.first %}checked{% endif %}>
+                <span>
+                  <span class="radio-card__title">{{ label }}</span>
+                  {% if value == "nova_poshta" %}
+                    <span class="radio-card__hint">{% translate "Відділення або поштомат" %}</span>
+                  {% elif value == "pickup" and shipping.pickup_note %}
+                    <span class="radio-card__hint">{{ shipping.pickup_note }}</span>
+                  {% elif value == "taxi" and shipping.taxi_note %}
+                    <span class="radio-card__hint">{{ shipping.taxi_note }}</span>
+                  {% endif %}
+                </span>
+              </label>
+            {% endfor %}
           </div>
-          <input type="hidden" name="delivery_city_ref" value="{{ form.delivery_city_ref.value|default:'' }}" data-np-city-ref>
+          {% for error in form.delivery_method.errors %}<span class="field__error">{{ error }}</span>{% endfor %}
 
-          <div class="field {% if form.delivery_branch.errors %}field--invalid{% endif %}">
-            <label class="field__label" for="{{ form.delivery_branch.id_for_label }}">{{ form.delivery_branch.label }}</label>
-            <div class="autocomplete">
-              <input type="text" name="delivery_branch" id="{{ form.delivery_branch.id_for_label }}"
-                     value="{{ form.delivery_branch.value|default:'' }}" autocomplete="off"
-                     placeholder="{% translate 'Спочатку оберіть місто' %}" data-np-branch>
-              <div class="autocomplete__list" data-np-branch-list hidden></div>
+          <div class="delivery-panel" data-delivery-panel="nova_poshta" data-np
+               data-np-cities-url="{% url 'shipping:cities' %}"
+               data-np-branches-url="{% url 'shipping:branches' %}">
+            <div class="field {% if form.delivery_city.errors %}field--invalid{% endif %}">
+              <label class="field__label" for="{{ form.delivery_city.id_for_label }}">{{ form.delivery_city.label }}</label>
+              <div class="autocomplete">
+                <input type="text" name="delivery_city" id="{{ form.delivery_city.id_for_label }}"
+                       value="{{ form.delivery_city.value|default:'' }}" autocomplete="off"
+                       placeholder="{% translate 'Почніть вводити місто' %}" data-np-city>
+                <div class="autocomplete__list" data-np-city-list hidden></div>
+              </div>
+              {% for error in form.delivery_city.errors %}<span class="field__error">{{ error }}</span>{% endfor %}
             </div>
-            {% for error in form.delivery_branch.errors %}<span class="field__error">{{ error }}</span>{% endfor %}
+            <input type="hidden" name="delivery_city_ref" value="{{ form.delivery_city_ref.value|default:'' }}" data-np-city-ref>
+
+            <div class="field {% if form.delivery_branch.errors %}field--invalid{% endif %}">
+              <label class="field__label" for="{{ form.delivery_branch.id_for_label }}">{{ form.delivery_branch.label }}</label>
+              <div class="autocomplete">
+                <input type="text" name="delivery_branch" id="{{ form.delivery_branch.id_for_label }}"
+                       value="{{ form.delivery_branch.value|default:'' }}" autocomplete="off"
+                       placeholder="{% translate 'Спочатку оберіть місто' %}" data-np-branch>
+                <div class="autocomplete__list" data-np-branch-list hidden></div>
+              </div>
+              {% for error in form.delivery_branch.errors %}<span class="field__error">{{ error }}</span>{% endfor %}
+            </div>
+            <input type="hidden" name="delivery_branch_ref" value="{{ form.delivery_branch_ref.value|default:'' }}" data-np-branch-ref>
           </div>
-          <input type="hidden" name="delivery_branch_ref" value="{{ form.delivery_branch_ref.value|default:'' }}" data-np-branch-ref>
+
+          <div class="delivery-panel" data-delivery-panel="pickup" hidden>
+            {% if shipping.pickup_address %}
+              <p class="field__hint"><strong>{% translate "Адреса" %}:</strong> {{ shipping.pickup_address }}</p>
+            {% endif %}
+            {% if shipping.pickup_note %}<p class="field__hint">{{ shipping.pickup_note }}</p>{% endif %}
+          </div>
+
+          <div class="delivery-panel" data-delivery-panel="taxi" hidden>
+            {% if shipping.taxi_note %}<p class="field__hint">{{ shipping.taxi_note }}</p>{% endif %}
+            <div class="field {% if form.delivery_address.errors %}field--invalid{% endif %}">
+              <label class="field__label" for="{{ form.delivery_address.id_for_label }}">{{ form.delivery_address.label }}</label>
+              <input type="text" name="delivery_address" id="{{ form.delivery_address.id_for_label }}"
+                     value="{{ form.delivery_address.value|default:'' }}"
+                     placeholder="{% translate 'Вулиця, будинок, квартира' %}" autocomplete="street-address">
+              {% for error in form.delivery_address.errors %}<span class="field__error">{{ error }}</span>{% endfor %}
+            </div>
+          </div>
 
           {% if delivery_note %}<p class="field__hint" style="white-space: pre-line">{{ delivery_note }}</p>{% endif %}
         </section>
@@ -60,8 +119,9 @@
         <section class="checkout__step">
           <h2 class="checkout__step-title"><span class="checkout__step-num">3</span>{% translate "Оплата" %}</h2>
           {% for method in payment_methods %}
-            <label class="radio-card {% if forloop.first %}is-active{% endif %}">
-              <input type="radio" name="payment_method" value="{{ method.code }}" {% if forloop.first %}checked{% endif %}>
+            <label class="radio-card{% if form.payment_method.value == method.code or not form.payment_method.value and forloop.first %} is-active{% endif %}">
+              <input type="radio" name="payment_method" value="{{ method.code }}"
+                     {% if form.payment_method.value == method.code or not form.payment_method.value and forloop.first %}checked{% endif %}>
               <span>
                 <span class="radio-card__title">{{ method.label }}</span>
                 <span class="radio-card__hint">{{ method.hint }}</span>
@@ -88,41 +148,86 @@
       </div>
 
       <aside class="summary summary--sticky">
-        {% for row in summary.rows %}
-          <div class="summary__row">
-            <span>{{ row.product.name }} ({{ row.variant.volume }}) × {{ row.item.quantity }}</span>
-            <span>{{ row.line_total|uah }} ₴</span>
-          </div>
-        {% endfor %}
+        <p class="summary__title">{% translate "Ваше замовлення" %}</p>
+
+        <ul class="summary__items">
+          {% for row in summary.rows %}
+            <li class="summary__item">
+              <div class="summary__item-main">
+                <span class="summary__item-name">{{ row.product.name }}</span>
+                <span class="summary__item-meta">{{ row.variant.volume }} · ×{{ row.item.quantity }}</span>
+              </div>
+              <span class="summary__item-price">{{ row.line_total|uah }} ₴</span>
+            </li>
+          {% endfor %}
+        </ul>
 
         <div class="summary__row">
           <span>{% translate "Сума" %}</span>
           <span>{{ summary.subtotal|uah }} ₴</span>
         </div>
 
-        {% if max_points %}
-          <div class="loyalty-box">
+        {% if max_points or loyalty_pending %}
+          <div class="loyalty-box"
+               data-loyalty-box
+               data-subtotal="{{ summary.subtotal|stringformat:'f' }}">
             <p class="loyalty-box__balance">
-              {% blocktranslate %}На рахунку: {{ loyalty_balance }} балів. Можна списати до {{ max_points }}.{% endblocktranslate %}
+              {% blocktranslate with balance=loyalty_balance available=loyalty_available %}На рахунку: {{ balance }} балів (доступно до списання: {{ available }}).{% endblocktranslate %}
+              {% if max_points %}
+                {% blocktranslate %}Можна списати з цього замовлення до {{ max_points }}.{% endblocktranslate %}
+              {% endif %}
             </p>
-            <div class="loyalty-box__row">
-              <input type="number" name="redeem_points" value="{{ form.redeem_points.value|default:0 }}"
-                     min="0" max="{{ max_points }}" inputmode="numeric" class="input"
-                     data-loyalty-points data-rate="{{ points_value|default:0 }}"
-                     aria-label="{% translate 'Списати балів' %}">
-              <span class="field__hint">= <span data-loyalty-value>0</span> ₴</span>
-            </div>
-            {% for error in form.redeem_points.errors %}<span class="field__error">{{ error }}</span>{% endfor %}
+            {% if earn_hold_days %}
+              <p class="loyalty-box__hold">
+                {% blocktranslate %}Бали за покупку доступні до списання через {{ earn_hold_days }} днів після нарахування.{% endblocktranslate %}
+              </p>
+              {% if loyalty_pending_releases %}
+                <ul class="loyalty-box__releases">
+                  {% for item in loyalty_pending_releases %}
+                    <li>
+                      {% blocktranslate with points=item.points date=item.available_at|date:"d.m.Y" %}{{ points }} балів — з {{ date }}{% endblocktranslate %}
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            {% endif %}
+            {% if max_points %}
+              <div class="loyalty-box__row">
+                <input type="number" name="redeem_points" value="{{ form.redeem_points.value|default:0 }}"
+                       min="0" max="{{ max_points }}" inputmode="numeric" class="input"
+                       data-loyalty-points data-rate="{{ point_rate|stringformat:'f' }}"
+                       aria-label="{% translate 'Списати балів' %}">
+                <span class="loyalty-box__eq">= <span data-loyalty-value>0.00</span> ₴</span>
+              </div>
+              {% for error in form.redeem_points.errors %}<span class="field__error">{{ error }}</span>{% endfor %}
+            {% endif %}
           </div>
         {% endif %}
 
+        <div class="summary__row summary__row--discount" data-checkout-discount-row hidden>
+          <span>{% translate "Знижка балами" %}</span>
+          <span>−<span data-checkout-discount>0,00</span> ₴</span>
+        </div>
+
         <div class="summary__row summary__row--total">
           <span>{% translate "До сплати" %}</span>
-          <span>{{ summary.subtotal|uah }} ₴</span>
+          <span><span data-checkout-total>{{ summary.subtotal|uah }}</span> ₴</span>
         </div>
 
         <button type="submit" class="btn btn--primary btn--block btn--lg">{% translate "Підтвердити замовлення" %}</button>
-        <p class="field__hint">{% translate "Після оформлення ви побачите реквізити для оплати — їх можна скопіювати одним натисканням." %}</p>
+        {% for method in payment_methods %}
+          <p class="field__hint"
+             data-checkout-pay-hint="{{ method.code }}"
+             {% if form.payment_method.value %}
+               {% if form.payment_method.value != method.code %}hidden{% endif %}
+             {% elif not forloop.first %}hidden{% endif %}>
+            {% if method.code == 'bank_details' %}
+              {% translate "Після оформлення ви побачите реквізити для оплати — їх можна скопіювати одним натисканням." %}
+            {% elif method.code == 'liqpay' %}
+              {% translate "Після оформлення ви зможете оплатити замовлення карткою через LiqPay." %}
+            {% endif %}
+          </p>
+        {% endfor %}
       </aside>
     </div>
   </form>

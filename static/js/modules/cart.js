@@ -75,6 +75,11 @@ export function initCart() {
   document.addEventListener('submit', async (event) => {
     const form = event.target.closest('[data-cart-add]');
     if (!form) return;
+    const buyBtn = form.querySelector('[data-buy-btn], button[type="submit"]');
+    if (buyBtn && buyBtn.disabled) {
+      event.preventDefault();
+      return;
+    }
     event.preventDefault();
     const data = Object.fromEntries(new FormData(form).entries());
     const button = form.querySelector('button[type="submit"]');

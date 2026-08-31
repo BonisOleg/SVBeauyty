@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="csrf-token" content="{{ csrf_token }}">
   <title>{% block title %}{{ site_settings.site_name }}{% endblock %}</title>
-  <meta name="description" content="{% block description %}{% translate "Професійна косметика для домашнього та салонного догляду." %}{% endblock %}">
-  <meta name="theme-color" content="{{ site_settings.accent_color|default:'#20847C' }}">
+  <meta name="description" content="{% block description %}{{ site_settings.meta_description }}{% endblock %}">
+  <meta name="theme-color" content="{{ site_settings.accent_color|default:'#1A1A1A' }}">
 
   {% language_absolute_url 'uk' as url_uk %}
   {% language_absolute_url 'ru' as url_ru %}
@@ -20,14 +20,13 @@
   <meta property="og:site_name" content="{{ site_settings.site_name }}">
   <meta property="og:locale" content="{% if LANGUAGE_CODE == 'ru' %}ru_UA{% else %}uk_UA{% endif %}">
   <meta property="og:title" content="{% block og_title %}{{ site_settings.site_name }}{% endblock %}">
-  <meta property="og:description" content="{% block og_description %}{% translate "Професійна косметика для домашнього та салонного догляду." %}{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}{{ site_settings.meta_description }}{% endblock %}">
   <meta property="og:url" content="{% block og_url %}{{ request.build_absolute_uri }}{% endblock %}">
   <meta property="og:image" content="{% block og_image %}{% if request.is_secure %}https{% else %}http{% endif %}://{{ request.get_host }}{% static 'images/logo.png' %}{% endblock %}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
 
-  <link rel="icon" href="{% static 'images/logo.png' %}" sizes="any">
-  <link rel="apple-touch-icon" href="{% static 'images/logo.png' %}">
+  {% include "components/favicons.html" %}
   {% block meta_extra %}{% endblock %}
 
   <link rel="stylesheet" href="{% static 'css/base/tokens.css' %}">
@@ -44,8 +43,12 @@
   <link rel="stylesheet" href="{% static 'css/pages/home.css' %}">
   <link rel="stylesheet" href="{% static 'css/pages/catalog.css' %}">
   <link rel="stylesheet" href="{% static 'css/pages/product.css' %}">
+  <link rel="stylesheet" href="{% static 'css/pages/product-2.css' %}">
+  <link rel="stylesheet" href="{% static 'css/pages/product-3.css' %}">
+  <link rel="stylesheet" href="{% static 'css/pages/cart.css' %}">
   <link rel="stylesheet" href="{% static 'css/pages/checkout.css' %}">
   <link rel="stylesheet" href="{% static 'css/pages/cabinet.css' %}">
+  <link rel="stylesheet" href="{% static 'css/pages/content.css' %}">
 
   <script type="application/ld+json">
   {
@@ -65,6 +68,10 @@
   data-cart-add-url="{% url 'commerce:cart_add' %}"
   data-cart-update-url="{% url 'commerce:cart_update' %}"
   data-cart-remove-url="{% url 'commerce:cart_remove' %}"
+  data-wishlist-toggle-url="{% url 'catalog:wishlist_toggle' %}"
+  data-wishlist-products-url="{% url 'catalog:wishlist_products' %}"
+  data-wishlist-merge-url="{% url 'catalog:wishlist_merge' %}"
+  data-wishlist-auth="{% if user.is_authenticated %}1{% else %}0{% endif %}"
   data-qa="site-body">
 
   {% include "components/header.html" %}

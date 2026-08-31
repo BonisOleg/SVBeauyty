@@ -1,0 +1,28 @@
+{% load i18n %}
+<section class="pdp-faq" id="faq">
+  <h2 class="pdp-faq__title">{% translate "Часті запитання" %}</h2>
+
+  <details class="pdp-faq__item">
+    <summary class="pdp-faq__q">{% translate "Як відбувається обмін та повернення товару?" %}</summary>
+    <div class="pdp-faq__a">
+      {% translate "Обмін і повернення протягом 14 днів за умови збереження товарного вигляду. Деталі — у публічній оферті." %}
+      <a href="{% url 'content:page' 'oferta' %}">{% translate "Читати умови" %}</a>
+    </div>
+  </details>
+
+  <details class="pdp-faq__item">
+    <summary class="pdp-faq__q">{% translate "Як здійснюється доставка та скільки вона займає?" %}</summary>
+    <div class="pdp-faq__a">
+      {% translate "Доставка Новою Поштою по всій Україні. Термін зазвичай 1–3 робочі дні після відправки." %}
+      <a href="{% url 'content:page' 'dostavka-i-oplata' %}">{% translate "Доставка і оплата" %}</a>
+    </div>
+  </details>
+
+  <details class="pdp-faq__item">
+    <summary class="pdp-faq__q">{% translate "Які засоби оплати доступні при оформленні замовлення?" %}</summary>
+    <div class="pdp-faq__a">
+      {% translate "Оплата переказом на рахунок ФОП. Реквізити надсилаємо після оформлення замовлення." %}
+      <a href="{% url 'content:page' 'dostavka-i-oplata' %}">{% translate "Докладніше" %}</a>
+    </div>
+  </details>
+</section>

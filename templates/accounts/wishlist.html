@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load i18n catalog_tags product_grid %}
+
+{% block title %}{% translate "Обране" %} — {{ site_settings.site_name }}{% endblock %}
+{% block meta_extra %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+
+{% block content %}
+  <h1 class="page-title">{% translate "Обране" %}</h1>
+
+  <div class="cabinet">
+    {% if user.is_authenticated %}
+      {% include "accounts/_nav.html" with active='wishlist' %}
+    {% endif %}
+
+    <div>
+      {% if user.is_authenticated %}
+        {% if products %}
+          <div
+            class="product-grid product-grid--cols-{{ products|length|pick_grid_columns }}"
+            data-qa="product-grid"
+            data-grid-cols="{{ products|length|pick_grid_columns }}"
+            data-wishlist-page
+          >
+            {% for product in products %}
+              <div class="product-grid__item">
+                {% product_card product %}
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="cabinet__card" data-wishlist-empty>
+            <p class="empty-state">{% translate "У обраному поки немає товарів." %}</p>
+            <div class="cabinet__actions">
+              <a href="{% url 'catalog:catalog' %}" class="btn btn--primary btn--block">
+                {% translate "До каталогу" %}
+              </a>
+            </div>
+          </div>
+        {% endif %}
+      {% else %}
+        <div
+          class="product-grid product-grid--cols-3"
+          data-qa="product-grid"
+          data-grid-cols="3"
+          data-wishlist-page
+          data-wishlist-guest
+          hidden
+        ></div>
+        <div class="cabinet__card" data-wishlist-empty>
+          <p class="empty-state">{% translate "У обраному поки немає товарів." %}</p>
+          <p class="field__hint" style="margin-top: var(--sp-2)">
+            {% translate "Обране зберігається в цьому браузері. Увійдіть, щоб синхронізувати між пристроями." %}
+          </p>
+          <div class="cabinet__actions">
+            <a href="{% url 'catalog:catalog' %}" class="btn btn--primary btn--block">{% translate "До каталогу" %}</a>
+            <a href="{% url 'accounts:login' %}?next={% url 'accounts:wishlist' %}" class="btn btn--outline btn--block">{% translate "Увійти" %}</a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

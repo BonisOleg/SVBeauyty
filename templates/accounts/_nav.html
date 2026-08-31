@@ -1,6 +1,7 @@
 {% load i18n %}
 <nav class="cabinet__nav" aria-label="{% translate 'Кабінет' %}">
   <a href="{% url 'accounts:profile' %}" class="{% if active == 'profile' %}is-active{% endif %}">{% translate "Профіль" %}</a>
+  <a href="{% url 'accounts:wishlist' %}" class="{% if active == 'wishlist' %}is-active{% endif %}">{% translate "Обране" %}</a>
   <a href="{% url 'accounts:orders' %}" class="{% if active == 'orders' %}is-active{% endif %}">{% translate "Замовлення" %}</a>
   <a href="{% url 'accounts:loyalty' %}" class="{% if active == 'loyalty' %}is-active{% endif %}">{% translate "Бонуси" %}</a>
   {% if not user.is_pro %}

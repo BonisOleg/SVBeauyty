@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static catalog_tags core_tags %}
+{% load i18n static catalog_tags %}
 
 {% block title %}{% if product.seo_title_uk %}{{ product.seo_title_uk }}{% else %}{{ product.name }} — {{ site_settings.site_name }}{% endif %}{% endblock %}
 {% block description %}{{ product.seo_description_uk|default:product.short_description }}{% endblock %}
@@ -9,7 +9,6 @@
 {% block og_image %}{% if product.main_image %}{{ request.scheme }}://{{ request.get_host }}{{ product.main_image.image.url }}{% else %}{{ block.super }}{% endif %}{% endblock %}
 
 {% block structured_data %}
-{% translate "Головна" as home_label %}
 {% if product.default_variant %}{% variant_price product.default_variant as default_price %}{% endif %}
 <script type="application/ld+json">
 {
@@ -29,21 +28,10 @@
   }
 }
 </script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {"@type": "ListItem", "position": 1, "name": "{{ home_label|escapejs }}", "item": "{{ request.scheme }}://{{ request.get_host }}{% url 'core:home' %}"},
-    {"@type": "ListItem", "position": 2, "name": "{{ product.category.name|escapejs }}", "item": "{{ request.scheme }}://{{ request.get_host }}{{ product.category.get_absolute_url }}"},
-    {"@type": "ListItem", "position": 3, "name": "{{ product.name|escapejs }}"}
-  ]
-}
-</script>
 {% endblock %}
 
 {% block content %}
-  <nav class="breadcrumbs" aria-label="{% translate 'Навігація' %}">
+  <nav class="breadcrumbs breadcrumbs--pdp" aria-label="{% translate 'Навігація' %}">
     <a href="{% url 'core:home' %}">{% translate "Головна" %}</a>
     <span aria-hidden="true">/</span>
     <a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a>
@@ -51,19 +39,43 @@
     <span>{{ product.name }}</span>
   </nav>
 
-  <div class="product">
-    <div class="gallery">
-      <div class="gallery__main">
-        {% if product.main_image %}
-          <img src="{{ product.main_image.image.url }}" alt="{{ product.main_image.alt }}" data-gallery-main width="640" height="640">
-        {% else %}
-          <span class="card__media-empty">{{ product.brand.name }}</span>
-        {% endif %}
+  <div class="pdp">
+    <div class="pdp__gallery gallery" data-gallery-slider>
+      <div class="gallery__viewport">
+        <div class="gallery__track" data-gallery-track>
+          {% if product.images.all %}
+            {% for image in product.images.all %}
+              <div class="gallery__slide{% if image.is_main or forloop.first %} is-active{% endif %}">
+                <img src="{{ image.image.url }}" alt="{{ image.alt|default:product.name }}" width="640" height="640" {% if not forloop.first %}loading="lazy"{% endif %}>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="gallery__slide is-active">
+              <span class="card__media-empty">{{ product.brand.name }}</span>
+            </div>
+          {% endif %}
+        </div>
       </div>
+
       {% if product.images.count > 1 %}
-        <div class="gallery__thumbs">
+        <div class="gallery__controls">
+          <button type="button" class="gallery__arrow" data-gallery-prev aria-label="{% translate 'Попереднє фото' %}">‹</button>
+          <div class="gallery__dots" data-gallery-dots>
+            {% for image in product.images.all %}
+              <button type="button"
+                      class="gallery__dot{% if image.is_main or forloop.first %} is-active{% endif %}"
+                      data-gallery-dot="{{ forloop.counter0 }}"
+                      aria-label="{% blocktranslate with n=forloop.counter %}Фото {{ n }}{% endblocktranslate %}"></button>
+            {% endfor %}
+          </div>
+          <button type="button" class="gallery__arrow" data-gallery-next aria-label="{% translate 'Наступне фото' %}">›</button>
+        </div>
+
+        <div class="gallery__thumbs" data-gallery-thumbs>
           {% for image in product.images.all %}
-            <button type="button" class="gallery__thumb {% if image.is_main %}is-active{% endif %}" data-gallery-thumb="{{ image.image.url }}">
+            <button type="button"
+                    class="gallery__thumb{% if image.is_main or forloop.first %} is-active{% endif %}"
+                    data-gallery-thumb-index="{{ forloop.counter0 }}">
               <img src="{{ image.image.url }}" alt="{{ image.alt }}" loading="lazy" width="68" height="68">
             </button>
           {% endfor %}
@@ -71,107 +83,65 @@
       {% endif %}
     </div>
 
-    <div>
-      <p class="product__brand">{{ product.brand.name }}</p>
-      <h1 class="product__title">{{ product.name }}</h1>
+    <div class="pdp__info">
+      {% if product.default_variant %}
+        {% variant_price product.default_variant as top_price %}
+        {% if top_price.is_sale %}<span class="badge badge--deal">DEAL</span>{% endif %}
+      {% endif %}
+      <p class="pdp__brand">{{ product.brand.name }} <span aria-hidden="true">/</span> {{ product.category.name }}</p>
+      <h1 class="pdp__title">{{ product.name }}</h1>
+      <p class="pdp__type">{{ product.category.name }}</p>
+      {% if reviews_enabled %}
+        <a href="#reviews" class="pdp__rating">{% rating_stars product %}</a>
+      {% endif %}
 
-      <div class="product__meta">
-        {% if product.default_variant %}<span>{% translate "Артикул" %}: {{ product.default_variant.sku }}</span>{% endif %}
-        <span>{% if product.in_stock %}{% translate "В наявності" %}{% else %}{% translate "Немає в наявності" %}{% endif %}</span>
-        {% if product.is_hit %}<span class="badge badge--hit">{% translate "Хіт" %}</span>{% endif %}
-        {% if product.is_new %}<span class="badge badge--new">{% translate "Новинка" %}</span>{% endif %}
-      </div>
+      {% include "catalog/_gift_promo.html" %}
 
-      {% if product.short_description %}<p class="form-note">{{ product.short_description }}</p>{% endif %}
+      {% if product.short_description %}
+        <p class="pdp__lead">{{ product.short_description }}</p>
+      {% endif %}
 
-      <form method="post"
-            action="{% url 'commerce:cart_add' %}"
-            data-cart-add
-            data-qa="product-cart-add"
-            class="product__buybox"
-            hx-post="{% url 'commerce:cart_add' %}"
-            hx-swap="none">
-        {% csrf_token %}
+      {% if product.filter_attrs.all %}
+        <ul class="pdp__highlights">
+          {% regroup product.filter_attrs.all by group as attr_groups %}
+          {% for group in attr_groups %}
+            <li>
+              <span>{{ group.grouper.name }}:</span>
+              {% for attr in group.list %}{{ attr.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
 
-        {% if product.active_variants %}
-          <div class="product__variants">
-            {% for variant in product.active_variants %}
-              {% variant_price variant as vp %}
-              <label class="variant-chip {% if forloop.first %}is-active{% endif %} {% if not variant.in_stock %}is-out{% endif %}"
-                     data-variant="{{ variant.id }}"
-                     data-price="{{ vp.amount|uah }} ₴"
-                     data-old-price="{% if vp.has_discount %}{{ vp.base_amount|uah }} ₴{% endif %}">
-                <input type="radio" name="variant_choice" value="{{ variant.id }}" {% if forloop.first %}checked{% endif %}>
-                <span class="variant-chip__volume">{{ variant.volume }}</span>
-                <span class="variant-chip__price">{{ vp.amount|uah }} ₴</span>
-              </label>
-            {% endfor %}
-          </div>
-
-          {% variant_price product.default_variant as default_price %}
-          <input type="hidden" name="variant_id" value="{{ product.default_variant.id }}" data-variant-input>
-
-          <div class="product__price-row">
-            <span class="product__price" data-variant-price>{{ default_price.amount|uah }} ₴</span>
-            <span class="price__old" data-variant-old-price {% if not default_price.has_discount %}hidden{% endif %}>
-              {% if default_price.has_discount %}{{ default_price.base_amount|uah }} ₴{% endif %}
-            </span>
-          </div>
-
-          {% if default_price.has_discount %}
-            <p class="pro-hint">{% translate "Для вас діє професійна ціна косметолога." %}</p>
-          {% elif not is_pro_user %}
-            <p class="form-note">
-              {% translate "Косметологам — окремі ціни." %}
-              <a href="{% url 'accounts:cosmetologist' %}">{% translate "Подати заявку" %}</a>
-            </p>
-          {% endif %}
-
-          <div class="product__buy-row">
-            <span class="qty" data-qty>
-              <button type="button" class="qty__btn" data-qty-step="-1" aria-label="{% translate 'Менше' %}">−</button>
-              <input type="number" class="qty__input" name="quantity" value="1" min="1" max="99" inputmode="numeric" aria-label="{% translate 'Кількість' %}">
-              <button type="button" class="qty__btn" data-qty-step="1" aria-label="{% translate 'Більше' %}">+</button>
-            </span>
-            <button type="submit" class="btn btn--primary btn--lg" {% if not product.in_stock %}disabled{% endif %}>
-              {% if product.in_stock %}{% translate "Додати в кошик" %}{% else %}{% translate "Немає в наявності" %}{% endif %}
-            </button>
-          </div>
-        {% else %}
-          <p class="empty-state">{% translate "Товар тимчасово недоступний." %}</p>
-        {% endif %}
-      </form>
-
-      <div class="tabs" data-tabs>
-        <div class="tabs__nav" role="tablist">
-          <button type="button" class="tabs__btn is-active" data-tab-btn="desc" role="tab">{% translate "Опис" %}</button>
-          {% if product.ingredients %}
-            <button type="button" class="tabs__btn" data-tab-btn="ing" role="tab">{% translate "Склад" %}</button>
-          {% endif %}
-          <button type="button" class="tabs__btn" data-tab-btn="delivery" role="tab">{% translate "Доставка і оплата" %}</button>
-        </div>
-        <div class="tabs__panel is-active" data-tab-panel="desc" role="tabpanel">
-          {{ product.description|default:product.short_description }}
-        </div>
-        {% if product.ingredients %}
-          <div class="tabs__panel" data-tab-panel="ing" role="tabpanel">{{ product.ingredients }}</div>
-        {% endif %}
-        <div class="tabs__panel" data-tab-panel="delivery" role="tabpanel">
-          {% translate "Доставка Новою Поштою по всій Україні. Оплата переказом на рахунок ФОП." %}
-          <a href="{% url 'content:page' 'dostavka-i-oplata' %}">{% translate "Докладніше" %}</a>
-        </div>
-      </div>
+      {% if product.is_hit %}<span class="badge badge--hit">{% translate "Хіт" %}</span>{% endif %}
+      {% if product.is_new %}<span class="badge badge--new">{% translate "Новинка" %}</span>{% endif %}
     </div>
+
+    <aside class="pdp__buy">
+      {% include "catalog/_product_buybox.html" %}
+    </aside>
   </div>
 
-  {% if related %}
-    <section class="section">
-      <div class="section__head">
-        <h2 class="section__title">{% translate "Схожі товари" %}</h2>
-      </div>
-      <div class="grid-products">
-        {% for item in related %}{% product_card item %}{% endfor %}
-      </div>
-    </section>
+  {% include "catalog/_product_specs.html" %}
+
+  {% translate "Схожі товари" as related_title %}
+  {% include "catalog/_product_carousel.html" with title=related_title products=related %}
+
+  {% translate "Інші клієнти також купували" as also_title %}
+  {% include "catalog/_product_carousel.html" with title=also_title products=also_bought %}
+
+  {% translate "Ви нещодавно переглядали" as recent_title %}
+  {% include "catalog/_product_carousel.html" with title=recent_title products=recently_viewed %}
+
+  {% if reviews_enabled %}
+    {% include "catalog/_product_reviews.html" %}
   {% endif %}
+  {% include "catalog/_product_faq.html" %}
+
+  <div class="pdp-sticky" data-pdp-sticky>
+    <button type="button" class="btn btn--primary pdp-sticky__buy" data-pdp-sticky-buy>
+      {% translate "Купити" %}
+    </button>
+    <button type="button" class="pdp-sticky__top" data-scroll-top aria-label="{% translate 'Вгору' %}">↑</button>
+  </div>
 {% endblock %}

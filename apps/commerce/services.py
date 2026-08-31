@@ -6,7 +6,16 @@ from django.utils import timezone
 from django.utils.translation import get_language, gettext as _
 
 from apps.catalog.models import Variant
-from apps.commerce.models import Cart, CartItem, CartStatus, Order, OrderItem, OrderStatusLog
+from apps.commerce.models import (
+    Cart,
+    CartItem,
+    CartStatus,
+    Order,
+    OrderItem,
+    OrderStatus,
+    OrderStatusLog,
+    PaymentMethod,
+)
 from apps.content.models import SiteSettings
 from apps.loyalty import services as loyalty
 from apps.loyalty.models import LoyaltySettings
@@ -164,11 +173,18 @@ def create_order(request, cart: Cart, data: dict, redeem_points: int = 0) -> Ord
         last_name=data["last_name"],
         phone=data["phone"],
         email=data.get("email", ""),
+        other_recipient=bool(data.get("other_recipient")),
+        recipient_first_name=(data.get("recipient_first_name") or "").strip(),
+        recipient_last_name=(data.get("recipient_last_name") or "").strip(),
+        recipient_phone=(data.get("recipient_phone") or "").strip(),
+        delivery_method=data.get("delivery_method", "nova_poshta"),
         delivery_city=data.get("delivery_city", ""),
         delivery_city_ref=data.get("delivery_city_ref", ""),
         delivery_branch=data.get("delivery_branch", ""),
         delivery_branch_ref=data.get("delivery_branch_ref", ""),
+        delivery_address=data.get("delivery_address", ""),
         payment_method=data["payment_method"],
+        status=_initial_status_for_payment(data["payment_method"]),
         comment=data.get("comment", ""),
         gdpr_accepted=bool(data.get("gdpr_accepted")),
         locale=(get_language() or "uk")[:2],
@@ -210,3 +226,36 @@ def create_order(request, cart: Cart, data: dict, redeem_points: int = 0) -> Ord
     cart.status = CartStatus.CONVERTED
     cart.save(update_fields=["status", "updated_at"])
     return order
+
+
+def _initial_status_for_payment(payment_method: str) -> str:
+    """До підтвердження оплати (банк / LiqPay) — «Очікує оплати»."""
+    if payment_method in {PaymentMethod.BANK_DETAILS, PaymentMethod.LIQPAY}:
+        return OrderStatus.AWAITING_PAYMENT
+    return OrderStatus.NEW
+
+
+@transaction.atomic
+def set_order_status(order: Order, new_status: str, *, changed_by=None) -> Order:
+    old = order.status
+    if old == new_status:
+        return order
+    order.status = new_status
+    order.save(update_fields=["status", "updated_at"])
+    OrderStatusLog.objects.create(
+        order=order,
+        old_status=old,
+        new_status=new_status,
+        changed_by=changed_by if getattr(changed_by, "is_authenticated", False) else None,
+    )
+    return order
+
+
+def mark_order_paid(order: Order, *, changed_by=None) -> Order:
+    """Успішна оплата (LiqPay callback або ручне підтвердження)."""
+    return set_order_status(order, OrderStatus.PAID, changed_by=changed_by)
+
+
+def mark_order_awaiting_payment(order: Order, *, changed_by=None) -> Order:
+    """Помилка / скасування онлайн-оплати."""
+    return set_order_status(order, OrderStatus.AWAITING_PAYMENT, changed_by=changed_by)

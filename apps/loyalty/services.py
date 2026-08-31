@@ -1,6 +1,8 @@
+from datetime import timedelta
 from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal
 
 from django.db import transaction
+from django.utils import timezone
 
 from apps.loyalty.models import LoyaltyAccount, LoyaltySettings, LoyaltyTransaction, TransactionKind
 
@@ -19,6 +21,41 @@ def get_balance(user) -> int:
     return account.balance if account else 0
 
 
+def pending_earn_points(user) -> int:
+    """Бали за покупки, які ще в холді (недоступні до списання)."""
+    return sum(item["points"] for item in pending_earn_releases(user))
+
+
+def pending_earn_releases(user) -> list[dict]:
+    """Нарахування в холді з датою, коли стануть доступні до списання."""
+    account = get_account(user)
+    if account is None:
+        return []
+    conf = LoyaltySettings.get_solo()
+    hold_days = int(conf.earn_hold_days or 0)
+    if hold_days <= 0:
+        return []
+    since = timezone.now() - timedelta(days=hold_days)
+    rows = []
+    for txn in account.transactions.filter(
+        kind=TransactionKind.EARN, points__gt=0, created_at__gt=since
+    ).order_by("created_at"):
+        rows.append(
+            {
+                "points": int(txn.points),
+                "created_at": txn.created_at,
+                "available_at": txn.created_at + timedelta(days=hold_days),
+                "order": txn.order,
+            }
+        )
+    return rows
+
+
+def get_available_balance(user) -> int:
+    """Баланс, доступний до списання зараз (мінус холд на нарахування з покупок)."""
+    return max(0, get_balance(user) - pending_earn_points(user))
+
+
 def points_to_uah(points: int) -> Decimal:
     rate = LoyaltySettings.get_solo().redeem_uah_per_point or Decimal("0")
     return (Decimal(points) * Decimal(rate)).quantize(CENTS, rounding=ROUND_HALF_UP)
@@ -29,7 +66,7 @@ def max_redeemable_points(user, subtotal: Decimal) -> int:
     conf = LoyaltySettings.get_solo()
     if not conf.is_enabled:
         return 0
-    balance = get_balance(user)
+    balance = get_available_balance(user)
     if balance <= 0 or subtotal <= 0:
         return 0
     rate = Decimal(conf.redeem_uah_per_point or 0)

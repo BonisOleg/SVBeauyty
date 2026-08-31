@@ -4,18 +4,29 @@
     <div class="footer__grid">
       <div>
         <div class="footer__brand">
-          {% if site_settings.logo %}
-            <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}" width="52" height="52">
-          {% else %}
-            <img src="{% static 'images/logo.png' %}" alt="{{ site_settings.site_name }}" width="52" height="52">
-          {% endif %}
+          <span class="footer__logo">
+            {% if site_settings.logo %}
+              <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}" width="52" height="52">
+            {% else %}
+              <img src="{% static 'images/logo.png' %}" alt="{{ site_settings.site_name }}" width="52" height="52">
+            {% endif %}
+          </span>
           <span class="header__logo-text">{{ site_settings.site_name }}</span>
         </div>
-        <p class="footer__list">{% translate "Професійна косметика для домашнього та салонного догляду." %}</p>
+        <p class="footer__list">{% if site_settings.slogan %}{{ site_settings.slogan }}{% endif %}</p>
         <div class="footer__socials">
-          {% if site_settings.instagram %}<a class="footer__social" href="{{ site_settings.instagram }}" target="_blank" rel="noopener">Instagram</a>{% endif %}
-          {% if site_settings.telegram %}<a class="footer__social" href="{{ site_settings.telegram }}" target="_blank" rel="noopener">Telegram</a>{% endif %}
-          {% if site_settings.viber %}<a class="footer__social" href="{{ site_settings.viber }}" target="_blank" rel="noopener">Viber</a>{% endif %}
+          {% for link in site_settings.social_links %}
+            <a
+              class="footer__social"
+              href="{{ link.href }}"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="{{ link.label }}"
+              title="{{ link.label }}"
+            >
+              {% include "components/_footer_social_icon.html" with link=link %}
+            </a>
+          {% endfor %}
         </div>
       </div>
 

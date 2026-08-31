@@ -1,0 +1,7 @@
+{% load catalog_tags %}
+{% for product in products %}
+  <div class="product-grid__item">
+    {% product_card product %}
+  </div>
+{% empty %}
+{% endfor %}

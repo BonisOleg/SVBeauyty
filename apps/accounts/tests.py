@@ -76,3 +76,7 @@ class CabinetAccessTests(TestCase):
             response = self.client.get(reverse(name))
             self.assertEqual(response.status_code, 302)
             self.assertIn("login", response["Location"])
+
+    def test_wishlist_public_for_guests(self):
+        response = self.client.get(reverse("accounts:wishlist"))
+        self.assertEqual(response.status_code, 200)

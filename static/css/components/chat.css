@@ -10,20 +10,108 @@
 }
 
 .chat__toggle {
-  width: 56px;
-  height: 56px;
+  position: relative;
+  width: 60px;
+  height: 60px;
   display: grid;
   place-items: center;
-  border-radius: var(--radius-pill);
-  background: var(--c-accent);
-  color: var(--c-btn-text);
-  box-shadow: var(--shadow-lg);
-  transition: background var(--transition), transform var(--transition);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+  transition: transform var(--transition);
+  animation: chat-toggle-bob 2.4s ease-in-out infinite;
+}
+
+.chat__toggle-face {
+  position: relative;
+  z-index: 1;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #0aa8a0;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
+}
+
+.chat__toggle-logo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  /* сильніший crop — прибирає білу обводку квадратного файлу */
+  transform: scale(1.42);
+  pointer-events: none;
+}
+
+.chat__toggle-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid #0aa8a0;
+  opacity: 0;
+  pointer-events: none;
+  animation: chat-toggle-ring 2.4s ease-out infinite;
+}
+
+.chat__toggle-ring--delay {
+  animation-delay: 1.2s;
 }
 
 .chat__toggle:hover {
-  background: var(--c-head);
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.04);
+  animation-play-state: paused;
+}
+
+.chat__toggle:hover .chat__toggle-ring {
+  animation-play-state: paused;
+}
+
+.chat__toggle:hover .chat__toggle-face {
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+}
+
+.chat.is-open .chat__toggle {
+  animation: none;
+}
+
+.chat.is-open .chat__toggle-ring {
+  animation: none;
+  opacity: 0;
+}
+
+@keyframes chat-toggle-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes chat-toggle-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  70% {
+    opacity: 0.1;
+  }
+  100% {
+    transform: scale(1.55);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat__toggle,
+  .chat__toggle-ring {
+    animation: none;
+  }
 }
 
 .chat__panel {

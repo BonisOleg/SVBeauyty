@@ -13,18 +13,45 @@ def _manager_email() -> str:
     return SiteSettings.get_solo().manager_email or settings.MANAGER_EMAIL
 
 
-def notify_new_order(order) -> None:
-    recipient = _manager_email()
-    if not recipient:
+def _send(subject: str, template: str, context: dict, recipients: list[str]) -> None:
+    recipients = [email for email in recipients if email]
+    if not recipients:
         return
-    body = render_to_string("commerce/emails/new_order.txt", {"order": order})
+    body = render_to_string(template, context)
     try:
         send_mail(
-            subject=f"Нове замовлення {order.number}",
+            subject=subject,
             message=body,
             from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[recipient],
+            recipient_list=recipients,
             fail_silently=False,
         )
     except Exception as exc:  # noqa: BLE001 — лист не має ламати оформлення
-        logger.error("Не вдалось надіслати лист про замовлення %s: %s", order.number, exc)
+        logger.error("Не вдалось надіслати «%s»: %s", subject, exc)
+
+
+def notify_manager_new_order(order) -> None:
+    _send(
+        subject=f"Нове замовлення {order.number}",
+        template="commerce/emails/new_order.txt",
+        context={"order": order},
+        recipients=[_manager_email()],
+    )
+
+
+def notify_customer_new_order(order) -> None:
+    if not order.email:
+        return
+    site = SiteSettings.get_solo()
+    _send(
+        subject=f"Замовлення {order.number} прийнято — {site.site_name}",
+        template="commerce/emails/order_customer.txt",
+        context={"order": order, "site_settings": site},
+        recipients=[order.email],
+    )
+
+
+def notify_new_order(order) -> None:
+    """Листи після оформлення: менеджеру + клієнту."""
+    notify_manager_new_order(order)
+    notify_customer_new_order(order)

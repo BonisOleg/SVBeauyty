@@ -1,0 +1,95 @@
+/* Сторінка кошика — компактні рядки (Makeup-like) */
+.cart-page__list {
+  display: grid;
+  gap: var(--sp-3);
+}
+
+.cart-row {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  background: var(--c-card);
+  border: 1px solid var(--c-line-soft);
+  border-radius: var(--radius-md);
+}
+
+.cart-row__media {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: #f7f7f7;
+}
+
+.cart-row__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.cart-line__name {
+  display: block;
+  font-weight: 600;
+  color: var(--c-head);
+  margin-bottom: 2px;
+}
+
+.cart-line__meta {
+  margin: 0 0 var(--sp-3);
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}
+
+.cart-row__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.cart-line__remove {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: var(--c-muted);
+  font-size: var(--fs-xs);
+  text-decoration: underline;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cart-line__remove:hover {
+  color: var(--c-sale);
+}
+
+.summary--sticky {
+  position: sticky;
+  top: calc(var(--header-h) + var(--sp-3));
+}
+
+@media (min-width: 900px) {
+  .cart-row {
+    grid-template-columns: 110px minmax(0, 1fr);
+    padding: var(--sp-4);
+  }
+}
+
+@media (max-width: 599px) {
+  .cart-row {
+    grid-template-columns: 72px minmax(0, 1fr);
+  }
+
+  .cart-row__foot {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cart-line__remove {
+    margin-left: 0;
+    text-align: left;
+  }
+
+  .summary--sticky {
+    position: static;
+  }
+}

@@ -67,6 +67,12 @@ class PaymentMethod(models.TextChoices):
     LIQPAY = "liqpay", _("Картка онлайн (LiqPay)")
 
 
+class DeliveryMethod(models.TextChoices):
+    NOVA_POSHTA = "nova_poshta", _("Нова Пошта")
+    PICKUP = "pickup", _("Самовивіз")
+    TAXI = "taxi", _("Таксі")
+
+
 class Order(TimeStampedModel):
     number = models.CharField(_("Номер"), max_length=20, unique=True)
     user = models.ForeignKey(
@@ -84,10 +90,28 @@ class Order(TimeStampedModel):
     phone = models.CharField(_("Телефон"), max_length=32)
     email = models.EmailField(_("Email"), blank=True)
 
+    other_recipient = models.BooleanField(_("Інший отримувач"), default=False)
+    recipient_first_name = models.CharField(_("Ім'я отримувача"), max_length=150, blank=True)
+    recipient_last_name = models.CharField(_("Прізвище отримувача"), max_length=150, blank=True)
+    recipient_phone = models.CharField(_("Телефон отримувача"), max_length=32, blank=True)
+
+    delivery_method = models.CharField(
+        _("Спосіб доставки"),
+        max_length=20,
+        choices=DeliveryMethod.choices,
+        default=DeliveryMethod.NOVA_POSHTA,
+        db_index=True,
+    )
     delivery_city = models.CharField(_("Місто"), max_length=160, blank=True)
     delivery_city_ref = models.CharField(_("Ref міста"), max_length=64, blank=True)
-    delivery_branch = models.CharField(_("Відділення"), max_length=255, blank=True)
+    delivery_branch = models.CharField(_("Відділення / адреса"), max_length=255, blank=True)
     delivery_branch_ref = models.CharField(_("Ref відділення"), max_length=64, blank=True)
+    delivery_address = models.CharField(
+        _("Адреса (таксі)"),
+        max_length=255,
+        blank=True,
+        help_text=_("Вулиця, будинок, квартира для доставки таксі."),
+    )
 
     payment_method = models.CharField(
         _("Оплата"), max_length=16, choices=PaymentMethod.choices, default=PaymentMethod.BANK_DETAILS
@@ -119,6 +143,27 @@ class Order(TimeStampedModel):
     @property
     def customer_name(self) -> str:
         return f"{self.first_name} {self.last_name}".strip()
+
+    @property
+    def recipient_name(self) -> str:
+        if not self.other_recipient:
+            return self.customer_name
+        return f"{self.recipient_first_name} {self.recipient_last_name}".strip() or self.customer_name
+
+    @property
+    def delivery_phone(self) -> str:
+        if self.other_recipient and self.recipient_phone:
+            return self.recipient_phone
+        return self.phone
+
+    @property
+    def delivery_summary(self) -> str:
+        method = self.get_delivery_method_display()
+        if self.delivery_method == DeliveryMethod.NOVA_POSHTA:
+            parts = [method, self.delivery_city, self.delivery_branch]
+        else:
+            parts = [method, self.delivery_address or self.delivery_branch]
+        return ", ".join(part for part in parts if part)
 
     @property
     def is_paid(self) -> bool:

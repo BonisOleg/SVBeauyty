@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n content_tags %}
 
 {% block title %}{% if page.seo_title_uk %}{{ page.seo_title_uk }}{% else %}{{ page.title }} — {{ site_settings.site_name }}{% endif %}{% endblock %}
 {% block description %}{{ page.seo_description_uk }}{% endblock %}
@@ -13,18 +13,16 @@
 
   <h1 class="page-title">{{ page.title }}</h1>
 
-  <div class="tabs__panel is-active" style="max-width: 80ch">{{ page.body }}</div>
+  <div class="page-body">{{ page.body|richtext }}</div>
 
   {% if show_pro_block %}
-    <div class="pro-hint" style="margin-top: var(--sp-5); white-space: pre-line">{{ page.body_pro }}</div>
+    <div class="page-body page-body--pro">{{ page.body_pro|richtext }}</div>
   {% endif %}
 
   {% if delivery_note %}
-    <div class="usp" style="margin-top: var(--sp-6)">
-      <div class="usp__item">
-        <p class="usp__title">{% translate "Ваші умови доставки" %}</p>
-        <p class="usp__text" style="white-space: pre-line">{{ delivery_note }}</p>
-      </div>
+    <div class="page-delivery">
+      <p class="page-delivery__title">{% translate "Ваші умови доставки" %}</p>
+      <div class="page-delivery__text">{{ delivery_note|richtext }}</div>
     </div>
   {% endif %}
 {% endblock %}

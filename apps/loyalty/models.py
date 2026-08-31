@@ -27,6 +27,11 @@ class LoyaltySettings(SingletonModel, TimeStampedModel):
         default=30,
         validators=[MinValueValidator(0), MaxValueValidator(100)],
     )
+    earn_hold_days = models.PositiveSmallIntegerField(
+        _("Днів до списання нарахованих балів"),
+        default=14,
+        help_text=_("Бали за покупку стають доступні до списання через стільки днів."),
+    )
     earn_for_pro = models.BooleanField(_("Нараховувати косметологам"), default=False)
 
     class Meta:

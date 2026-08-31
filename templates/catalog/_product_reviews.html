@@ -1,0 +1,92 @@
+{% load i18n catalog_tags %}
+<section class="pdp-reviews" id="reviews">
+  <header class="pdp-reviews__intro">
+    <h2 class="pdp-reviews__title">{% blocktranslate with name=product.name %}Відгуки про {{ name }}{% endblocktranslate %}</h2>
+    {% if user.is_authenticated %}
+      <a href="#review-form" class="btn btn--primary">{% translate "Залишити відгук" %}</a>
+    {% else %}
+      <a href="{% url 'accounts:login' %}?next={{ request.path }}#reviews" class="btn btn--primary">{% translate "Залишити відгук" %}</a>
+    {% endif %}
+    <div class="pdp-reviews__summary">{% rating_stars product %}</div>
+  </header>
+
+  <div class="pdp-reviews__toolbar">
+    <p class="pdp-reviews__tab is-active">{% translate "Коментарі" %}</p>
+    <span class="pdp-reviews__count">{{ reviews|length }}</span>
+  </div>
+
+  {% if reviews %}
+    <ul class="pdp-reviews__list">
+      {% for review in reviews %}
+        <li class="pdp-review">
+          <div class="pdp-review__author">
+            <span class="pdp-review__avatar" aria-hidden="true">{{ review.author_name|slice:":1"|upper }}</span>
+            <div class="pdp-review__meta">
+              <strong class="pdp-review__name" title="{{ review.author_name }}">{{ review.author_name }}</strong>
+              {% if review.is_verified_purchase %}
+                <span class="pdp-review__verified">{% translate "Покупка підтверджена" %}</span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="pdp-review__body">
+            <div class="pdp-review__top">
+              <span class="rating__stars" aria-label="{{ review.rating }}">
+                {% for i in "12345" %}
+                  <span class="rating__star{% if forloop.counter <= review.rating %} is-filled{% endif %}">★</span>
+                {% endfor %}
+              </span>
+              <time datetime="{{ review.created_at|date:'Y-m-d' }}">{{ review.created_at|date:"d.m.Y" }}</time>
+            </div>
+            {% if review.text %}<p class="pdp-review__text">{{ review.text }}</p>{% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="form-note">{% translate "Поки немає відгуків — будьте першим." %}</p>
+  {% endif %}
+
+  {% if user.is_authenticated %}
+    <form method="post" action="{% url 'catalog:review_add' product.slug %}" class="pdp-reviews__form" id="review-form">
+      {% csrf_token %}
+      <h3 class="pdp-reviews__form-title">{% translate "Залишити відгук" %}</h3>
+      <fieldset class="field star-rating">
+        <legend class="field__label">{% translate "Оцінка" %}</legend>
+        <div class="star-rating__row" role="radiogroup" aria-label="{% translate 'Оцінка' %}">
+          {% for n in "54321" %}
+            <input
+              type="radio"
+              class="star-rating__input"
+              name="rating"
+              id="id_rating_{{ n }}"
+              value="{{ n }}"
+              required
+            >
+            <label class="star-rating__star" for="id_rating_{{ n }}" title="{{ n }}">
+              <span class="visually-hidden">{{ n }}</span>
+              <span aria-hidden="true">★</span>
+            </label>
+          {% endfor %}
+        </div>
+      </fieldset>
+      <div class="field">
+        <label class="field__label" for="id_author_name">{% translate "Імʼя" %}</label>
+        <input type="text" name="author_name" id="id_author_name" maxlength="120"
+               value="{{ user.first_name }}"
+               placeholder="{% translate 'Ваше імʼя' %}"
+               autocomplete="given-name"
+               required>
+      </div>
+      <div class="field">
+        <label class="field__label" for="id_text">{% translate "Коментар" %}</label>
+        <textarea name="text" id="id_text" rows="4" maxlength="2000"></textarea>
+      </div>
+      <button type="submit" class="btn btn--primary">{% translate "Надіслати відгук" %}</button>
+    </form>
+  {% else %}
+    <p class="form-note">
+      <a href="{% url 'accounts:login' %}?next={{ request.path }}#reviews">{% translate "Увійдіть" %}</a>,
+      {% translate "щоб залишити відгук." %}
+    </p>
+  {% endif %}
+</section>

@@ -47,8 +47,11 @@
         </table>
 
         <p class="field__hint" style="margin-top: var(--sp-4)">
-          {% translate "Доставка" %}: {{ order.delivery_city }}, {{ order.delivery_branch }}<br>
+          {% translate "Доставка" %}: {{ order.delivery_summary }}<br>
           {% translate "Оплата" %}: {{ order.get_payment_method_display }}
+          {% if order.other_recipient %}
+            <br>{% translate "Отримувач" %}: {{ order.recipient_name }}, {{ order.recipient_phone }}
+          {% endif %}
         </p>
       </div>
 

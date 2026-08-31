@@ -28,6 +28,7 @@
       {% endfor %}
 
       <p class="drawer__section-title">{% translate "Кабінет" %}</p>
+      <a class="drawer__link" href="{% url 'accounts:wishlist' %}">{% translate "Обране" %}</a>
       {% if user.is_authenticated %}
         <a class="drawer__link" href="{% url 'accounts:profile' %}">{% translate "Мій профіль" %}</a>
         <a class="drawer__link" href="{% url 'accounts:orders' %}">{% translate "Мої замовлення" %}</a>

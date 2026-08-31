@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from decouple import Csv, config
+from django.templatetags.static import static
 from django.utils.translation import gettext_lazy as _
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -12,6 +13,7 @@ ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1", cast=Csv(
 DJANGO_APPS = [
     "unfold",
     "unfold.contrib.filters",
+    "unfold.contrib.forms",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -19,6 +21,7 @@ DJANGO_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sitemaps",
+    "tinymce",
 ]
 
 LOCAL_APPS = [
@@ -65,6 +68,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "apps.core.context_processors.site_context",
                 "apps.commerce.context_processors.cart_context",
+                "apps.catalog.context_processors.wishlist_context",
             ],
         },
     },
@@ -119,12 +123,44 @@ LIQPAY_ENABLED = config("LIQPAY_ENABLED", default=False, cast=bool)
 LIQPAY_PUBLIC_KEY = config("LIQPAY_PUBLIC_KEY", default="")
 LIQPAY_PRIVATE_KEY = config("LIQPAY_PRIVATE_KEY", default="")
 
+# Відгуки/зірки на вітрині (False = тимчасово сховано, код і адмінка лишаються)
+REVIEWS_ENABLED = config("REVIEWS_ENABLED", default=False, cast=bool)
+
 NOVAPOSHTA_API_KEY = config("NOVAPOSHTA_API_KEY", default="")
 
 UNFOLD = {
     "SITE_TITLE": "SVbeauty",
     "SITE_HEADER": "SVbeauty — адміністрування",
     "SITE_SYMBOL": "spa",
+    "SITE_ICON": {
+        "light": lambda request: static("favicons/android-chrome-192x192.png"),
+        "dark": lambda request: static("favicons/android-chrome-192x192.png"),
+    },
+    "SITE_FAVICONS": [
+        {
+            "rel": "icon",
+            "sizes": "48x48",
+            "type": "image/x-icon",
+            "href": lambda request: static("favicons/favicon.ico"),
+        },
+        {
+            "rel": "icon",
+            "sizes": "32x32",
+            "type": "image/png",
+            "href": lambda request: static("favicons/favicon-32x32.png"),
+        },
+        {
+            "rel": "icon",
+            "sizes": "16x16",
+            "type": "image/png",
+            "href": lambda request: static("favicons/favicon-16x16.png"),
+        },
+        {
+            "rel": "apple-touch-icon",
+            "sizes": "180x180",
+            "href": lambda request: static("favicons/apple-touch-icon.png"),
+        },
+    ],
     "SIDEBAR": {
         "show_search": True,
         "show_all_applications": False,
@@ -145,4 +181,34 @@ UNFOLD = {
             "950": "4 32 30",
         },
     },
+}
+
+# WYSIWYG: django-tinymce (канон admin_skill). Не CKEditor.
+TINYMCE_DEFAULT_CONFIG = {
+    "height": 420,
+    "menubar": False,
+    "plugins": "link lists code",
+    "toolbar": (
+        "undo redo | styles | bold italic underline | "
+        "bullist numlist blockquote | link | code"
+    ),
+    "style_formats": [
+        {"title": "Абзац", "format": "p"},
+        {"title": "Заголовок 2", "format": "h2"},
+        {"title": "Заголовок 3", "format": "h3"},
+    ],
+    "language": "uk",
+    "branding": False,
+    "promotion": False,
+    "content_css": False,
+    "skin": "oxide",
+}
+TINYMCE_COMPACT_CONFIG = {
+    **TINYMCE_DEFAULT_CONFIG,
+    "height": 280,
+    "toolbar": "undo redo | bold italic underline | bullist numlist | link | code",
+    "style_formats": [
+        {"title": "Абзац", "format": "p"},
+        {"title": "Заголовок 2", "format": "h2"},
+    ],
 }

@@ -6,15 +6,29 @@
 
 {% block content %}
   <div class="thanks">
-    <div class="thanks__icon">
-      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <path d="m5 13 4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </div>
-
-    <h1 class="page-title">{% translate "Дякуємо за замовлення!" %}</h1>
-    <p class="thanks__number">{{ order.number }}</p>
-    <p class="form-note">{% translate "Менеджер звʼяжеться з вами найближчим часом для підтвердження." %}</p>
+    {% if order.is_paid %}
+      <div class="thanks__icon thanks__icon--ok" aria-hidden="true">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="m5 13 4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h1 class="page-title">{% translate "Дякуємо за замовлення!" %}</h1>
+      <p class="thanks__number">{{ order.number }}</p>
+      <p class="form-note">{% translate "Оплату отримано. Менеджер звʼяжеться з вами щодо доставки." %}</p>
+    {% else %}
+      <div class="thanks__icon thanks__icon--wait" aria-hidden="true">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h1 class="page-title">{% translate "Очікує оплати" %}</h1>
+      <p class="thanks__number">{{ order.number }}</p>
+      <p class="form-note">
+        {% blocktranslate trimmed %}
+          Замовлення прийнято. Статус — «Очікує оплати». Після надходження коштів ми підтвердимо його.
+        {% endblocktranslate %}
+      </p>
+    {% endif %}
 
     <table class="order-table" style="margin-top: var(--sp-5); text-align: left">
       <thead>
@@ -45,10 +59,19 @@
       </tbody>
     </table>
 
-    {% if order.payment_method == 'bank_details' %}
+    {% if order.payment_method == 'bank_details' and not order.is_paid %}
       {% include "commerce/_requisites.html" %}
-    {% elif liqpay %}
-      <p class="form-note" style="margin-top: var(--sp-5)">{% translate "Перейдіть до оплати карткою." %}</p>
+    {% elif order.payment_method == 'liqpay' and not order.is_paid and liqpay %}
+      <div class="thanks__pay">
+        <p class="form-note">{% translate "Оплатіть замовлення карткою через LiqPay." %}</p>
+        <form method="post" action="{{ liqpay.checkout_url }}" accept-charset="utf-8" class="thanks__liqpay">
+          <input type="hidden" name="data" value="{{ liqpay.data }}">
+          <input type="hidden" name="signature" value="{{ liqpay.signature }}">
+          <button type="submit" class="btn btn--primary btn--lg">
+            {% translate "Оплатити карткою" %}
+          </button>
+        </form>
+      </div>
     {% endif %}
 
     <p style="margin-top: var(--sp-6)">

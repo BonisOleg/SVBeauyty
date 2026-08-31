@@ -1,0 +1,71 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+  <div class="px-4 lg:px-8">
+    <div class="container mb-12 mx-auto -my-3">
+      <ul class="flex flex-wrap">
+        {% url 'admin:index' as link %}
+        {% trans 'Home' as name %}
+        {% include 'unfold/helpers/breadcrumb_item.html' with link=link name=name %}
+        {% url 'admin:app_list' app_label=opts.app_label as link %}
+        {% include 'unfold/helpers/breadcrumb_item.html' with link=link name=opts.app_config.verbose_name %}
+        {% url 'admin:loyalty_loyaltyaccount_changelist' as link %}
+        {% include 'unfold/helpers/breadcrumb_item.html' with link=link name=opts.verbose_name_plural %}
+        {% url 'admin:loyalty_loyaltyaccount_change' account.pk as link %}
+        {% include 'unfold/helpers/breadcrumb_item.html' with link=link name=account %}
+        {% trans "Змінити бали" as name %}
+        {% include 'unfold/helpers/breadcrumb_item.html' with link='' name=name %}
+      </ul>
+    </div>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="border border-base-200 dark:border-base-800 rounded-default p-6 lg:p-8 bg-white dark:bg-base-900 max-w-xl">
+    <h1 class="font-semibold text-font-important-light dark:text-font-important-dark text-lg mb-1">
+      {% translate "Змінити бали" %}
+    </h1>
+    <p class="text-font-default-light dark:text-font-default-dark mb-6">
+      {{ account.user.email }} —
+      {% blocktranslate with balance=account.balance available=available_balance %}
+        баланс {{ balance }}, доступно до списання {{ available }}
+      {% endblocktranslate %}
+    </p>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <ul class="mb-4 text-red-600 dark:text-red-400">
+          {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      <div class="flex flex-col gap-4">
+        {% for field in form %}
+          <div class="flex flex-col gap-1">
+            <label for="{{ field.id_for_label }}" class="font-medium text-font-important-light dark:text-font-important-dark">
+              {{ field.label }}
+            </label>
+            {{ field }}
+            {% if field.errors %}
+              <p class="text-sm text-red-600 dark:text-red-400">{{ field.errors|striptags }}</p>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="flex flex-wrap gap-3 mt-6">
+        <button type="submit" class="bg-primary-600 border border-transparent cursor-pointer font-medium px-3 py-2 rounded text-white">
+          {% translate "Застосувати" %}
+        </button>
+        <a href="{% url 'admin:loyalty_loyaltyaccount_change' account.pk %}"
+           class="border border-base-200 dark:border-base-700 cursor-pointer font-medium px-3 py-2 rounded text-font-important-light dark:text-font-important-dark">
+          {% translate "Скасувати" %}
+        </a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

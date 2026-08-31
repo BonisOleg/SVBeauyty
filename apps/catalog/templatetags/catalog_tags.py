@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django import template
+from django.conf import settings
 
 from apps.pricing.services import get_price
 
@@ -18,12 +19,40 @@ def variant_price(context, variant):
 def product_card(context, product):
     request = context.get("request")
     user = request.user if request and request.user.is_authenticated else None
-    variant = product.default_variant
+    variants = list(product.active_variants)
+    default = product.default_variant
+    variant_rows = []
+    for item in variants:
+        price = get_price(item, user)
+        variant_rows.append(
+            {
+                "variant": item,
+                "price": price,
+                "selected": bool(default and item.id == default.id),
+            }
+        )
     return {
+        "request": request,
+        "user": user,
         "product": product,
-        "variant": variant,
-        "price": get_price(variant, user) if variant else None,
-        "variants_count": len(product.active_variants),
+        "variant": default,
+        "price": get_price(default, user) if default else None,
+        "variant_rows": variant_rows,
+        "variants_count": len(variants),
+        "in_wishlist": product.pk in (context.get("wishlist_product_ids") or set()),
+    }
+
+
+@register.inclusion_tag("catalog/_rating_stars.html")
+def rating_stars(product, show_count=True):
+    if not settings.REVIEWS_ENABLED:
+        return {"enabled": False, "avg": 0, "count": 0, "filled": 0, "show_count": False}
+    return {
+        "enabled": True,
+        "avg": product.rating_avg,
+        "count": product.rating_count,
+        "filled": product.rating_stars,
+        "show_count": show_count,
     }
 
 

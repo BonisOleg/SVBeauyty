@@ -14,8 +14,10 @@ from apps.commerce.models import Order
 from apps.commerce.notifications import notify_new_order
 from apps.commerce.services import CartError
 from apps.loyalty import services as loyalty
+from apps.loyalty.models import LoyaltySettings
 from apps.payments.services import available_methods, build_liqpay_payload
 from apps.pricing.services import delivery_note, free_delivery_threshold, min_order_amount
+from apps.shipping.models import ShippingSettings
 
 
 def _is_htmx(request) -> bool:
@@ -151,9 +153,14 @@ def checkout(request):
         "summary": summary,
         "payment_methods": methods,
         "max_points": max_points,
-        "points_value": loyalty.points_to_uah(max_points),
+        "point_rate": loyalty.points_to_uah(1),
         "loyalty_balance": loyalty.get_balance(user) if user else 0,
+        "loyalty_available": loyalty.get_available_balance(user) if user else 0,
+        "loyalty_pending": loyalty.pending_earn_points(user) if user else 0,
+        "loyalty_pending_releases": loyalty.pending_earn_releases(user) if user else [],
+        "earn_hold_days": LoyaltySettings.get_solo().earn_hold_days,
         "delivery_note": delivery_note(user),
+        "shipping": ShippingSettings.get_solo(),
     }
     return render(request, "commerce/checkout.html", context)
 

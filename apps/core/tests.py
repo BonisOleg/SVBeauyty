@@ -1,7 +1,9 @@
 from django.test import TestCase
 from django.urls import reverse
 
+from apps.catalog.models import Category
 from apps.content.models import Page
+from apps.core.views import HOME_CATEGORIES_LIMIT
 
 CREDIT_URL = "https://www.prometeylabs.com/internet-shop-v2/"
 
@@ -36,3 +38,16 @@ class FooterDeveloperLinkTests(TestCase):
             self.assertContains(response, "Labs")
             self.assertNotContains(response, CREDIT_URL)
             self.assertNotContains(response, "footer__credit-link")
+
+
+class HomeCategoriesLimitTests(TestCase):
+    def test_home_shows_at_most_eight_categories(self):
+        for index in range(HOME_CATEGORIES_LIMIT + 3):
+            Category.objects.create(
+                name_uk=f"Кат {index}",
+                slug=f"kat-{index}",
+                is_active=True,
+                sort_order=index,
+            )
+        response = self.client.get(reverse("core:home"))
+        self.assertEqual(len(response.context["categories"]), HOME_CATEGORIES_LIMIT)

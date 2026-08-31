@@ -55,7 +55,7 @@
 .field select:focus,
 .field textarea:focus {
   border-color: var(--c-accent);
-  box-shadow: 0 0 0 3px rgba(32, 132, 124, 0.14);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.12);
   outline: none;
 }
 

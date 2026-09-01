@@ -1,7 +1,8 @@
 from decimal import Decimal, InvalidOperation
+from urllib.parse import urlencode
 
 from django.core.paginator import Paginator
-from django.db.models import Avg, Count, Prefetch, Q, QuerySet
+from django.db.models import Avg, Count, F, Prefetch, Q, QuerySet
 
 from apps.catalog.models import (
     Brand,
@@ -11,6 +12,7 @@ from apps.catalog.models import (
     ProductAttributeGroup,
     Variant,
 )
+from apps.pricing.services import is_pro
 
 PER_PAGE = 24
 
@@ -76,6 +78,39 @@ def parse_catalog_filters(request) -> dict:
     }
 
 
+def _price_range_q(
+    *,
+    price_min: Decimal | None,
+    price_max: Decimal | None,
+    user=None,
+) -> Q:
+    """Діапазон за ефективною вітриною ціною (як get_price)."""
+    base = Q(variants__is_active=True)
+    if is_pro(user):
+        q = base
+        if price_min is not None:
+            q &= Q(variants__price_pro_uah__gte=price_min)
+        if price_max is not None:
+            q &= Q(variants__price_pro_uah__lte=price_max)
+        return q
+
+    sale_active = Q(variants__sale_price_uah__gt=0) & Q(
+        variants__sale_price_uah__lt=F("variants__price_uah")
+    )
+    no_sale = Q(variants__sale_price_uah__lte=0) | Q(
+        variants__sale_price_uah__gte=F("variants__price_uah")
+    )
+    sale_q = base & sale_active
+    retail_q = base & no_sale
+    if price_min is not None:
+        sale_q &= Q(variants__sale_price_uah__gte=price_min)
+        retail_q &= Q(variants__price_uah__gte=price_min)
+    if price_max is not None:
+        sale_q &= Q(variants__sale_price_uah__lte=price_max)
+        retail_q &= Q(variants__price_uah__lte=price_max)
+    return sale_q | retail_q
+
+
 def filter_catalog(
     qs: QuerySet[Product] | None = None,
     *,
@@ -86,6 +121,7 @@ def filter_catalog(
     price_min: Decimal | None = None,
     price_max: Decimal | None = None,
     attr_filters: dict[str, list[str]] | None = None,
+    user=None,
 ) -> QuerySet[Product]:
     qs = qs if qs is not None else active_products()
     if category is not None:
@@ -95,13 +131,8 @@ def filter_catalog(
     if in_stock:
         qs = qs.filter(variants__stock_qty__gt=0, variants__is_active=True).distinct()
 
-    price_q = Q(variants__is_active=True)
-    if price_min is not None:
-        price_q &= Q(variants__price_uah__gte=price_min)
-    if price_max is not None:
-        price_q &= Q(variants__price_uah__lte=price_max)
     if price_min is not None or price_max is not None:
-        qs = qs.filter(price_q).distinct()
+        qs = qs.filter(_price_range_q(price_min=price_min, price_max=price_max, user=user)).distinct()
 
     if attr_filters:
         for group_slug, value_slugs in attr_filters.items():
@@ -114,7 +145,6 @@ def filter_catalog(
             ).distinct()
 
     return qs.order_by(*SORT_MAP.get(sort, SORT_MAP["popular"]))
-
 
 def filter_groups_for_catalog() -> list[dict]:
     """Групи з значеннями, що реально призначені активним товарам."""
@@ -216,6 +246,15 @@ def paginate(request, queryset, per_page: int = PER_PAGE):
     return Paginator(queryset, per_page).get_page(request.GET.get("page"))
 
 
+def catalog_filters_reset_url(request, *, query: str = "") -> str:
+    """Скидання фасетів; на пошуку зберігає q."""
+    path = request.path
+    query = (query or "").strip()
+    if query:
+        return f"{path}?{urlencode({'q': query})}"
+    return path
+
+
 def catalog_page_context(request, *, queryset, category=None, query="", is_search=False) -> dict:
     filters = parse_catalog_filters(request)
     filtered = filter_catalog(
@@ -227,6 +266,7 @@ def catalog_page_context(request, *, queryset, category=None, query="", is_searc
         price_min=filters["price_min"],
         price_max=filters["price_max"],
         attr_filters=filters["attr_filters"],
+        user=getattr(request, "user", None),
     )
     return {
         "page_obj": paginate(request, filtered),
@@ -243,6 +283,7 @@ def catalog_page_context(request, *, queryset, category=None, query="", is_searc
         ],
         "price_min": request.GET.get("price_min", ""),
         "price_max": request.GET.get("price_max", ""),
+        "filters_reset_url": catalog_filters_reset_url(request, query=query),
         "category": category,
         "query": query,
         "is_search": is_search,

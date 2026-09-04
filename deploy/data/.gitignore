@@ -1,0 +1,4 @@
+# Keep empty dumps out of git; export creates files here.
+*
+!.gitignore
+!.gitkeep

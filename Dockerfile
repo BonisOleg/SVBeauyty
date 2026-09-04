@@ -16,12 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN chmod +x deploy/entrypoint.sh && \
-    python manage.py collectstatic --noinput && \
-    python manage.py compilemessages
-
-RUN useradd --create-home appuser && chown -R appuser:appuser /app
-USER appuser
+RUN chmod +x deploy/entrypoint.sh deploy/docker/*.sh
 
 EXPOSE 8000
 

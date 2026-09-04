@@ -3,6 +3,7 @@
 .env
 .env.*
 !.env.example
+!.env.docker.example
 __pycache__/
 *.py[cod]
 *.sqlite3
@@ -11,6 +12,7 @@ db.sqlite3
 venv/
 media/
 staticfiles/
+deploy/data/
 _reference/
 *.md
 !README.md

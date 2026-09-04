@@ -124,16 +124,35 @@ python3 manage.py compilemessages
 Контент (назви товарів, описи, сторінки) перекладається в адмінці —
 поля `_uk` / `_ru`. Слаг один на сутність, мова живе лише в префіксі URL.
 
-## Продакшен
+## Продакшен (тестовий Droplet — HTTP по IP)
+
+Канон: `django-droplet-http-first` → пізніше SSL (`django-docker-ssl`).
+
+| | |
+|---|---|
+| IP | `161.35.65.129` |
+| SSH | `ssh svbeauty` (`~/.ssh/id_svbeauty_do`) |
+| Шлях | `/var/www/svbeauty` |
+| URL | `http://161.35.65.129/` |
 
 ```bash
-cp .env.example .env   # заповнити SECRET_KEY, ALLOWED_HOSTS, БД, SMTP
-docker compose up -d --build
-docker compose exec web python manage.py createsuperuser
+# На Droplet (Ubuntu 24.04, shop ≥2 GB; 1 GB → 2G swap)
+git clone https://github.com/BonisOleg/SVBeauyty.git /var/www/svbeauty
+cd /var/www/svbeauty
+bash deploy/docker/install-docker.sh
+bash deploy/docker/gen-env.sh   # .env з IP 161.35.65.129 + унікальні SECRET_KEY/DB_PASSWORD
+bash deploy/docker/deploy.sh
+curl -sI -H "Host: 161.35.65.129" http://127.0.0.1/ | head -5
+curl -sf -H "Host: 161.35.65.129" http://127.0.0.1/healthz/
+
+# Mac → дамп (після healthz, ДО createsuperuser)
+./deploy/docker/sync-data.sh push svbeauty:/var/www/svbeauty --yes
+ssh svbeauty 'cd /var/www/svbeauty && docker compose -f docker-compose.yml -f docker-compose.prod.yml exec -T web python manage.py createsuperuser'
 ```
 
-Nginx-конфіг — `deploy/nginx/svbeauty.conf`, сертифікати через certbot
-у `deploy/certbot/`.
+- HTTP: `deploy/nginx/docker.conf` (без SSL redirect)
+- HTTPS пізніше: `docker.prod.conf` + `docker-compose.ssl.yml`
+- У `.env` не має бути літерала `DROPLET_IP` (`grep ALLOWED_HOSTS .env`)
 
 ## Не входить у цей реліз
 

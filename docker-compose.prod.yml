@@ -1,0 +1,18 @@
+services:
+  nginx:
+    restart: always
+
+  web:
+    restart: always
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.production
+      DEBUG: "False"
+      DB_HOST: db
+      DB_PORT: "5432"
+
+  db:
+    restart: always
+    env_file:
+      - .env

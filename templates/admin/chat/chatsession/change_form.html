@@ -1,0 +1,66 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block form_after %}
+  {{ block.super }}
+  {% if chat_thread_enabled and original %}
+    <div
+      class="admin-chat"
+      data-admin-chat
+      data-messages-url="{{ chat_messages_url }}"
+      data-reply-url="{{ chat_reply_url }}"
+      data-poll-ms="6000"
+      data-closed="{% if original.is_closed %}1{% else %}0{% endif %}"
+      data-label-customer="{% translate 'Клієнт' %}"
+      data-label-manager="{% translate 'Менеджер' %}"
+      data-error-empty="{% translate 'Введіть текст відповіді.' %}"
+      data-error-send="{% translate 'Не вдалось надіслати. Спробуйте ще раз.' %}"
+      data-delete-url-template="{{ chat_delete_url_template }}"
+      data-label-delete="{% translate 'Видалити' %}"
+      data-confirm-delete="{% translate 'Видалити це повідомлення?' %}"
+    >
+      <div class="admin-chat__head">
+        <div>
+          <p class="admin-chat__title">{% translate "Переписка" %}</p>
+          <p class="admin-chat__meta">
+            {% if original.name %}{{ original.name }}{% else %}{% translate "Без імені" %}{% endif %}
+            {% if original.phone %} · {{ original.phone }}{% endif %}
+          </p>
+        </div>
+        {% if original.is_closed %}
+          <span class="admin-chat__badge">{% translate "Закрито" %}</span>
+        {% endif %}
+      </div>
+
+      <div class="admin-chat__body" data-admin-chat-body>
+        <p class="admin-chat__empty" data-admin-chat-empty>{% translate "Повідомлень ще немає." %}</p>
+      </div>
+
+      <form class="admin-chat__form" data-admin-chat-form>
+        {% csrf_token %}
+        <label class="admin-chat__label" for="admin-chat-input">{% translate "Відповідь менеджера" %}</label>
+        <div class="admin-chat__row">
+          <textarea
+            id="admin-chat-input"
+            class="admin-chat__input"
+            name="text"
+            rows="3"
+            maxlength="2000"
+            data-admin-chat-input
+            placeholder="{% translate 'Напишіть відповідь…' %}"
+            {% if original.is_closed %}disabled{% endif %}
+          ></textarea>
+          <button
+            type="submit"
+            class="admin-chat__send"
+            data-admin-chat-send
+            {% if original.is_closed %}disabled{% endif %}
+          >
+            {% translate "Відповісти" %}
+          </button>
+        </div>
+        <p class="admin-chat__error" data-admin-chat-error hidden></p>
+      </form>
+    </div>
+  {% endif %}
+{% endblock %}

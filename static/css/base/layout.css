@@ -55,7 +55,7 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  align-items: start;
+  align-items: stretch;
   gap: var(--grid-gap);
   width: 100%;
   overflow: visible;
@@ -65,10 +65,14 @@
   width: calc((100% - (var(--grid-cols) - 1) * var(--grid-gap)) / var(--grid-cols));
   min-width: 0;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 .product-grid__item > .card {
+  flex: 1 1 auto;
   height: 100%;
+  width: 100%;
 }
 
 /* Legacy alias — не використовувати в нових шаблонах */
@@ -76,7 +80,7 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  align-items: start;
+  align-items: stretch;
   gap: var(--sp-3);
   overflow: visible;
 }
@@ -85,6 +89,8 @@
   width: calc((100% - var(--sp-3)) / 2);
   min-width: 0;
   box-sizing: border-box;
+  height: auto;
+  align-self: stretch;
 }
 
 .layout-catalog {

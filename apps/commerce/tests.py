@@ -13,7 +13,7 @@ from apps.loyalty import services as loyalty
 from apps.loyalty.models import LoyaltySettings, TransactionKind
 from apps.pricing import services as pricing_services
 from apps.pricing.models import PricingSettings
-from apps.pricing.services import PRO_AUTO, PRO_MANUAL, RETAIL, SALE, get_price
+from apps.pricing.services import GLOBAL_SALE, PRO_AUTO, PRO_MANUAL, RETAIL, SALE, get_price
 
 
 class ShopTestCase(TestCase):
@@ -174,6 +174,81 @@ class PricingTests(ShopTestCase):
         self.variant.save()
         self.assertEqual(get_price(self.variant, None).source, RETAIL)
 
+    def _enable_global_sale(self, percent="20.00", **extra):
+        conf = PricingSettings.get_solo()
+        conf.global_sale_is_active = True
+        conf.global_sale_percent = Decimal(percent)
+        conf.global_sale_starts_at = extra.get("starts_at")
+        conf.global_sale_ends_at = extra.get("ends_at")
+        conf.save()
+        if "exclude_product" in extra:
+            conf.global_sale_exclude_products.add(extra["exclude_product"])
+        if "exclude_brand" in extra:
+            conf.global_sale_exclude_brands.add(extra["exclude_brand"])
+        return conf
+
+    def test_global_sale_applies_to_guest_and_regular(self):
+        self._enable_global_sale("20.00")
+        for user in (None, self.regular):
+            price = get_price(self.variant, user)
+            self.assertEqual(price.source, GLOBAL_SALE)
+            self.assertEqual(price.amount, Decimal("800.00"))
+            self.assertEqual(price.base_amount, Decimal("1000.00"))
+            self.assertTrue(price.is_sale)
+
+    def test_global_sale_overrides_personal_sale(self):
+        self.variant.sale_price_uah = Decimal("500.00")
+        self.variant.save()
+        self._enable_global_sale("20.00")
+        price = get_price(self.variant, self.regular)
+        self.assertEqual(price.source, GLOBAL_SALE)
+        self.assertEqual(price.amount, Decimal("800.00"))
+
+    def test_global_sale_does_not_apply_to_cosmetologist(self):
+        self._enable_global_sale("20.00")
+        price = get_price(self.variant, self.pro)
+        self.assertEqual(price.source, PRO_AUTO)
+        self.assertEqual(price.amount, Decimal("700.00"))
+
+    def test_global_sale_respects_product_exclude(self):
+        self.variant.sale_price_uah = Decimal("600.00")
+        self.variant.save()
+        self._enable_global_sale("20.00", exclude_product=self.product)
+        price = get_price(self.variant, self.regular)
+        self.assertEqual(price.source, SALE)
+        self.assertEqual(price.amount, Decimal("600.00"))
+
+    def test_global_sale_respects_brand_exclude(self):
+        self._enable_global_sale("20.00", exclude_brand=self.brand)
+        price = get_price(self.variant, None)
+        self.assertEqual(price.source, RETAIL)
+        self.assertEqual(price.amount, Decimal("1000.00"))
+
+    def test_global_sale_outside_date_window_is_inactive(self):
+        from django.utils import timezone
+        from datetime import timedelta
+
+        now = timezone.now()
+        self._enable_global_sale(
+            "20.00",
+            starts_at=now + timedelta(days=1),
+            ends_at=now + timedelta(days=7),
+        )
+        self.assertEqual(get_price(self.variant, None).source, RETAIL)
+
+    def test_global_sale_uses_rounding_step(self):
+        conf = PricingSettings.get_solo()
+        conf.rounding_step = "10.00"
+        conf.save()
+        self.variant.price_uah = Decimal("999.00")
+        self.variant.price_is_manual = True
+        self.variant.save()
+        self._enable_global_sale("15.00")
+        # 999 * 0.85 = 849.15 → step 10 → 850
+        price = get_price(self.variant, None)
+        self.assertEqual(price.amount, Decimal("850.00"))
+        self.assertEqual(price.source, GLOBAL_SALE)
+
 
 class CartTests(ShopTestCase):
     def test_add_updates_counter_and_popup(self):
@@ -284,6 +359,22 @@ class CheckoutTests(ShopTestCase):
         self.assertEqual(order.total_uah, Decimal("800.00"))
         self.assertEqual(item.unit_price_uah, Decimal("800.00"))
         self.assertEqual(item.price_source, SALE)
+
+    def test_guest_order_uses_global_sale_price(self):
+        conf = PricingSettings.get_solo()
+        conf.global_sale_is_active = True
+        conf.global_sale_percent = Decimal("20.00")
+        conf.save()
+
+        self.client.post(reverse("commerce:cart_add"), {"variant_id": self.variant.id, "quantity": 1})
+        self.client.post(reverse("commerce:checkout"), self._checkout_payload())
+
+        order = Order.objects.get()
+        item = order.items.get()
+        self.assertEqual(order.total_uah, Decimal("800.00"))
+        self.assertEqual(item.unit_price_uah, Decimal("800.00"))
+        self.assertEqual(item.price_source, GLOBAL_SALE)
+
     def test_order_decrements_stock(self):
         self.assertEqual(self.variant.stock_qty, 10)
         self.client.post(reverse("commerce:cart_add"), {"variant_id": self.variant.id, "quantity": 2})

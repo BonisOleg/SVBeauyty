@@ -2,7 +2,22 @@ from decimal import Decimal, InvalidOperation
 from urllib.parse import urlencode
 
 from django.core.paginator import Paginator
-from django.db.models import Avg, Count, F, Prefetch, Q, QuerySet
+from django.db.models import (
+    Avg,
+    Case,
+    Count,
+    DecimalField,
+    ExpressionWrapper,
+    F,
+    IntegerField,
+    Max,
+    Min,
+    Prefetch,
+    Q,
+    QuerySet,
+    Value,
+    When,
+)
 
 from apps.catalog.models import (
     Brand,
@@ -12,7 +27,8 @@ from apps.catalog.models import (
     ProductAttributeGroup,
     Variant,
 )
-from apps.pricing.services import is_pro
+from apps.pricing.services import get_global_sale_state, is_pro
+
 
 PER_PAGE = 24
 
@@ -20,7 +36,12 @@ SORT_MAP = {
     "popular": ["sort_order", "-created_at"],
     "new": ["-created_at"],
     "name": ["name_uk"],
+    "price_asc": ["_sort_price", "sort_order", "id"],
+    "price_desc": ["-_sort_price", "sort_order", "id"],
 }
+
+PRICE_SORTS = frozenset({"price_asc", "price_desc"})
+ALLOWED_SORTS = frozenset(SORT_MAP)
 
 ATTRIBUTE_FILTER_KEYS = (
     ProductAttributeGroup.Slug.AGE,
@@ -71,11 +92,38 @@ def parse_catalog_filters(request) -> dict:
     return {
         "brands": request.GET.getlist("brand"),
         "in_stock": request.GET.get("in_stock") == "1",
-        "sort": request.GET.get("sort", "popular"),
+        "sort": (
+            sort
+            if (sort := request.GET.get("sort", "popular")) in ALLOWED_SORTS
+            else "popular"
+        ),
         "price_min": _parse_price(request.GET.get("price_min")),
         "price_max": _parse_price(request.GET.get("price_max")),
         "attr_filters": attr_filters,
     }
+
+
+def _personal_sale_price_q(
+    base: Q,
+    *,
+    price_min: Decimal | None,
+    price_max: Decimal | None,
+) -> Q:
+    sale_active = Q(variants__sale_price_uah__gt=0) & Q(
+        variants__sale_price_uah__lt=F("variants__price_uah")
+    )
+    no_sale = Q(variants__sale_price_uah__lte=0) | Q(
+        variants__sale_price_uah__gte=F("variants__price_uah")
+    )
+    sale_q = base & sale_active
+    retail_q = base & no_sale
+    if price_min is not None:
+        sale_q &= Q(variants__sale_price_uah__gte=price_min)
+        retail_q &= Q(variants__price_uah__gte=price_min)
+    if price_max is not None:
+        sale_q &= Q(variants__sale_price_uah__lte=price_max)
+        retail_q &= Q(variants__price_uah__lte=price_max)
+    return sale_q | retail_q
 
 
 def _price_range_q(
@@ -94,21 +142,75 @@ def _price_range_q(
             q &= Q(variants__price_pro_uah__lte=price_max)
         return q
 
-    sale_active = Q(variants__sale_price_uah__gt=0) & Q(
-        variants__sale_price_uah__lt=F("variants__price_uah")
-    )
-    no_sale = Q(variants__sale_price_uah__lte=0) | Q(
-        variants__sale_price_uah__gte=F("variants__price_uah")
-    )
-    sale_q = base & sale_active
-    retail_q = base & no_sale
+    state = get_global_sale_state()
+    if not state.is_live or state.factor <= 0:
+        return _personal_sale_price_q(base, price_min=price_min, price_max=price_max)
+
+    excluded = Q()
+    if state.exclude_product_ids:
+        excluded |= Q(pk__in=state.exclude_product_ids)
+    if state.exclude_brand_ids:
+        excluded |= Q(brand_id__in=state.exclude_brand_ids)
+
+    # Inverse of retail * factor (без точного step — похибка на межі ≈ крок округлення).
+    global_q = base & ~excluded if excluded else base
     if price_min is not None:
-        sale_q &= Q(variants__sale_price_uah__gte=price_min)
-        retail_q &= Q(variants__price_uah__gte=price_min)
+        global_q &= Q(variants__price_uah__gte=(price_min / state.factor))
     if price_max is not None:
-        sale_q &= Q(variants__sale_price_uah__lte=price_max)
-        retail_q &= Q(variants__price_uah__lte=price_max)
-    return sale_q | retail_q
+        global_q &= Q(variants__price_uah__lte=(price_max / state.factor))
+
+    if not excluded:
+        return global_q
+    personal_q = _personal_sale_price_q(base & excluded, price_min=price_min, price_max=price_max)
+    return global_q | personal_q
+
+
+def _personal_sale_amount_expr():
+    """Ефективна ціна варіанта без global sale (sale якщо активна, інакше retail)."""
+    return Case(
+        When(
+            Q(variants__sale_price_uah__gt=0)
+            & Q(variants__sale_price_uah__lt=F("variants__price_uah")),
+            then=F("variants__sale_price_uah"),
+        ),
+        default=F("variants__price_uah"),
+        output_field=DecimalField(max_digits=12, decimal_places=2),
+    )
+
+
+def _annotate_sort_price(qs: QuerySet[Product], user=None) -> QuerySet[Product]:
+    """Мін. вітринна ціна товару для сортування (як get_price, без кроку округлення global)."""
+    active = Q(variants__is_active=True)
+    if is_pro(user):
+        return qs.annotate(
+            _sort_price=Min("variants__price_pro_uah", filter=active),
+        )
+
+    state = get_global_sale_state()
+    personal = _personal_sale_amount_expr()
+    if not state.is_live or state.factor <= 0:
+        return qs.annotate(_sort_price=Min(personal, filter=active))
+
+    excluded = Q()
+    if state.exclude_product_ids:
+        excluded |= Q(pk__in=state.exclude_product_ids)
+    if state.exclude_brand_ids:
+        excluded |= Q(brand_id__in=state.exclude_brand_ids)
+
+    # Global: retail * factor; excluded products — personal sale.
+    global_amount = ExpressionWrapper(
+        F("variants__price_uah") * Value(state.factor),
+        output_field=DecimalField(max_digits=12, decimal_places=2),
+    )
+    if excluded:
+        effective = Case(
+            When(excluded, then=personal),
+            default=global_amount,
+            output_field=DecimalField(max_digits=12, decimal_places=2),
+        )
+    else:
+        effective = global_amount
+    return qs.annotate(_sort_price=Min(effective, filter=active))
 
 
 def filter_catalog(
@@ -144,7 +246,11 @@ def filter_catalog(
                 filter_attrs__is_active=True,
             ).distinct()
 
-    return qs.order_by(*SORT_MAP.get(sort, SORT_MAP["popular"]))
+    sort_key = sort if sort in ALLOWED_SORTS else "popular"
+    if sort_key in PRICE_SORTS:
+        qs = _annotate_sort_price(qs, user=user)
+    return qs.order_by(*SORT_MAP[sort_key])
+
 
 def filter_groups_for_catalog() -> list[dict]:
     """Групи з значеннями, що реально призначені активним товарам."""
@@ -176,20 +282,49 @@ def filter_groups_for_catalog() -> list[dict]:
     return result
 
 
+def normalize_search_query(query: str | None) -> str:
+    return " ".join((query or "").split()).strip()
+
+
 def search_products(query: str) -> QuerySet[Product]:
-    query = (query or "").strip()
+    query = normalize_search_query(query)
     if len(query) < 2:
         return active_products().none()
+    match = (
+        Q(name_uk__icontains=query)
+        | Q(name_ru__icontains=query)
+        | Q(short_description_uk__icontains=query)
+        | Q(short_description_ru__icontains=query)
+        | Q(variants__sku__icontains=query)
+        | Q(brand__name__icontains=query)
+        | Q(category__name_uk__icontains=query)
+        | Q(category__name_ru__icontains=query)
+    )
+    rank = Case(
+        When(variants__sku__iexact=query, then=Value(100)),
+        When(variants__sku__istartswith=query, then=Value(90)),
+        When(name_uk__iexact=query, then=Value(80)),
+        When(name_ru__iexact=query, then=Value(78)),
+        When(name_uk__istartswith=query, then=Value(70)),
+        When(name_ru__istartswith=query, then=Value(68)),
+        When(brand__name__iexact=query, then=Value(55)),
+        When(brand__name__istartswith=query, then=Value(50)),
+        When(category__name_uk__icontains=query, then=Value(35)),
+        When(category__name_ru__icontains=query, then=Value(35)),
+        default=Value(10),
+        output_field=IntegerField(),
+    )
     return (
         active_products()
-        .filter(
-            Q(name_uk__icontains=query)
-            | Q(name_ru__icontains=query)
-            | Q(variants__sku__icontains=query)
-            | Q(brand__name__icontains=query)
-        )
+        .filter(match)
+        .annotate(_search_rank=Max(rank))
+        .order_by("-_search_rank", "sort_order", "-created_at", "id")
         .distinct()
     )
+
+
+def search_suggest_products(query: str, *, limit: int = 8) -> list[Product]:
+    return list(search_products(query)[:limit])
 
 
 def get_product_by_slug(slug: str) -> Product:
@@ -249,7 +384,7 @@ def paginate(request, queryset, per_page: int = PER_PAGE):
 def catalog_filters_reset_url(request, *, query: str = "") -> str:
     """Скидання фасетів; на пошуку зберігає q."""
     path = request.path
-    query = (query or "").strip()
+    query = normalize_search_query(query)
     if query:
         return f"{path}?{urlencode({'q': query})}"
     return path
@@ -287,4 +422,6 @@ def catalog_page_context(request, *, queryset, category=None, query="", is_searc
         "category": category,
         "query": query,
         "is_search": is_search,
+        "query_too_short": bool(query) and len(query) < 2,
+        "search_empty_query": is_search and not query,
     }

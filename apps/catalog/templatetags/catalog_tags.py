@@ -3,7 +3,7 @@ from decimal import Decimal
 from django import template
 from django.conf import settings
 
-from apps.pricing.services import get_price
+from apps.pricing.services import get_global_sale_state, get_price
 
 register = template.Library()
 
@@ -21,9 +21,10 @@ def product_card(context, product):
     user = request.user if request and request.user.is_authenticated else None
     variants = list(product.active_variants)
     default = product.default_variant
+    global_sale = get_global_sale_state()
     variant_rows = []
     for item in variants:
-        price = get_price(item, user)
+        price = get_price(item, user, global_sale=global_sale)
         variant_rows.append(
             {
                 "variant": item,
@@ -36,7 +37,7 @@ def product_card(context, product):
         "user": user,
         "product": product,
         "variant": default,
-        "price": get_price(default, user) if default else None,
+        "price": get_price(default, user, global_sale=global_sale) if default else None,
         "variant_rows": variant_rows,
         "variants_count": len(variants),
         "in_wishlist": product.pk in (context.get("wishlist_product_ids") or set()),

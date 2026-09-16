@@ -1,10 +1,13 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.db.models import Case, IntegerField, Value, When
 from django.utils import timezone
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from unfold.admin import ModelAdmin
 
 from apps.accounts.models import ClientType, CosmetologistRequest, RequestStatus, User
+from apps.core.admin_list_markers import mark_new, new_badge
 
 
 @admin.register(User)
@@ -34,11 +37,31 @@ class UserAdmin(BaseUserAdmin, ModelAdmin):
 
 @admin.register(CosmetologistRequest)
 class CosmetologistRequestAdmin(ModelAdmin):
-    list_display = ["full_name", "user", "phone", "workplace", "status", "created_at"]
+    list_display = ["full_name_display", "user", "phone", "workplace", "status", "created_at"]
     list_filter = ["status", "created_at"]
     search_fields = ["full_name", "phone", "user__email"]
     readonly_fields = ["user", "created_at", "updated_at"]
     actions = ["approve_requests", "reject_requests"]
+
+    @admin.display(description=_("ПІБ"), ordering="full_name")
+    def full_name_display(self, obj):
+        label = format_html('<span class="admin-list-title">{}</span>', obj.full_name)
+        if obj.status == RequestStatus.NEW:
+            return mark_new(format_html("{}{}", new_badge(), label))
+        return label
+
+    def get_ordering(self, request):
+        return ("_is_new", "-created_at")
+
+    def get_queryset(self, request):
+        qs = self.model._default_manager.get_queryset()
+        return qs.annotate(
+            _is_new=Case(
+                When(status=RequestStatus.NEW, then=Value(0)),
+                default=Value(1),
+                output_field=IntegerField(),
+            )
+        )
 
     @admin.action(description=_("Схвалити: надати статус косметолога"))
     def approve_requests(self, request, queryset):

@@ -7,6 +7,8 @@ from django.utils.translation import gettext_lazy as _
 
 from apps.core.models import PublishedModel, SeoModel, TimeStampedModel
 from apps.core.utils import localized
+from apps.core.utils.images import validate_image
+
 
 
 class Brand(TimeStampedModel, PublishedModel):
@@ -28,7 +30,13 @@ class Category(TimeStampedModel, PublishedModel, SeoModel):
     name_uk = models.CharField(_("Назва (укр)"), max_length=120)
     name_ru = models.CharField(_("Назва (рос)"), max_length=120, blank=True)
     slug = models.SlugField(_("URL"), max_length=140, unique=True)
-    image = models.ImageField(_("Фото категорії"), upload_to="categories/", blank=True)
+    image = models.ImageField(
+        _("Фото категорії"),
+        upload_to="categories/",
+        blank=True,
+        validators=[validate_image],
+    )
+
     description_uk = models.TextField(_("Опис (укр)"), blank=True)
     description_ru = models.TextField(_("Опис (рос)"), blank=True)
 
@@ -72,6 +80,12 @@ class Product(TimeStampedModel, PublishedModel, SeoModel):
         help_text=_("Текст складу на сторінці товару (вкладка «Склад»)."),
     )
     composition_ru = models.TextField(_("Склад (рос)"), blank=True)
+    usage_uk = models.TextField(
+        _("Спосіб застосування (укр)"),
+        blank=True,
+        help_text=_("Текст застосування на сторінці товару (вкладка «Спосіб застосування»)."),
+    )
+    usage_ru = models.TextField(_("Спосіб застосування (рос)"), blank=True)
 
     gift_promo_title_uk = models.CharField(
         _("Банер подарунка — заголовок (укр)"),
@@ -132,6 +146,10 @@ class Product(TimeStampedModel, PublishedModel, SeoModel):
     @property
     def composition(self):
         return localized(self, "composition")
+
+    @property
+    def usage(self):
+        return localized(self, "usage")
 
     @property
     def gift_promo_title(self):
@@ -283,7 +301,12 @@ class ProductImage(TimeStampedModel, PublishedModel):
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, related_name="images", verbose_name=_("Товар")
     )
-    image = models.ImageField(_("Зображення"), upload_to="products/")
+    image = models.ImageField(
+        _("Зображення"),
+        upload_to="products/",
+        validators=[validate_image],
+    )
+
     alt_uk = models.CharField(_("Alt (укр)"), max_length=255, blank=True)
     alt_ru = models.CharField(_("Alt (рос)"), max_length=255, blank=True)
     is_main = models.BooleanField(_("Головне фото"), default=False)

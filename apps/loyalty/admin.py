@@ -7,24 +7,19 @@ from unfold.admin import ModelAdmin
 from unfold.decorators import action
 from unfold.enums import ActionVariant
 
+from apps.core.admin import SingletonAdmin
 from apps.loyalty.forms import AdjustLoyaltyPointsForm
 from apps.loyalty.models import LoyaltyAccount, LoyaltySettings, LoyaltyTransaction, TransactionKind
 from apps.loyalty.services import apply_transaction, get_available_balance
 
 
 @admin.register(LoyaltySettings)
-class LoyaltySettingsAdmin(ModelAdmin):
+class LoyaltySettingsAdmin(SingletonAdmin):
     fieldsets = [
         (None, {"fields": ["is_enabled", "earn_for_pro"]}),
         ("Нарахування", {"fields": ["earn_points_per_uah", "earn_hold_days"]}),
         ("Списання", {"fields": ["redeem_uah_per_point", "max_redeem_percent"]}),
     ]
-
-    def has_add_permission(self, request):
-        return not LoyaltySettings.objects.exists()
-
-    def has_delete_permission(self, request, obj=None):
-        return False
 
 
 @admin.register(LoyaltyAccount)

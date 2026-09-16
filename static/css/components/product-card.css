@@ -66,17 +66,6 @@
   gap: var(--sp-1);
 }
 
-.badge--deal {
-  background: #111;
-  color: #fff;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 3px 6px;
-  border-radius: 2px;
-}
-
 .wish-btn {
   display: inline-flex;
   align-items: center;
@@ -195,7 +184,7 @@
 }
 
 .rating__star {
-  font-size: 12px;
+  font-size: var(--fs-xs);
   color: #d0d0d0;
 }
 
@@ -447,6 +436,7 @@
 
 @media (max-width: 1023px), (hover: none) {
   .card__hover {
+    margin-top: auto;
     opacity: 1;
     visibility: visible;
     transform: none;

@@ -19,7 +19,8 @@ from apps.commerce.models import (
 from apps.content.models import SiteSettings
 from apps.loyalty import services as loyalty
 from apps.loyalty.models import LoyaltySettings
-from apps.pricing.services import get_price
+from apps.pricing.services import get_global_sale_state, get_price
+
 
 MAX_QTY = 99
 
@@ -96,9 +97,10 @@ def cart_rows(cart: Cart | None, user=None) -> list[dict]:
     if cart is None:
         return []
     items = cart.items.select_related("variant__product__brand").order_by("id")
+    global_sale = get_global_sale_state()
     rows = []
     for item in items:
-        price = get_price(item.variant, user)
+        price = get_price(item.variant, user, global_sale=global_sale)
         rows.append(
             {
                 "item": item,
@@ -146,12 +148,13 @@ def create_order(request, cart: Cart, data: dict, redeem_points: int = 0) -> Ord
         )
     }
 
+    global_sale = get_global_sale_state()
     rows = []
     for item in cart_items:
         variant = locked_variants.get(item.variant_id)
         if variant is None or variant.stock_qty < item.quantity:
             raise CartError(_("Недостатньо товару на складі. Оновіть кошик."))
-        price = get_price(variant, user)
+        price = get_price(variant, user, global_sale=global_sale)
         rows.append(
             {
                 "item": item,

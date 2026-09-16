@@ -44,6 +44,17 @@ class ChatMessage(TimeStampedModel):
     author = models.CharField(_("Автор"), max_length=10, choices=MessageAuthor.choices)
     text = models.TextField(_("Повідомлення"))
     is_read = models.BooleanField(_("Прочитано"), default=False)
+    is_deleted = models.BooleanField(_("Видалено"), default=False, db_index=True)
+    deleted_at = models.DateTimeField(_("Видалено о"), null=True, blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="chat_messages_authored",
+        verbose_name=_("Автор (менеджер)"),
+        help_text=_("Хто з персоналу надіслав повідомлення. Потрібно, щоб видаляти лише свої."),
+    )
 
     class Meta:
         verbose_name = _("Повідомлення")
@@ -51,4 +62,15 @@ class ChatMessage(TimeStampedModel):
         ordering = ["created_at"]
 
     def __str__(self):
-        return f"{self.get_author_display()}: {self.text[:40]}"
+        prefix = "[deleted] " if self.is_deleted else ""
+        return f"{prefix}{self.get_author_display()}: {self.text[:40]}"
+
+    def soft_delete(self) -> None:
+        if self.is_deleted:
+            return
+        from django.utils import timezone
+
+        self.is_deleted = True
+        self.deleted_at = timezone.now()
+        self.save(update_fields=["is_deleted", "deleted_at", "updated_at"])
+

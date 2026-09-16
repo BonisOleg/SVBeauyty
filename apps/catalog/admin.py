@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib import admin
 from django.utils.html import format_html
-from unfold.admin import ModelAdmin, TabularInline
+from unfold.admin import ModelAdmin, StackedInline, TabularInline
 
 from apps.catalog.forms import VariantAdminForm
 from apps.catalog.models import (
@@ -15,6 +15,7 @@ from apps.catalog.models import (
     Variant,
     WishlistItem,
 )
+from apps.core.admin_i18n import bilingual_fieldsets
 from apps.pricing import services as pricing_services
 
 
@@ -22,6 +23,7 @@ class VariantInline(TabularInline):
     model = Variant
     form = VariantAdminForm
     extra = 1
+    # На ~768 Unfold stack'ає рядки; manual-прапорці лишаємо — форма виставляє їх при зміні ціни.
     fields = [
         "sku",
         "volume",
@@ -33,14 +35,20 @@ class VariantInline(TabularInline):
         "sale_price_uah",
         "stock_qty",
         "is_active",
-        "sort_order",
     ]
 
 
-class ProductImageInline(TabularInline):
+class ProductImageInline(StackedInline):
     model = ProductImage
     extra = 1
-    fields = ["image", "alt_uk", "alt_ru", "is_main", "sort_order"]
+    template = "admin/edit_inline/stacked_bilingual.html"
+    fieldsets = bilingual_fieldsets(
+        [
+            (None, {"fields": ["image", "is_main", "sort_order"]}),
+        ],
+        uk_fields=["alt_uk"],
+        ru_fields=["alt_ru"],
+    )
 
 
 @admin.register(Brand)
@@ -49,6 +57,13 @@ class BrandAdmin(ModelAdmin):
     list_editable = ["is_active", "sort_order"]
     prepopulated_fields = {"slug": ("name",)}
     search_fields = ["name"]
+    fieldsets = bilingual_fieldsets(
+        [
+            (None, {"fields": ["name", "slug", "is_active", "sort_order"]}),
+        ],
+        uk_fields=["description_uk"],
+        ru_fields=["description_ru"],
+    )
 
 
 @admin.register(Category)
@@ -57,17 +72,13 @@ class CategoryAdmin(ModelAdmin):
     list_editable = ["is_active", "sort_order"]
     prepopulated_fields = {"slug": ("name_uk",)}
     search_fields = ["name_uk", "name_ru"]
-    fieldsets = [
-        (None, {"fields": ["name_uk", "name_ru", "slug", "image", "is_active", "sort_order"]}),
-        ("Описи", {"fields": ["description_uk", "description_ru"], "classes": ["collapse"]}),
-        (
-            "SEO",
-            {
-                "fields": ["seo_title_uk", "seo_title_ru", "seo_description_uk", "seo_description_ru"],
-                "classes": ["collapse"],
-            },
-        ),
-    ]
+    fieldsets = bilingual_fieldsets(
+        [
+            (None, {"fields": ["slug", "image", "is_active", "sort_order"]}),
+        ],
+        uk_fields=["name_uk", "description_uk", "seo_title_uk", "seo_description_uk"],
+        ru_fields=["name_ru", "description_ru", "seo_title_ru", "seo_description_ru"],
+    )
 
 
 @admin.register(ProductAttributeGroup)
@@ -75,7 +86,13 @@ class ProductAttributeGroupAdmin(ModelAdmin):
     list_display = ["name_uk", "name_ru", "slug", "is_active", "sort_order"]
     list_editable = ["is_active", "sort_order"]
     search_fields = ["name_uk", "name_ru", "slug"]
-    fields = ["slug", "name_uk", "name_ru", "is_active", "sort_order"]
+    fieldsets = bilingual_fieldsets(
+        [
+            (None, {"fields": ["slug", "is_active", "sort_order"]}),
+        ],
+        uk_fields=["name_uk"],
+        ru_fields=["name_ru"],
+    )
 
 
 @admin.register(ProductAttribute)
@@ -87,6 +104,13 @@ class ProductAttributeAdmin(ModelAdmin):
     prepopulated_fields = {"slug": ("name_uk",)}
     list_select_related = ["group"]
     autocomplete_fields = ["group"]
+    fieldsets = bilingual_fieldsets(
+        [
+            (None, {"fields": ["group", "slug", "is_active", "sort_order"]}),
+        ],
+        uk_fields=["name_uk"],
+        ru_fields=["name_ru"],
+    )
 
 
 @admin.register(Product)
@@ -98,56 +122,60 @@ class ProductAdmin(ModelAdmin):
     search_fields = ["name_uk", "name_ru", "variants__sku"]
     prepopulated_fields = {"slug": ("name_uk",)}
     filter_horizontal = ["filter_attrs"]
+    list_fullwidth = True
     inlines = [VariantInline, ProductImageInline]
     list_select_related = ["brand", "category"]
-    fieldsets = [
-        (None, {"fields": ["brand", "category", "name_uk", "name_ru", "slug"]}),
-        ("Позначки", {"fields": ["is_hit", "is_new", "is_active", "sort_order"]}),
-        (
-            "Характеристики (фільтри)",
-            {
-                "fields": ["filter_attrs"],
-                "description": (
-                    "Оберіть вік, тип/стан шкіри та інгредієнти. "
-                    "Ці значення з’являться у фільтрах каталогу."
-                ),
-            },
-        ),
-        ("Короткий опис", {"fields": ["short_description_uk", "short_description_ru"]}),
-        ("Повний опис", {"fields": ["description_uk", "description_ru"], "classes": ["collapse"]}),
-        ("Склад", {"fields": ["composition_uk", "composition_ru"], "classes": ["collapse"]}),
-        (
-            "Банер «Пробник у подарунок»",
-            {
-                "fields": [
-                    "gift_promo_title_uk",
-                    "gift_promo_title_ru",
-                    "gift_promo_text_uk",
-                    "gift_promo_text_ru",
-                    "gift_promo_tooltip_uk",
-                    "gift_promo_tooltip_ru",
-                ],
-                "description": (
-                    "Показується на сторінці товару, якщо заповнено текст банера. "
-                    "Підказка «i» — детальний опис акції."
-                ),
-            },
-        ),
-        (
-            "SEO",
-            {
-                "fields": ["seo_title_uk", "seo_title_ru", "seo_description_uk", "seo_description_ru"],
-                "classes": ["collapse"],
-            },
-        ),
-    ]
+    fieldsets = bilingual_fieldsets(
+        [
+            (None, {"fields": ["brand", "category", "slug"]}),
+            ("Позначки", {"fields": ["is_hit", "is_new", "is_active", "sort_order"]}),
+            (
+                "Характеристики (фільтри)",
+                {
+                    "fields": ["filter_attrs"],
+                    "description": (
+                        "Оберіть вік, тип/стан шкіри та інгредієнти. "
+                        "Ці значення з’являться у фільтрах каталогу."
+                    ),
+                },
+            ),
+        ],
+        uk_fields=[
+            "name_uk",
+            "short_description_uk",
+            "description_uk",
+            "usage_uk",
+            "composition_uk",
+            "gift_promo_title_uk",
+            "gift_promo_text_uk",
+            "gift_promo_tooltip_uk",
+            "seo_title_uk",
+            "seo_description_uk",
+        ],
+        ru_fields=[
+            "name_ru",
+            "short_description_ru",
+            "description_ru",
+            "usage_ru",
+            "composition_ru",
+            "gift_promo_title_ru",
+            "gift_promo_text_ru",
+            "gift_promo_tooltip_ru",
+            "seo_title_ru",
+            "seo_description_ru",
+        ],
+    )
 
     @admin.display(description="Фото")
     def preview(self, obj):
         image = obj.main_image
         if not image:
             return "—"
-        return format_html('<img src="{}" style="width:44px;height:44px;object-fit:cover;border-radius:6px">', image.image.url)
+        return format_html(
+            '<img src="{}" class="admin-list-thumb" width="44" height="44" alt="" '
+            'style="width:44px;height:44px;object-fit:cover;border-radius:6px;display:block">',
+            image.image.url,
+        )
 
     @admin.display(description="Закуп → роздріб / космет., грн")
     def price_summary(self, obj):
@@ -169,25 +197,16 @@ class VariantAdmin(ModelAdmin):
         "volume",
         "purchase_price_uah",
         "price_uah",
-        "price_is_manual",
         "price_pro_uah",
-        "price_pro_is_manual",
         "sale_price_uah",
         "stock_qty",
         "is_active",
     ]
-    list_editable = [
-        "purchase_price_uah",
-        "price_uah",
-        "price_is_manual",
-        "price_pro_uah",
-        "price_pro_is_manual",
-        "sale_price_uah",
-        "stock_qty",
-        "is_active",
-    ]
+    # На планшеті (~768) changelist — картки: ціни редагуємо у формі, тут лише оперативні поля.
+    list_editable = ["stock_qty", "is_active"]
     list_filter = ["is_active", "price_is_manual", "price_pro_is_manual", "product__category"]
     search_fields = ["sku", "product__name_uk"]
+    list_fullwidth = True
     list_select_related = ["product"]
     actions = ["action_recalculate", "action_reset_to_auto"]
     fieldsets = [
@@ -212,10 +231,8 @@ class VariantAdmin(ModelAdmin):
             {
                 "fields": ["sale_price_uah"],
                 "description": (
-                    
                     "Акційна ціна для гостей і звичайних клієнтів (менша за роздрібну). "
                     "Косметологи завжди бачать pro-ціну. 0 — без акції."
-                
                 ),
             },
         ),

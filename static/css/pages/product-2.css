@@ -35,7 +35,7 @@
 }
 
 .pdp-specs__tab.is-active {
-  color: var(--c-head);
+  color: var(--c-accent);
   border-bottom-color: var(--c-accent);
 }
 
@@ -99,44 +99,124 @@
   color: var(--c-accent-soft);
 }
 
-@media (min-width: 768px) {
+/* Desktop ≥1024 — makeup ProductCharacteristics card */
+@media (min-width: 1024px) {
   .pdp-specs {
     display: grid;
-    grid-template-columns: minmax(160px, 220px) minmax(0, 1fr);
-    gap: var(--sp-6);
-    align-items: start;
+    grid-template-columns: minmax(200px, 260px) minmax(0, 1fr);
+    column-gap: 0;
+    row-gap: 0;
+    align-items: stretch;
+    margin-top: var(--sp-6);
+    margin-bottom: var(--sp-8);
+    padding: 40px 48px;
+    border: 1px solid var(--c-line-soft);
+    border-radius: 0;
+    background: #fff;
   }
 
   .pdp-specs__nav {
     flex-direction: column;
-    gap: var(--sp-3);
-    border-bottom: 0;
-    border-right: 1px solid var(--c-line);
-    padding-right: var(--sp-5);
     overflow: visible;
+    border-bottom: 0;
+    gap: 18px;
+    border-right: 1px solid var(--c-line-soft);
+    padding: 4px 32px 4px 0;
   }
 
   .pdp-specs__tab {
+    position: relative;
     width: 100%;
-    padding: 4px 0;
     text-align: left;
     border-bottom: 0;
-    color: var(--c-head);
-    font-weight: 500;
+    padding: 6px 12px 6px 0;
+    color: #212121;
+    font-weight: 400;
+    font-size: var(--fs-sm);
   }
 
   .pdp-specs__tab.is-active {
-    font-weight: 700;
-    border-bottom-color: transparent;
+    color: var(--c-accent);
+    font-weight: 600;
+  }
+
+  .pdp-specs__tab.is-active::after {
+    content: "";
+    position: absolute;
+    top: -6px;
+    bottom: -6px;
+    right: -33px;
+    width: 3px;
+    background: var(--c-accent);
+  }
+
+  .pdp-specs__viewport {
+    position: relative;
+    min-width: 0;
+    height: 288px;
   }
 
   .pdp-specs__body {
-    min-width: 0;
-    overflow: visible;
+    box-sizing: border-box;
+    height: 100%;
+    max-height: 100%;
+    padding: 0 16px 0 40px;
+    border-right: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
   }
 
-  .pdp-specs__panel {
-    padding-top: 0;
+  .pdp-specs__body::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+
+  .pdp-specs__rail {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 3px;
+    z-index: 1;
+  }
+
+  .pdp-specs__rail[hidden] {
+    display: none;
+  }
+
+  .pdp-specs__thumb {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    background: var(--c-accent);
+    border-radius: 0;
+    cursor: grab;
+    touch-action: none;
+    will-change: transform;
+  }
+
+  .pdp-specs__thumb.is-dragging {
+    cursor: grabbing;
+  }
+
+  .pdp-chars {
+    max-width: none;
+    padding-right: 4px;
+  }
+
+  .pdp-chars__row {
+    padding: 2px 0;
+    line-height: 1.65;
+  }
+
+  .pdp-specs__text {
+    max-width: none;
+    padding-right: 4px;
   }
 }
 
@@ -408,8 +488,11 @@
   margin-top: var(--sp-2);
 }
 
-/* Carousels */
+/* Carousels — розміри як Makeup: ≤1024 = 2 картки / gap 4;
+   ≥1025 = 4 fluid / gap 16; медіа фіксована висота (не 1:1) */
 .pdp-carousel {
+  --carousel-gap: 4px;
+  --carousel-media-h: 296px;
   margin-bottom: var(--sp-8);
   padding-top: var(--sp-6);
   border-top: 1px solid var(--c-line-soft);
@@ -430,45 +513,83 @@
 }
 
 .pdp-carousel__nav {
-  display: flex;
-  gap: var(--sp-2);
+  display: none;
+  align-items: center;
+  gap: 18px;
 }
 
 .pdp-carousel__btn {
-  width: 36px;
-  height: 36px;
-  border: 1px solid var(--c-line);
-  border-radius: 50%;
-  background: #fff;
-  font-size: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: auto;
+  min-width: 44px;
+  min-height: 28px;
+  padding: 6px 2px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--c-head);
   line-height: 1;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  transition: color var(--transition), opacity var(--transition);
 }
 
-.pdp-carousel__btn:hover {
-  border-color: #111;
+.pdp-carousel__btn svg {
+  display: block;
+}
+
+.pdp-carousel__btn:hover:not(:disabled):not(.is-disabled) {
+  color: #111;
+}
+
+.pdp-carousel__btn:disabled,
+.pdp-carousel__btn.is-disabled,
+.pdp-carousel__btn[aria-disabled='true'] {
+  color: #c8c8c8;
+  opacity: 1;
+  cursor: default;
+  pointer-events: none;
+}
+
+.pdp-carousel__dots {
+  display: none;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  min-height: 12px;
+}
+
+.pdp-carousel__dot {
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #d0d0d0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--transition);
+}
+
+.pdp-carousel__dot.is-active {
+  background: #8a8a8a;
 }
 
 .pdp-carousel__track {
   display: flex;
   align-items: stretch;
-  gap: var(--sp-4);
-  /* hidden: не створюємо scrollport, щоб wheel крутив сторінку над картками */
-  overflow-x: hidden;
+  gap: var(--carousel-gap);
+  overflow-x: auto;
   overflow-y: hidden;
-  scroll-snap-type: x mandatory;
+  scroll-snap-type: x proximity;
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   padding-bottom: var(--sp-2);
-}
-
-/* Свайп лише на touch — там браузер сам розрізняє вертикаль/горизонталь */
-@media (hover: none), (pointer: coarse) {
-  .pdp-carousel__track {
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    -webkit-overflow-scrolling: touch;
-  }
 }
 
 .pdp-carousel__track::-webkit-scrollbar {
@@ -477,8 +598,10 @@
 
 .pdp-carousel__slide {
   display: flex;
-  flex: 0 0 min(220px, 72vw);
+  /* ≤1024: рівно 2 картки */
+  flex: 0 0 calc((100% - var(--carousel-gap)) / 2);
   scroll-snap-align: start;
+  scroll-snap-stop: normal;
   min-width: 0;
   overflow: visible;
 }
@@ -488,8 +611,60 @@
   height: 100%;
 }
 
+/* Медіа лише в PDP-каруселі — фіксована висота як Makeup */
+.pdp-carousel .card__media {
+  aspect-ratio: auto;
+  height: var(--carousel-media-h);
+}
+
+.pdp-carousel .card__media-empty {
+  min-height: var(--carousel-media-h);
+}
+
+@media (min-width: 768px) {
+  .pdp-carousel {
+    --carousel-media-h: 350px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .pdp-carousel__dots:not([hidden]) {
+    display: flex;
+  }
+
+  .pdp-carousel__nav {
+    display: none;
+  }
+
+  .pdp-carousel__track {
+    cursor: grab;
+  }
+
+  .pdp-carousel__track.is-dragging {
+    cursor: grabbing;
+    scroll-behavior: auto;
+    user-select: none;
+  }
+
+  .pdp-carousel__track.is-dragging .card {
+    pointer-events: none;
+  }
+}
+
+/* ≥1025: 4 fluid картки (Makeup slidesPerView ≈ 4) */
+@media (min-width: 1025px) {
+  .pdp-carousel {
+    --carousel-gap: 16px;
+    --carousel-media-h: 270px;
+  }
+
+  .pdp-carousel__slide {
+    flex: 0 0 calc((100% - 3 * var(--carousel-gap)) / 4);
+  }
+}
+
 /* Місце під абсолютний hover «Купити», без вертикального скролу треку */
-@media (hover: hover) and (min-width: 1024px) {
+@media (hover: hover) and (min-width: 1025px) {
   .pdp-carousel {
     position: relative;
     z-index: 1;
@@ -500,10 +675,17 @@
     z-index: 6;
   }
 
+  .pdp-carousel__nav {
+    display: flex;
+  }
+
+  .pdp-carousel__dots {
+    display: none;
+  }
+
   .pdp-carousel__track {
     padding-bottom: 168px;
     margin-bottom: -156px;
-    /* порожній «хвіст» не перехоплює кліки по відгуках/FAQ нижче */
     pointer-events: none;
   }
 
@@ -513,10 +695,6 @@
 }
 
 @media (min-width: 768px) {
-  .pdp-carousel__slide {
-    flex-basis: 240px;
-  }
-
   .pdp-review {
     grid-template-columns: minmax(0, 200px) minmax(0, 1fr);
     align-items: start;
@@ -524,19 +702,9 @@
   }
 }
 
-@media (min-width: 1024px) {
-  .pdp-carousel__slide {
-    flex-basis: 260px;
-  }
-}
-
 @media (max-width: 599px) {
   .pdp-reviews__form {
     padding: var(--sp-3);
-  }
-
-  .pdp-carousel__nav {
-    display: none;
   }
 }
 

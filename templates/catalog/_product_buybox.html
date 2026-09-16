@@ -48,7 +48,7 @@
           <ul class="product-variant__list"
               id="product-variant-list-{{ product.id }}"
               role="listbox"
-              {% if product.active_variants|length > 1 %}hidden{% endif %}
+              hidden
               data-product-variant-list>
             {% for variant in product.active_variants %}
               {% variant_price variant as vp %}

@@ -21,7 +21,7 @@
               aria-roledescription="slide"
               aria-label="{{ forloop.counter }} / {{ banners|length }}"
               {% if not forloop.first %}aria-hidden="true"{% endif %}
-              style="--hero-text: {{ banner.text_color }}; --hero-btn-bg: {{ banner.button_color }}; --hero-btn-text: {{ banner.button_text_color }};"
+              style="--hero-text: {{ banner.text_color }};{% if banner.button_color %} --hero-btn-bg: {{ banner.button_color }};{% endif %}{% if banner.button_text_color %} --hero-btn-text: {{ banner.button_text_color }};{% endif %}"
             >
               {% if banner.image %}
                 <div class="hero__media">

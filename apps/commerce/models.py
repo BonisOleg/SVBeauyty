@@ -191,7 +191,7 @@ class OrderItem(TimeStampedModel):
     unit_purchase_price_uah = models.DecimalField(
         _("Закупівельна за одиницю"), max_digits=10, decimal_places=2, null=True, blank=True
     )
-    price_source = models.CharField(_("Джерело ціни"), max_length=10, default="retail")
+    price_source = models.CharField(_("Джерело ціни"), max_length=16, default="retail")
     quantity = models.PositiveIntegerField(_("Кількість"), default=1)
     line_total_uah = models.DecimalField(_("Сума"), max_digits=10, decimal_places=2, default=0)
 

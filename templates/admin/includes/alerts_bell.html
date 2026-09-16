@@ -1,0 +1,62 @@
+{% load i18n %}
+
+<div class="admin-alerts relative"
+     data-admin-alerts
+     data-admin-alerts-url="{% url 'admin_alerts' %}"
+     data-admin-alerts-poll="30000"
+     x-data="{ openAlerts: false }">
+  <button type="button"
+          class="admin-alerts__trigger relative flex h-4.5 items-center cursor-pointer hover:text-base-700 dark:hover:text-base-200"
+          title="{% translate 'Сповіщення' %}"
+          aria-label="{% translate 'Сповіщення' %}"
+          aria-expanded="false"
+          aria-haspopup="true"
+          data-admin-alerts-trigger
+          @click="openAlerts = !openAlerts"
+          x-bind:aria-expanded="openAlerts.toString()">
+    <span class="material-symbols-outlined" aria-hidden="true">notifications</span>
+    <span class="admin-alerts__count"
+          data-admin-alerts-total
+          hidden>0</span>
+  </button>
+
+  <div class="admin-alerts__panel absolute bg-white border flex flex-col leading-none -right-2 rounded shadow-lg top-7 w-80 z-50 dark:bg-base-800 dark:border-base-700"
+       x-cloak
+       x-show="openAlerts"
+       x-transition
+       x-on:click.outside="openAlerts = false"
+       role="menu"
+       data-admin-alerts-panel>
+    <div class="admin-alerts__head border-b border-base-100 dark:border-base-700">
+      <span class="admin-alerts__title">{% translate "Сповіщення" %}</span>
+    </div>
+
+    <div class="admin-alerts__body" data-admin-alerts-body>
+      <p class="admin-alerts__empty" data-admin-alerts-empty>{% translate "Немає нових сповіщень" %}</p>
+
+      <section class="admin-alerts__section" data-admin-alerts-section="orders" hidden>
+        <a class="admin-alerts__section-title" data-admin-alerts-section-link="orders" href="#">
+          {% translate "Замовлення" %}
+          <span data-admin-alerts-section-count="orders">0</span>
+        </a>
+        <ul class="admin-alerts__list" data-admin-alerts-list="orders"></ul>
+      </section>
+
+      <section class="admin-alerts__section" data-admin-alerts-section="requests" hidden>
+        <a class="admin-alerts__section-title" data-admin-alerts-section-link="requests" href="#">
+          {% translate "Заявки" %}
+          <span data-admin-alerts-section-count="requests">0</span>
+        </a>
+        <ul class="admin-alerts__list" data-admin-alerts-list="requests"></ul>
+      </section>
+
+      <section class="admin-alerts__section" data-admin-alerts-section="messages" hidden>
+        <a class="admin-alerts__section-title" data-admin-alerts-section-link="messages" href="#">
+          {% translate "Повідомлення" %}
+          <span data-admin-alerts-section-count="messages">0</span>
+        </a>
+        <ul class="admin-alerts__list" data-admin-alerts-list="messages"></ul>
+      </section>
+    </div>
+  </div>
+</div>

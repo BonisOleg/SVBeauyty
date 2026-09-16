@@ -9,6 +9,10 @@ import { initProductCards } from './modules/product-card.js';
 import { initWishlist } from './modules/wishlist.js';
 import { initCarousels, initGallery, initPanel, initProfileCard, initQuantity, initTabs, initVariantPicker } from './modules/ui.js';
 import { initGallerySlider, initPdpSticky, initGiftPromoTooltip } from './modules/pdp.js';
+import { initPdpSpecsScroll } from './modules/pdp-specs-scroll.js';
+import { initFilters } from './modules/filters.js';
+import { initSearch } from './modules/search.js';
+import { initTopbarScroll } from './modules/topbar.js';
 
 function initHeader() {
   initPanel({
@@ -104,6 +108,7 @@ function initCheckoutPayHint() {
 
 document.addEventListener('DOMContentLoaded', () => {
   initHeader();
+  initTopbarScroll();
   initCart();
   initCopy();
   initMessages();
@@ -111,6 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initNovaPoshta();
   initDeliveryMethod();
   initTabs();
+  initPdpSpecsScroll();
   initGallery();
   initGallerySlider();
   initVariantPicker();
@@ -119,6 +125,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initPdpSticky();
   initGiftPromoTooltip();
   initProductCards();
+  initFilters();
+  initSearch();
   initSortAutoSubmit();
   initLoyaltySlider();
   initCheckoutPayHint();

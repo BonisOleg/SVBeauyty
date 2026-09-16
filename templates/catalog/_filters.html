@@ -1,17 +1,65 @@
 {% load i18n %}
-<form class="{{ wrapper_class }}" method="get">
+<form
+  class="{{ wrapper_class }}"
+  method="get"
+  data-filters-form
+  data-filters-more-label="{% translate 'Показати ще' %}"
+  data-filters-less-label="{% translate 'Згорнути' %}"
+>
   {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
-  {% if current_sort %}<input type="hidden" name="sort" value="{{ current_sort }}">{% endif %}
 
-  <div class="filters__group">
+  <div class="filters__group filters__group--sort">
+    <p class="filters__title">{% translate "Сортування" %}</p>
+    <div class="filters-select" data-filters-select>
+      <input type="hidden" name="sort" value="{{ current_sort|default:'popular' }}" data-filters-select-input>
+      <button
+        type="button"
+        class="filters-select__trigger"
+        data-filters-select-trigger
+        aria-haspopup="listbox"
+        aria-expanded="false"
+        aria-label="{% translate 'Сортування' %}"
+      >
+        <span class="filters-select__label" data-filters-select-label>
+          {% if current_sort == 'new' %}{% translate "Новинки" %}
+          {% elif current_sort == 'name' %}{% translate "За назвою" %}
+          {% elif current_sort == 'price_asc' %}{% translate "Ціна: зростання" %}
+          {% elif current_sort == 'price_desc' %}{% translate "Ціна: спадання" %}
+          {% else %}{% translate "Популярні" %}{% endif %}
+        </span>
+        <span class="filters-select__chevron" aria-hidden="true"></span>
+      </button>
+      <ul class="filters-select__list" data-filters-select-list role="listbox" hidden>
+        <li role="none">
+          <button type="button" class="filters-select__option{% if current_sort == 'popular' or not current_sort %} is-selected{% endif %}" role="option" data-value="popular" data-label="{% translate 'Популярні' %}">{% translate "Популярні" %}</button>
+        </li>
+        <li role="none">
+          <button type="button" class="filters-select__option{% if current_sort == 'new' %} is-selected{% endif %}" role="option" data-value="new" data-label="{% translate 'Новинки' %}">{% translate "Новинки" %}</button>
+        </li>
+        <li role="none">
+          <button type="button" class="filters-select__option{% if current_sort == 'name' %} is-selected{% endif %}" role="option" data-value="name" data-label="{% translate 'За назвою' %}">{% translate "За назвою" %}</button>
+        </li>
+        <li role="none">
+          <button type="button" class="filters-select__option{% if current_sort == 'price_asc' %} is-selected{% endif %}" role="option" data-value="price_asc" data-label="{% translate 'Ціна: зростання' %}">{% translate "Ціна: зростання" %}</button>
+        </li>
+        <li role="none">
+          <button type="button" class="filters-select__option{% if current_sort == 'price_desc' %} is-selected{% endif %}" role="option" data-value="price_desc" data-label="{% translate 'Ціна: спадання' %}">{% translate "Ціна: спадання" %}</button>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  {% if not category %}
+  <div class="filters__group" data-filters-collapse data-filters-limit="3">
     <p class="filters__title">{% translate "Категорії" %}</p>
     {% for item in categories %}
       <a class="filters__option" href="{{ item.get_absolute_url }}">{{ item.name }}</a>
     {% endfor %}
   </div>
+  {% endif %}
 
   {% if brands %}
-    <div class="filters__group">
+    <div class="filters__group" data-filters-collapse data-filters-limit="3">
       <p class="filters__title">{% translate "За брендом" %}</p>
       {% for brand in brands %}
         <label class="filters__option">
@@ -37,7 +85,7 @@
   </div>
 
   {% for block in filter_groups %}
-    <div class="filters__group">
+    <div class="filters__group" data-filters-collapse data-filters-limit="3">
       <p class="filters__title">{{ block.group.name }}</p>
       {% for attr in block.attributes %}
         {% with key=block.group.slug|add:":"|add:attr.slug %}

@@ -110,15 +110,16 @@
 }
 
 .hero .btn--hero {
-  background: var(--hero-btn-bg, #111);
-  border-color: var(--hero-btn-bg, #111);
+  background: var(--hero-btn-bg, var(--c-sale));
+  border-color: var(--hero-btn-bg, var(--c-sale));
   color: var(--hero-btn-text, var(--c-btn-text));
 }
 
 .hero .btn--hero:hover {
-  background: var(--hero-btn-bg, #2a2a2a);
-  border-color: var(--hero-btn-bg, #2a2a2a);
-  filter: brightness(1.12);
+  background: var(--hero-btn-hover, var(--hero-btn-bg, #c40e0e));
+  border-color: var(--hero-btn-hover, var(--hero-btn-bg, #c40e0e));
+  color: var(--hero-btn-text, var(--c-btn-text));
+  filter: none;
 }
 
 .hero__title {

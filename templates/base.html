@@ -6,7 +6,7 @@
   <meta name="csrf-token" content="{{ csrf_token }}">
   <title>{% block title %}{{ site_settings.site_name }}{% endblock %}</title>
   <meta name="description" content="{% block description %}{{ site_settings.meta_description }}{% endblock %}">
-  <meta name="theme-color" content="{{ site_settings.accent_color|default:'#1A1A1A' }}">
+  <meta name="theme-color" content="{{ site_settings.accent_color|default:'#20847C' }}">
 
   {% language_absolute_url 'uk' as url_uk %}
   {% language_absolute_url 'ru' as url_ru %}
@@ -30,11 +30,20 @@
   {% block meta_extra %}{% endblock %}
 
   <link rel="stylesheet" href="{% static 'css/base/tokens.css' %}">
+  <style id="site-brand-tokens">
+    :root {
+      --c-accent: {{ site_settings.accent_color|default:"#20847C" }};
+      --c-accent-hover: {{ site_settings.accent_hover_color|default:"#186F68" }};
+      --c-btn-primary: var(--c-accent);
+      --c-btn-primary-hover: var(--c-accent-hover);
+    }
+  </style>
   <link rel="stylesheet" href="{% static 'css/base/reset.css' %}">
   <link rel="stylesheet" href="{% static 'css/base/layout.css' %}">
   <link rel="stylesheet" href="{% static 'css/components/buttons.css' %}">
   <link rel="stylesheet" href="{% static 'css/components/forms.css' %}">
   <link rel="stylesheet" href="{% static 'css/components/header.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components/search.css' %}">
   <link rel="stylesheet" href="{% static 'css/components/footer.css' %}">
   <link rel="stylesheet" href="{% static 'css/components/messages.css' %}">
   <link rel="stylesheet" href="{% static 'css/components/product-card.css' %}">

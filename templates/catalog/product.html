@@ -41,25 +41,42 @@
 
   <div class="pdp">
     <div class="pdp__gallery gallery" data-gallery-slider>
-      <div class="gallery__viewport">
-        <div class="gallery__track" data-gallery-track>
-          {% if product.images.all %}
-            {% for image in product.images.all %}
-              <div class="gallery__slide{% if image.is_main or forloop.first %} is-active{% endif %}">
-                <img src="{{ image.image.url }}" alt="{{ image.alt|default:product.name }}" width="640" height="640" {% if not forloop.first %}loading="lazy"{% endif %}>
-              </div>
-            {% endfor %}
-          {% else %}
-            <div class="gallery__slide is-active">
-              <span class="card__media-empty">{{ product.brand.name }}</span>
+      <div class="gallery__stage">
+        <div class="gallery__overlays">
+          {% if product.default_variant %}{% variant_price product.default_variant as gallery_price %}{% endif %}
+          {% if gallery_price.is_sale or product.is_hit or product.is_new %}
+            <div class="gallery__badges">
+              {% if gallery_price.is_sale %}<span class="badge badge--deal">{% translate "Акція" %}</span>{% endif %}
+              {% if product.is_hit %}<span class="badge badge--hit">{% translate "Хіт" %}</span>{% endif %}
+              {% if product.is_new %}<span class="badge badge--new">{% translate "Новинка" %}</span>{% endif %}
             </div>
           {% endif %}
+          {% include "catalog/_wishlist_btn.html" with product=product in_wishlist=in_wishlist btn_class="wish-btn--gallery" %}
+        </div>
+        <div class="gallery__viewport">
+          <div class="gallery__track" data-gallery-track>
+            {% if product.images.all %}
+              {% for image in product.images.all %}
+                <div class="gallery__slide{% if image.is_main or forloop.first %} is-active{% endif %}">
+                  <img src="{{ image.image.url }}" alt="{{ image.alt|default:product.name }}" width="640" height="640" {% if not forloop.first %}loading="lazy"{% endif %}>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="gallery__slide is-active">
+                <span class="card__media-empty">{{ product.brand.name }}</span>
+              </div>
+            {% endif %}
+          </div>
         </div>
       </div>
 
       {% if product.images.count > 1 %}
         <div class="gallery__controls">
-          <button type="button" class="gallery__arrow" data-gallery-prev aria-label="{% translate 'Попереднє фото' %}">‹</button>
+          <button type="button" class="gallery__arrow" data-gallery-prev aria-label="{% translate 'Попереднє фото' %}">
+            <svg width="22" height="40" viewBox="0 0 22 40" fill="none" aria-hidden="true">
+              <path d="M18 3 5 20l13 17" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
           <div class="gallery__dots" data-gallery-dots>
             {% for image in product.images.all %}
               <button type="button"
@@ -68,25 +85,45 @@
                       aria-label="{% blocktranslate with n=forloop.counter %}Фото {{ n }}{% endblocktranslate %}"></button>
             {% endfor %}
           </div>
-          <button type="button" class="gallery__arrow" data-gallery-next aria-label="{% translate 'Наступне фото' %}">›</button>
+          <button type="button" class="gallery__arrow" data-gallery-next aria-label="{% translate 'Наступне фото' %}">
+            <svg width="22" height="40" viewBox="0 0 22 40" fill="none" aria-hidden="true">
+              <path d="M4 3l13 17L4 37" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
         </div>
 
-        <div class="gallery__thumbs" data-gallery-thumbs>
-          {% for image in product.images.all %}
-            <button type="button"
-                    class="gallery__thumb{% if image.is_main or forloop.first %} is-active{% endif %}"
-                    data-gallery-thumb-index="{{ forloop.counter0 }}">
-              <img src="{{ image.image.url }}" alt="{{ image.alt }}" loading="lazy" width="68" height="68">
-            </button>
-          {% endfor %}
+        <div class="gallery__thumbs-row">
+          <button type="button" class="gallery__thumb-arrow" data-gallery-prev aria-label="{% translate 'Попереднє фото' %}">
+            <svg width="18" height="32" viewBox="0 0 18 32" fill="none" aria-hidden="true">
+              <path d="M15 2 3 16l12 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="gallery__thumbs" data-gallery-thumbs>
+            {% for image in product.images.all %}
+              <button type="button"
+                      class="gallery__thumb{% if image.is_main or forloop.first %} is-active{% endif %}"
+                      data-gallery-thumb-index="{{ forloop.counter0 }}">
+                <img src="{{ image.image.url }}" alt="{{ image.alt }}" loading="lazy" width="76" height="102">
+              </button>
+            {% endfor %}
+          </div>
+          <button type="button" class="gallery__thumb-arrow" data-gallery-next aria-label="{% translate 'Наступне фото' %}">
+            <svg width="18" height="32" viewBox="0 0 18 32" fill="none" aria-hidden="true">
+              <path d="M3 2l12 14L3 30" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
         </div>
       {% endif %}
     </div>
 
     <div class="pdp__info">
-      {% if product.default_variant %}
-        {% variant_price product.default_variant as top_price %}
-        {% if top_price.is_sale %}<span class="badge badge--deal">DEAL</span>{% endif %}
+      {% if product.default_variant %}{% variant_price product.default_variant as top_price %}{% endif %}
+      {% if top_price.is_sale or product.is_hit or product.is_new %}
+        <div class="pdp__badges">
+          {% if top_price.is_sale %}<span class="badge badge--deal">{% translate "Акція" %}</span>{% endif %}
+          {% if product.is_hit %}<span class="badge badge--hit">{% translate "Хіт" %}</span>{% endif %}
+          {% if product.is_new %}<span class="badge badge--new">{% translate "Новинка" %}</span>{% endif %}
+        </div>
       {% endif %}
       <p class="pdp__brand">{{ product.brand.name }} <span aria-hidden="true">/</span> {{ product.category.name }}</p>
       <h1 class="pdp__title">{{ product.name }}</h1>
@@ -112,9 +149,6 @@
           {% endfor %}
         </ul>
       {% endif %}
-
-      {% if product.is_hit %}<span class="badge badge--hit">{% translate "Хіт" %}</span>{% endif %}
-      {% if product.is_new %}<span class="badge badge--new">{% translate "Новинка" %}</span>{% endif %}
     </div>
 
     <aside class="pdp__buy">

@@ -67,6 +67,8 @@ def navigation(request):
                     "title": _("Замовлення"),
                     "icon": "shopping_bag",
                     "link": reverse_lazy("admin:commerce_order_changelist"),
+                    "badge": "apps.core.admin_alerts.badge_orders",
+                    "alert": "orders",
                 },
                 {
                     "title": _("Кошики"),
@@ -88,6 +90,8 @@ def navigation(request):
                     "title": _("Заявки косметологів"),
                     "icon": "badge",
                     "link": reverse_lazy("admin:accounts_cosmetologistrequest_changelist"),
+                    "badge": "apps.core.admin_alerts.badge_requests",
+                    "alert": "requests",
                 },
             ],
         },
@@ -151,6 +155,8 @@ def navigation(request):
                     "title": _("Чат — діалоги"),
                     "icon": "chat",
                     "link": reverse_lazy("admin:chat_chatsession_changelist"),
+                    "badge": "apps.core.admin_alerts.badge_messages",
+                    "alert": "messages",
                 },
                 {
                     "title": _("Групи доступу"),

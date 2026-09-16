@@ -3,9 +3,9 @@
   {{ message.text }}
   <span class="chat__time">{{ message_time }}</span>
 </div>
-{% if auto_reply %}
-<div class="chat__msg chat__msg--manager">
-  {{ auto_reply }}
+{% if reply_message %}
+<div class="chat__msg chat__msg--manager" data-msg-id="{{ reply_message.id }}">
+  {{ reply_message.text }}
   <span class="chat__time">{{ reply_time }}</span>
 </div>
 {% endif %}

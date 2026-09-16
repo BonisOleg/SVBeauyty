@@ -15,7 +15,20 @@ HEX_COLOR = RegexValidator(
 class SiteSettings(SingletonModel, TimeStampedModel):
     site_name = models.CharField(_("Назва сайту"), max_length=120, default="SVbeauty")
     logo = models.ImageField(_("Логотип"), upload_to="brand/", blank=True)
-    accent_color = models.CharField(_("Акцентний колір (HEX)"), max_length=7, default="#1A1A1A")
+    accent_color = models.CharField(
+        _("Колір кнопок / акцент (HEX)"),
+        max_length=7,
+        default="#20847C",
+        validators=[HEX_COLOR],
+        help_text=_("Фон primary-кнопок (Купити, реквізити тощо). З логотипу: #20847C."),
+    )
+    accent_hover_color = models.CharField(
+        _("Колір кнопок при наведенні (HEX)"),
+        max_length=7,
+        default="#186F68",
+        validators=[HEX_COLOR],
+        help_text=_("Hover для primary-кнопок. Темніший відтінок акценту."),
+    )
 
     phone = models.CharField(_("Телефон"), max_length=32, blank=True)
     email = models.EmailField(_("Email"), blank=True)
@@ -413,16 +426,18 @@ class Banner(TimeStampedModel, PublishedModel):
     button_color = models.CharField(
         _("Колір кнопки"),
         max_length=7,
-        default="#111111",
+        blank=True,
+        default="",
         validators=[HEX_COLOR],
-        help_text=_("Фон кнопки. Формат #RRGGBB."),
+        help_text=_("Порожньо — червона кнопка (sale). Інакше #RRGGBB."),
     )
     button_text_color = models.CharField(
         _("Колір тексту кнопки"),
         max_length=7,
-        default="#FFFFFF",
+        blank=True,
+        default="",
         validators=[HEX_COLOR],
-        help_text=_("Текст на кнопці. Формат #RRGGBB."),
+        help_text=_("Порожньо — білий текст на червоній кнопці. Інакше #RRGGBB."),
     )
     button_text_uk = models.CharField(_("Кнопка (укр)"), max_length=60, blank=True)
     button_text_ru = models.CharField(_("Кнопка (рос)"), max_length=60, blank=True)

@@ -6,24 +6,83 @@ export function initGallerySlider(root = document) {
     const slides = [...gallery.querySelectorAll('.gallery__slide')];
     const dots = [...gallery.querySelectorAll('[data-gallery-dot]')];
     const thumbs = [...gallery.querySelectorAll('[data-gallery-thumb-index]')];
-    const prev = gallery.querySelector('[data-gallery-prev]');
-    const next = gallery.querySelector('[data-gallery-next]');
+    const mobilePrevs = [...gallery.querySelectorAll('.gallery__controls [data-gallery-prev]')];
+    const mobileNexts = [...gallery.querySelectorAll('.gallery__controls [data-gallery-next]')];
+    const deskPrevs = [...gallery.querySelectorAll('.gallery__thumb-arrow[data-gallery-prev]')];
+    const deskNexts = [...gallery.querySelectorAll('.gallery__thumb-arrow[data-gallery-next]')];
     if (!track || slides.length < 2) return;
 
     let index = Math.max(0, slides.findIndex((s) => s.classList.contains('is-active')));
 
+    const thumbsRow = gallery.querySelector('[data-gallery-thumbs]');
+
+    const thumbsOverflow = () => {
+      if (!thumbsRow) return false;
+      return thumbsRow.scrollWidth > thumbsRow.clientWidth + 1;
+    };
+
+    const syncDeskArrows = () => {
+      const overflow = thumbsOverflow();
+      deskPrevs.forEach((btn) => {
+        btn.hidden = !overflow || index <= 0;
+      });
+      deskNexts.forEach((btn) => {
+        btn.hidden = !overflow || index >= slides.length - 1;
+      });
+    };
+
+    const syncMobileArrows = () => {
+      const atStart = index <= 0;
+      const atEnd = index >= slides.length - 1;
+      mobilePrevs.forEach((btn) => {
+        btn.disabled = atStart;
+        btn.setAttribute('aria-disabled', atStart ? 'true' : 'false');
+        btn.classList.toggle('is-disabled', atStart);
+      });
+      mobileNexts.forEach((btn) => {
+        btn.disabled = atEnd;
+        btn.setAttribute('aria-disabled', atEnd ? 'true' : 'false');
+        btn.classList.toggle('is-disabled', atEnd);
+      });
+    };
+
+    const syncArrows = () => {
+      syncDeskArrows();
+      syncMobileArrows();
+    };
+
     const goTo = (nextIndex) => {
-      index = (nextIndex + slides.length) % slides.length;
+      index = Math.max(0, Math.min(slides.length - 1, nextIndex));
       track.style.transform = `translate3d(-${index * 100}%, 0, 0)`;
       slides.forEach((slide, i) => slide.classList.toggle('is-active', i === index));
       dots.forEach((dot, i) => dot.classList.toggle('is-active', i === index));
       thumbs.forEach((thumb, i) => thumb.classList.toggle('is-active', i === index));
+      const activeThumb = thumbs[index];
+      if (activeThumb && typeof activeThumb.scrollIntoView === 'function') {
+        activeThumb.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: 'smooth' });
+      }
+      syncArrows();
     };
 
     goTo(index);
+    window.requestAnimationFrame(syncArrows);
 
-    if (prev) prev.addEventListener('click', () => goTo(index - 1));
-    if (next) next.addEventListener('click', () => goTo(index + 1));
+    if (typeof ResizeObserver !== 'undefined' && thumbsRow) {
+      const ro = new ResizeObserver(() => syncArrows());
+      ro.observe(thumbsRow);
+    }
+    window.addEventListener('resize', syncArrows, { passive: true });
+
+    mobilePrevs.forEach((btn) => btn.addEventListener('click', () => {
+      if (index <= 0) return;
+      goTo(index - 1);
+    }));
+    mobileNexts.forEach((btn) => btn.addEventListener('click', () => {
+      if (index >= slides.length - 1) return;
+      goTo(index + 1);
+    }));
+    deskPrevs.forEach((btn) => btn.addEventListener('click', () => goTo(index - 1)));
+    deskNexts.forEach((btn) => btn.addEventListener('click', () => goTo(index + 1)));
     dots.forEach((dot) => {
       dot.addEventListener('click', () => goTo(Number(dot.dataset.galleryDot) || 0));
     });
@@ -52,7 +111,11 @@ export function initGallerySlider(root = document) {
       (event) => {
         if (!dragging || !event.touches[0]) return;
         deltaX = event.touches[0].clientX - startX;
-        const offset = -index * 100 + (deltaX / track.clientWidth) * 100;
+        /* на краях — опір свайпу, без зациклення */
+        if ((index <= 0 && deltaX > 0) || (index >= slides.length - 1 && deltaX < 0)) {
+          deltaX *= 0.35;
+        }
+        const offset = -index * 100 + (deltaX / Math.max(1, track.clientWidth)) * 100;
         track.style.transform = `translate3d(${offset}%, 0, 0)`;
       },
       { passive: true },
@@ -62,8 +125,13 @@ export function initGallerySlider(root = document) {
       if (!dragging) return;
       dragging = false;
       track.style.transition = '';
-      if (Math.abs(deltaX) > 40) goTo(index + (deltaX < 0 ? 1 : -1));
-      else goTo(index);
+      if (Math.abs(deltaX) > 40) {
+        if (deltaX < 0 && index < slides.length - 1) goTo(index + 1);
+        else if (deltaX > 0 && index > 0) goTo(index - 1);
+        else goTo(index);
+      } else {
+        goTo(index);
+      }
     });
   });
 }

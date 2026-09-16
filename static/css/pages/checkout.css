@@ -135,6 +135,13 @@
   text-align: right;
 }
 
+/* Checkout: ціни позицій, суми, «до сплати» — червоні */
+form[data-checkout-delivery] .summary__item-price,
+form[data-checkout-delivery] .summary__row > span:last-child,
+form[data-checkout-delivery] .summary__row--total {
+  color: var(--c-sale);
+}
+
 .summary--sticky {
   position: sticky;
   top: calc(var(--header-h) + var(--sp-3));

@@ -214,7 +214,7 @@
           <span><span data-checkout-total>{{ summary.subtotal|uah }}</span> ₴</span>
         </div>
 
-        <button type="submit" class="btn btn--primary btn--block btn--lg">{% translate "Підтвердити замовлення" %}</button>
+        <button type="submit" class="btn btn--checkout btn--block btn--lg">{% translate "Підтвердити замовлення" %}</button>
         {% for method in payment_methods %}
           <p class="field__hint"
              data-checkout-pay-hint="{{ method.code }}"

@@ -1,23 +1,55 @@
-.promo {
-  background: var(--c-head);
-  color: var(--c-btn-text);
-  font-size: var(--fs-xs);
-  text-align: center;
-  padding: var(--sp-2) var(--sp-4);
-  padding-top: calc(var(--sp-2) + var(--safe-top));
-}
-
-.header {
+.site-chrome {
   position: sticky;
   top: 0;
   z-index: var(--z-header);
   background: var(--c-card);
+}
+
+.promo {
+  background: var(--c-accent);
+  color: var(--c-btn-text);
+  font-size: var(--fs-xs);
+  line-height: 1.35;
+  text-align: center;
+  padding: var(--sp-2) var(--sp-4);
+  padding-top: calc(var(--sp-2) + var(--safe-top));
+  overflow: hidden;
+  /* запас під 2 рядки на вузьких екранах + collapse-анімація */
+  max-height: calc(5.5rem + var(--safe-top));
+  transition:
+    max-height 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+    padding 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.site-chrome.is-topbar-hidden .promo {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  pointer-events: none;
+}
+
+.site-chrome.is-topbar-hidden .header {
+  padding-top: var(--safe-top);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .promo,
+  .header {
+    transition: none;
+  }
+}
+
+.header {
+  position: relative;
+  z-index: 1;
+  background: var(--c-card);
   border-bottom: 1px solid var(--c-line-soft);
+  transition: padding-top 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .header__bar {
   display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) auto;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
   align-items: center;
   gap: var(--sp-2);
   min-height: var(--header-bar-h);
@@ -57,7 +89,8 @@
   flex-shrink: 0;
 }
 
-.header__actions .icon-btn--desktop {
+/* Ховаємо desktop-only на мобільному (вища специфічність за .lang / .icon-btn). */
+.header__actions .header__desktop-only {
   display: none;
 }
 
@@ -65,48 +98,38 @@
   display: none;
 }
 
-.header__nav {
+.header__search-toggle {
+  display: inline-flex;
+}
+
+.header__search-close {
   display: none;
 }
 
-.search {
-  position: relative;
-  width: 100%;
+.header.is-search-open .header__burger,
+.header.is-search-open .header__logo {
+  display: none;
 }
 
-.search input[type="search"] {
-  width: 100%;
-  min-height: 44px;
-  padding: var(--sp-2) var(--sp-6) var(--sp-2) var(--sp-4);
-  font-size: 16px;
-  background: var(--c-paper);
-  border: 1px solid transparent;
-  border-radius: var(--radius-pill);
-  -webkit-appearance: none;
-  appearance: none;
+.header.is-search-open .header__bar {
+  grid-template-columns: minmax(0, 1fr) 44px;
 }
 
-.search input[type="search"]::-webkit-search-cancel-button {
-  -webkit-appearance: none;
+.header.is-search-open .header__search {
+  display: block;
+  grid-column: 1;
 }
 
-.search input:focus {
-  border-color: var(--c-accent);
-  background: var(--c-card);
-  outline: none;
+.header.is-search-open .header__search-toggle {
+  display: none;
 }
 
-.search__submit {
-  position: absolute;
-  right: 4px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 40px;
-  height: 40px;
-  display: grid;
-  place-items: center;
-  color: var(--c-head);
-  border-radius: var(--radius-pill);
+.header.is-search-open .header__search-close {
+  display: inline-flex;
+}
+
+.header__nav {
+  display: none;
 }
 
 .lang {
@@ -132,24 +155,26 @@
   color: var(--c-btn-text);
 }
 
-/* ≤399px: лише кругле лого + компактні actions (320–399) */
+/* ≤399px: компактніше, назву лишаємо з ellipsis */
 @media (max-width: 399px) {
   .header .container {
     padding-inline: max(var(--sp-2), var(--safe-left)) max(var(--sp-2), var(--safe-right));
   }
 
   .header__bar {
-    grid-template-columns: 40px minmax(0, 1fr) auto;
+    grid-template-columns: 40px minmax(0, 1fr) 40px;
     gap: var(--sp-1);
   }
 
-  .header__burger {
-    width: 40px;
-    height: 40px;
+  .header.is-search-open .header__bar {
+    grid-template-columns: minmax(0, 1fr) 40px;
   }
 
-  .header__logo-text {
-    display: none;
+  .header__burger,
+  .header__search-toggle,
+  .header__search-close {
+    width: 40px;
+    height: 40px;
   }
 
   .header__logo img {
@@ -157,21 +182,8 @@
     height: 40px;
   }
 
-  .header__actions {
-    gap: 0;
-  }
-
-  .header__actions .icon-btn {
-    width: 40px;
-    height: 40px;
-  }
-
-  .lang {
-    margin-right: 2px;
-  }
-
-  .lang__item {
-    padding: 4px 6px;
+  .header__logo-text {
+    font-size: var(--fs-md);
   }
 }
 
@@ -237,6 +249,51 @@
   padding: var(--sp-3) var(--sp-4) var(--sp-6);
 }
 
+.drawer__lang {
+  margin-bottom: var(--sp-4);
+  width: fit-content;
+}
+
+.drawer__quick {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-2);
+}
+
+.drawer__quick-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: 48px;
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--c-line-soft);
+  border-radius: var(--radius-md);
+  background: var(--c-paper);
+  color: var(--c-head);
+  font: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.drawer__quick-icon {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+}
+
+.drawer__quick-icon .icon-btn__badge {
+  top: -6px;
+  right: -10px;
+}
+
 .drawer__link {
   display: block;
   padding: var(--sp-3) 0;
@@ -263,13 +320,32 @@
     gap: var(--sp-5);
   }
 
-  .header__burger {
+  .header__burger,
+  .header__search-toggle,
+  .header__search-close {
     display: none;
+  }
+
+  .header.is-search-open .header__burger,
+  .header.is-search-open .header__logo {
+    display: flex;
+  }
+
+  .header.is-search-open .header__bar {
+    grid-template-columns: 1fr auto 1fr;
   }
 
   .header__search {
     display: block;
     max-width: 460px;
+  }
+
+  .header__actions .header__desktop-only {
+    display: inline-flex;
+  }
+
+  .header__actions .header__desktop-only.lang {
+    display: flex;
   }
 
   .header__logo img {
@@ -283,10 +359,6 @@
 
   .header__actions {
     gap: var(--sp-2);
-  }
-
-  .header__actions .icon-btn--desktop {
-    display: inline-flex;
   }
 
   .header__nav {

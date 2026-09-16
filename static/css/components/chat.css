@@ -137,7 +137,7 @@
   justify-content: space-between;
   gap: var(--sp-2);
   padding: var(--sp-3) var(--sp-4);
-  background: var(--c-head);
+  background: var(--c-accent);
   color: var(--c-btn-text);
 }
 
@@ -195,6 +195,20 @@
   border-bottom-left-radius: var(--sp-1);
 }
 
+.chat__msg--deleted {
+  opacity: 0.85;
+}
+
+.chat__deleted {
+  display: block;
+  font-style: italic;
+  color: var(--c-muted);
+}
+
+.chat__msg--customer.chat__msg--deleted .chat__deleted {
+  color: rgba(255, 255, 255, 0.85);
+}
+
 .chat__time {
   display: block;
   margin-top: 2px;
@@ -221,6 +235,10 @@
   display: grid;
   gap: var(--sp-2);
   grid-template-columns: 1fr 1fr;
+}
+
+.chat__lead[hidden] {
+  display: none;
 }
 
 .chat__lead input,

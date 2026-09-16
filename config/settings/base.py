@@ -166,6 +166,14 @@ UNFOLD = {
         "show_all_applications": False,
         "navigation": "config.unfold_sidebar.navigation",
     },
+    "STYLES": [
+        lambda request: static("css/admin/tablet.css"),
+        lambda request: static("css/admin/lang-tabs.css"),
+        lambda request: static("css/admin/alerts.css"),
+    ],
+    "SCRIPTS": [
+        lambda request: static("js/admin/alerts.js"),
+    ],
     "COLORS": {
         "primary": {
             "50": "239 249 248",

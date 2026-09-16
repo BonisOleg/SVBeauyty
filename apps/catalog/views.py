@@ -93,7 +93,7 @@ def review_add(request, slug):
 
 
 def search(request):
-    query = (request.GET.get("q") or "").strip()
+    query = selectors.normalize_search_query(request.GET.get("q"))
     return render(
         request,
         "catalog/catalog.html",
@@ -104,6 +104,27 @@ def search(request):
             is_search=True,
         ),
     )
+
+
+@require_GET
+def search_suggest(request):
+    query = selectors.normalize_search_query(request.GET.get("q"))
+    if len(query) < 2:
+        return JsonResponse({"results": [], "query": query})
+    products = selectors.search_suggest_products(query, limit=8)
+    results = []
+    for product in products:
+        image = product.main_image
+        results.append(
+            {
+                "id": product.pk,
+                "name": product.name,
+                "brand": product.brand.name if product.brand_id else "",
+                "url": product.get_absolute_url(),
+                "image": image.image.url if image and image.image else "",
+            }
+        )
+    return JsonResponse({"results": results, "query": query})
 
 
 @require_POST

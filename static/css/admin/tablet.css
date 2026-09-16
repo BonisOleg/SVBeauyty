@@ -1,0 +1,207 @@
+/* Admin tablet portrait (~768) + phone: touch, wrap, iOS Safari.
+   Scope: django-unfold. No !important.
+   Breakpoint aligns with Unfold `lg` (1024). */
+
+@media (max-width: 1023px) {
+  /* iOS Safari: avoid auto-zoom on focus */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  /* Touch targets */
+  input[type="checkbox"],
+  input[type="radio"] {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  #result_list tr.block td,
+  .tabular-table td {
+    min-height: 2.75rem;
+  }
+
+  /* Language tabs: keep flex wrap; spacing in lang-tabs.css */
+  .admin-lang-tabs__list {
+    flex-wrap: wrap;
+  }
+
+  /* Changelist cards: denser but tappable */
+  #result_list > tbody > tr.block {
+    padding-bottom: 0.25rem;
+  }
+
+  #result_list td {
+    word-break: break-word;
+  }
+
+  /* Hide low-priority columns in card rows to shorten Product/Variant cards */
+  #result_list td.field-price_summary,
+  #result_list td.field-name_ru,
+  #result_list td.field-sort_order,
+  #changelist #result_list td.field-updated_at {
+    display: none;
+  }
+
+  /* filter_horizontal / M2M selector: stack */
+  .selector {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .selector .selector-available,
+  .selector .selector-chosen {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .selector-chooser {
+    margin: 0.5rem 0;
+    padding: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .selector select {
+    width: 100%;
+    min-height: 10rem;
+  }
+
+  /* TinyMCE: fit portrait */
+  .tox.tox-tinymce {
+    max-width: 100%;
+  }
+
+  .tox .tox-toolbar__primary {
+    flex-wrap: wrap;
+  }
+
+  .tox-tinymce,
+  .tox .tox-edit-area__iframe {
+    min-height: 220px;
+  }
+
+  /* Inline tabular stack: inputs full width */
+  .tabular-table td input:not([type="checkbox"]):not([type="radio"]),
+  .tabular-table td select,
+  .tabular-table td textarea {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .inline-stacked .flex.gap-10 {
+    flex-wrap: wrap;
+    gap: 0.75rem 1.25rem;
+  }
+
+  /* Filter sheet: use more width on tablet */
+  #changelist-filter > div.w-80 {
+    width: min(100%, 24rem);
+    max-width: calc(100vw - 2rem);
+  }
+
+  /* Safe area (iOS notch / home indicator) */
+  #submit-row {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  #nav-sidebar,
+  #changelist-filter {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  /* Content padding: tighter on 768 */
+  #main > .px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Extra-narrow phones */
+@media (max-width: 599px) {
+  #changelist-actions-wrapper,
+  #toolbar,
+  .object-tools {
+    width: 100%;
+  }
+
+  .object-tools a,
+  #changelist-actions-wrapper .button,
+  #changelist-actions-wrapper a {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ——— All admin content links (tablet + desktop) ———
+   Sidebar / header icons stay untouched (#content-main only). */
+
+#content-main a[href]:not([class*="bg-primary"]):not(.deletelink):not([class*="text-red"]) {
+  color: #3b82f6;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+#content-main a[href]:not([class*="bg-primary"]):not(.deletelink):not([class*="text-red"]):hover {
+  color: #60a5fa;
+}
+
+/* Text changelist links: underline + primary (no chevron) */
+#result_list tr.block a[href*="/change/"]:not(:has(img)) {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  min-height: 2.75rem;
+  color: #3b82f6;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+#result_list tr.block a[href*="/change/"]:not(:has(img))::after {
+  content: none;
+}
+
+/* Preview cells clip badge — allow overflow */
+#result_list td.field-preview,
+#result_list th.field-preview,
+#result_list tr.block td.field-preview {
+  overflow: visible;
+}
+
+/* Image links: bright blue 2px border only (no badge) */
+#content-main a[href]:has(img) {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: inherit;
+  font-weight: inherit;
+  padding: 0;
+  margin: 0;
+  border-radius: 8px;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+  border-width: 2px;
+  border-style: solid;
+  border-color: #3b82f6;
+  box-sizing: border-box;
+}
+
+#content-main a[href]:has(img) img,
+#content-main a[href] img.admin-list-thumb {
+  display: block;
+  border-radius: 6px;
+}
+
+#content-main a[href]:has(img)::after {
+  content: none;
+}

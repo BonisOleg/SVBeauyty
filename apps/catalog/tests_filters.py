@@ -164,6 +164,36 @@ class FilterCatalogTests(CatalogFiltersTestCase):
         )
         self.assertEqual(list(qs.values_list("slug", flat=True)), ["serum-a"])
 
+    def test_price_uses_global_sale_for_guest(self):
+        conf = PricingSettings.get_solo()
+        conf.global_sale_is_active = True
+        conf.global_sale_percent = Decimal("20.00")
+        conf.save()
+        # retail 1000 → global 800
+        self.variant_a.price_is_manual = True
+        self.variant_a.price_uah = Decimal("1000.00")
+        self.variant_a.sale_price_uah = Decimal("0.00")
+        self.variant_a.save()
+
+        qs = selectors.filter_catalog(price_min=Decimal("750"), price_max=Decimal("850"))
+        self.assertIn("serum-a", qs.values_list("slug", flat=True))
+
+    def test_sort_by_price_asc_desc(self):
+        # A≈1000, B≈800, C≈600 від purchase*markup
+        for v in (self.variant_a, self.variant_b, self.variant_c):
+            v.price_is_manual = True
+        self.variant_a.price_uah = Decimal("1000.00")
+        self.variant_b.price_uah = Decimal("800.00")
+        self.variant_c.price_uah = Decimal("600.00")
+        self.variant_a.save()
+        self.variant_b.save()
+        self.variant_c.save()
+
+        asc = list(selectors.filter_catalog(sort="price_asc").values_list("slug", flat=True))
+        desc = list(selectors.filter_catalog(sort="price_desc").values_list("slug", flat=True))
+        self.assertEqual(asc, ["serum-c", "serum-b", "serum-a"])
+        self.assertEqual(desc, ["serum-a", "serum-b", "serum-c"])
+
 
 class FilterGroupsAndResetTests(CatalogFiltersTestCase):
     def test_unused_attribute_hidden_from_sidebar(self):

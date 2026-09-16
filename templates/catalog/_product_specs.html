@@ -13,13 +13,19 @@
             aria-selected="false">{% translate "Опис" %}</button>
     <button type="button"
             class="pdp-specs__tab"
+            data-tab-btn="usage"
+            role="tab"
+            aria-selected="false">{% translate "Спосіб застосування" %}</button>
+    <button type="button"
+            class="pdp-specs__tab"
             data-tab-btn="composition"
             role="tab"
             aria-selected="false">{% translate "Склад" %}</button>
   </div>
 
-  <div class="pdp-specs__body">
-    <div class="pdp-specs__panel is-active" data-tab-panel="chars" role="tabpanel">
+  <div class="pdp-specs__viewport">
+    <div class="pdp-specs__body" data-specs-scroll>
+      <div class="pdp-specs__panel is-active" data-tab-panel="chars" role="tabpanel">
       <dl class="pdp-chars">
         <div class="pdp-chars__row">
           <dt>{% translate "Бренд" %}:</dt>
@@ -63,10 +69,20 @@
       </div>
     </div>
 
+    <div class="pdp-specs__panel" data-tab-panel="usage" role="tabpanel">
+      <div class="pdp-specs__text">
+        {% if product.usage %}{{ product.usage }}{% else %}{% translate "Зʼявиться незабаром." %}{% endif %}
+      </div>
+    </div>
+
     <div class="pdp-specs__panel" data-tab-panel="composition" role="tabpanel">
       <div class="pdp-specs__text">
         {% if product.composition %}{{ product.composition }}{% else %}{% translate "Зʼявиться незабаром." %}{% endif %}
       </div>
+    </div>
+    </div>
+    <div class="pdp-specs__rail" data-specs-rail hidden aria-hidden="true">
+      <div class="pdp-specs__thumb" data-specs-thumb></div>
     </div>
   </div>
 </section>

@@ -6,11 +6,13 @@ from django.contrib.sitemaps.views import sitemap
 from django.http import HttpResponse
 from django.urls import include, path
 
+from apps.core.admin_alerts_views import admin_alerts_json
 from apps.seo.sitemaps import SITEMAPS
 from apps.seo.views import favicon_redirect, robots_txt, site_webmanifest
 
 urlpatterns = [
     path("healthz/", lambda request: HttpResponse("ok"), name="healthz"),
+    path("admin/alerts/", admin_alerts_json, name="admin_alerts"),
     path("admin/", admin.site.urls),
     path("tinymce/", include("tinymce.urls")),
     path("i18n/", include("django.conf.urls.i18n")),

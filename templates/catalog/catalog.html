@@ -42,19 +42,6 @@
         <button type="button" class="btn btn--outline btn--sm catalog__filters-btn" data-filters-open>
           {% translate "Фільтри" %}
         </button>
-
-        <form method="get">
-          {% for key, values in request.GET.lists %}
-            {% if key != 'sort' and key != 'page' %}
-              {% for value in values %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endfor %}
-            {% endif %}
-          {% endfor %}
-          <select name="sort" class="catalog__sort" data-autosubmit aria-label="{% translate 'Сортування' %}">
-            <option value="popular" {% if current_sort == 'popular' %}selected{% endif %}>{% translate "Популярні" %}</option>
-            <option value="new" {% if current_sort == 'new' %}selected{% endif %}>{% translate "Новинки" %}</option>
-            <option value="name" {% if current_sort == 'name' %}selected{% endif %}>{% translate "За назвою" %}</option>
-          </select>
-        </form>
       </div>
 
       {% if page_obj.object_list %}
@@ -79,7 +66,9 @@
         {% endif %}
       {% else %}
         <p class="empty-state">
-          {% if is_search %}{% translate "За вашим запитом нічого не знайдено." %}
+          {% if is_search and search_empty_query %}{% translate "Введіть запит для пошуку товарів." %}
+          {% elif is_search and query_too_short %}{% translate "Введіть щонайменше 2 символи для пошуку." %}
+          {% elif is_search %}{% translate "За вашим запитом нічого не знайдено." %}
           {% else %}{% translate "Товарів у цій категорії поки немає." %}{% endif %}
         </p>
       {% endif %}

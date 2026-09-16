@@ -9,7 +9,7 @@
       {% endif %}
     </a>
     <span class="card__badges">
-      {% if price and price.is_sale %}<span class="badge badge--deal">DEAL</span>{% endif %}
+      {% if price and price.is_sale %}<span class="badge badge--deal">{% translate "Акція" %}</span>{% endif %}
       {% if product.is_hit %}<span class="badge badge--hit">{% translate "Хіт" %}</span>{% endif %}
       {% if product.is_new %}<span class="badge badge--new">{% translate "Новинка" %}</span>{% endif %}
       {% if not product.in_stock %}<span class="badge badge--out">{% translate "Немає" %}</span>{% endif %}

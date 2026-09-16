@@ -1,7 +1,11 @@
 from django.contrib import admin
+from django.db.models import Case, IntegerField, Value, When
+from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
 from unfold.admin import ModelAdmin, TabularInline
 
-from apps.commerce.models import Cart, CartItem, Order, OrderItem, OrderStatusLog
+from apps.commerce.models import Cart, CartItem, Order, OrderItem, OrderStatus, OrderStatusLog
+from apps.core.admin_list_markers import mark_new, new_badge
 
 
 class OrderItemInline(TabularInline):
@@ -11,9 +15,7 @@ class OrderItemInline(TabularInline):
         "product_name",
         "sku",
         "volume",
-        "unit_purchase_price_uah",
         "unit_price_uah",
-        "price_source",
         "quantity",
         "line_total_uah",
         "margin",
@@ -36,8 +38,17 @@ class OrderStatusLogInline(TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(ModelAdmin):
-    list_display = ["number", "created_at", "customer_name", "phone", "client_type", "total_uah", "status"]
+    list_display = [
+        "number_display",
+        "created_at",
+        "customer_name",
+        "phone",
+        "client_type",
+        "total_uah",
+        "status",
+    ]
     list_editable = ["status"]
+    list_fullwidth = True
     list_filter = ["status", "payment_method", "delivery_method", "client_type", "created_at"]
     search_fields = [
         "number",
@@ -85,6 +96,26 @@ class OrderAdmin(ModelAdmin):
         ),
         ("Інше", {"fields": ["comment", "gdpr_accepted", "locale"]}),
     ]
+
+    @admin.display(description=_("Номер"), ordering="number")
+    def number_display(self, obj):
+        label = format_html('<span class="admin-list-title">{}</span>', obj.number)
+        if obj.status == OrderStatus.NEW:
+            return mark_new(format_html("{}{}", new_badge(), label))
+        return label
+
+    def get_ordering(self, request):
+        return ("_is_new", "-created_at")
+
+    def get_queryset(self, request):
+        qs = self.model._default_manager.get_queryset()
+        return qs.annotate(
+            _is_new=Case(
+                When(status=OrderStatus.NEW, then=Value(0)),
+                default=Value(1),
+                output_field=IntegerField(),
+            )
+        )
 
     def save_model(self, request, obj, form, change):
         old_status = ""

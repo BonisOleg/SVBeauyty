@@ -28,7 +28,7 @@ def notify_new_message(message) -> None:
         f"Клієнт: {session.name or '—'}\n"
         f"Телефон: {session.phone or '—'}\n"
         f"Текст: {message.text}\n\n"
-        f"Відповісти в адмінці: діалог #{session.pk}"
+        f"Відповісти в адмінці: /admin/chat/chatsession/{session.pk}/change/"
     )
     try:
         send_mail(

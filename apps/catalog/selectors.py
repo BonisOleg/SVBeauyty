@@ -51,9 +51,12 @@ ATTRIBUTE_FILTER_KEYS = (
 )
 
 
-def active_products() -> QuerySet[Product]:
+def active_products(user=None) -> QuerySet[Product]:
+    qs = Product.objects.filter(is_active=True)
+    if not is_pro(user):
+        qs = qs.filter(pro_only=False)
     return (
-        Product.objects.filter(is_active=True)
+        qs
         .select_related("brand", "category")
         .prefetch_related(
             Prefetch("variants", queryset=Variant.objects.filter(is_active=True).order_by("sort_order", "id")),
@@ -225,7 +228,7 @@ def filter_catalog(
     attr_filters: dict[str, list[str]] | None = None,
     user=None,
 ) -> QuerySet[Product]:
-    qs = qs if qs is not None else active_products()
+    qs = qs if qs is not None else active_products(user)
     if category is not None:
         qs = qs.filter(category=category)
     if brands:
@@ -252,13 +255,16 @@ def filter_catalog(
     return qs.order_by(*SORT_MAP[sort_key])
 
 
-def filter_groups_for_catalog() -> list[dict]:
-    """Групи з значеннями, що реально призначені активним товарам."""
+def filter_groups_for_catalog(user=None) -> list[dict]:
+    """Групи з значеннями, що реально призначені видимим товарам."""
+    used = ProductAttribute.objects.filter(
+        is_active=True,
+        products__is_active=True,
+    )
+    if not is_pro(user):
+        used = used.filter(products__pro_only=False)
     used_ids = (
-        ProductAttribute.objects.filter(
-            is_active=True,
-            products__is_active=True,
-        )
+        used
         .values_list("id", flat=True)
         .distinct()
     )
@@ -286,10 +292,10 @@ def normalize_search_query(query: str | None) -> str:
     return " ".join((query or "").split()).strip()
 
 
-def search_products(query: str) -> QuerySet[Product]:
+def search_products(query: str, user=None) -> QuerySet[Product]:
     query = normalize_search_query(query)
     if len(query) < 2:
-        return active_products().none()
+        return active_products(user).none()
     match = (
         Q(name_uk__icontains=query)
         | Q(name_ru__icontains=query)
@@ -315,7 +321,7 @@ def search_products(query: str) -> QuerySet[Product]:
         output_field=IntegerField(),
     )
     return (
-        active_products()
+        active_products(user)
         .filter(match)
         .annotate(_search_rank=Max(rank))
         .order_by("-_search_rank", "sort_order", "-created_at", "id")
@@ -323,21 +329,21 @@ def search_products(query: str) -> QuerySet[Product]:
     )
 
 
-def search_suggest_products(query: str, *, limit: int = 8) -> list[Product]:
-    return list(search_products(query)[:limit])
+def search_suggest_products(query: str, *, limit: int = 8, user=None) -> list[Product]:
+    return list(search_products(query, user)[:limit])
 
 
-def get_product_by_slug(slug: str) -> Product:
-    return active_products().prefetch_related("images").get(slug=slug, is_active=True)
+def get_product_by_slug(slug: str, user=None) -> Product:
+    return active_products(user).prefetch_related("images").get(slug=slug, is_active=True)
 
 
-def related_products(product: Product, limit: int = 8) -> QuerySet[Product]:
-    return active_products().filter(category=product.category).exclude(pk=product.pk)[:limit]
+def related_products(product: Product, limit: int = 8, user=None) -> QuerySet[Product]:
+    return active_products(user).filter(category=product.category).exclude(pk=product.pk)[:limit]
 
 
-def also_bought_products(product: Product, limit: int = 8) -> list[Product]:
+def also_bought_products(product: Product, limit: int = 8, user=None) -> list[Product]:
     same_brand = list(
-        active_products()
+        active_products(user)
         .filter(brand=product.brand)
         .exclude(pk=product.pk)
         .order_by("-is_hit", "sort_order", "-created_at")[:limit]
@@ -346,7 +352,7 @@ def also_bought_products(product: Product, limit: int = 8) -> list[Product]:
         return same_brand
     exclude_ids = {product.pk, *(p.pk for p in same_brand)}
     fillers = list(
-        active_products()
+        active_products(user)
         .exclude(pk__in=exclude_ids)
         .order_by("-is_hit", "sort_order", "-created_at")[: limit - len(same_brand)]
     )
@@ -372,7 +378,7 @@ def recently_viewed_products(request, *, exclude_id: int | None = None, limit: i
         return []
     found = {
         p.pk: p
-        for p in active_products().filter(pk__in=ids)
+        for p in active_products(request.user).filter(pk__in=ids)
     }
     return [found[i] for i in ids if i in found]
 
@@ -407,7 +413,7 @@ def catalog_page_context(request, *, queryset, category=None, query="", is_searc
         "page_obj": paginate(request, filtered),
         "categories": active_categories(),
         "brands": active_brands(),
-        "filter_groups": filter_groups_for_catalog(),
+        "filter_groups": filter_groups_for_catalog(user=getattr(request, "user", None)),
         "current_sort": filters["sort"],
         "current_brands": filters["brands"],
         "current_attrs": filters["attr_filters"],

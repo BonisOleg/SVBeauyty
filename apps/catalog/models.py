@@ -114,6 +114,15 @@ class Product(TimeStampedModel, PublishedModel, SeoModel):
 
     is_hit = models.BooleanField(_("Хіт продажу"), default=False, db_index=True)
     is_new = models.BooleanField(_("Новинка"), default=False, db_index=True)
+    pro_only = models.BooleanField(
+        _("Лише для косметологів"),
+        default=False,
+        db_index=True,
+        help_text=_(
+            "Товар бачать тільки клієнти зі статусом «Косметолог». "
+            "Гості, звичайні покупці і заявки його не бачать."
+        ),
+    )
     filter_attrs = models.ManyToManyField(
         "ProductAttribute",
         blank=True,
@@ -169,6 +178,16 @@ class Product(TimeStampedModel, PublishedModel, SeoModel):
 
     def get_absolute_url(self):
         return reverse("catalog:product", kwargs={"slug": self.slug})
+
+    def visible_to(self, user) -> bool:
+        """Чи можна показати товар цьому відвідувачу."""
+        if not self.is_active:
+            return False
+        if not self.pro_only:
+            return True
+        from apps.pricing.services import is_pro
+
+        return is_pro(user)
 
     @property
     def active_variants(self):
@@ -256,16 +275,25 @@ class Variant(TimeStampedModel, PublishedModel):
         help_text=_("Увімкніть, щоб автоперерахунок не перезаписував цю ціну."),
     )
 
+    sale_percent = models.DecimalField(
+        _("Акційна знижка, %"),
+        max_digits=5,
+        decimal_places=2,
+        default=0,
+        blank=True,
+        validators=[MinValueValidator(0), MaxValueValidator(99)],
+        help_text=_(
+            "Для гостей і звичайних клієнтів. 20 = мінус 20% від роздрібної, "
+            "округлення як у «Ціни та умови». 0 — без акції. Косметологи бачать pro-ціну."
+        ),
+    )
     sale_price_uah = models.DecimalField(
         _("Акційна ціна, грн"),
         max_digits=10,
         decimal_places=2,
         default=0,
         blank=True,
-        help_text=_(
-            "Для гостей і звичайних клієнтів. Показується, якщо більша за 0 і менша за роздрібну. "
-            "Косметологи бачать pro-ціну без акції. 0 — без акції."
-        ),
+        help_text=_("Рахується з відсотка знижки. На сайті не редагується вручну."),
     )
 
     stock_qty = models.PositiveIntegerField(_("Залишок"), default=0)
@@ -279,9 +307,12 @@ class Variant(TimeStampedModel, PublishedModel):
         return f"{self.product.name_uk} — {self.volume}"
 
     def save(self, *args, **kwargs):
-        from apps.pricing.services import apply_auto_prices
+        from apps.pricing.models import PricingSettings
+        from apps.pricing.services import apply_auto_prices, sync_personal_sale_price
 
-        apply_auto_prices(self)
+        conf = PricingSettings.get_solo()
+        apply_auto_prices(self, conf)
+        sync_personal_sale_price(self, conf)
         super().save(*args, **kwargs)
 
     @property

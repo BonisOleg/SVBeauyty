@@ -64,7 +64,7 @@ class PricingSettings(SingletonModel, TimeStampedModel):
         default=False,
         help_text=_(
             "Знижка % на весь асортимент для гостей і звичайних клієнтів. "
-            "Перебиває персональну акційну ціну варіанта. Косметологи не підпадають."
+            "Перебиває персональну знижку % на варіанті. Косметологи не підпадають."
         ),
     )
     global_sale_percent = models.DecimalField(

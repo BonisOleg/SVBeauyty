@@ -144,7 +144,7 @@ class FilterCatalogTests(CatalogFiltersTestCase):
         self.assertEqual(set(qs.values_list("slug", flat=True)), {"serum-a", "serum-c"})
 
     def test_price_uses_sale_for_guest(self):
-        self.variant_a.sale_price_uah = Decimal("700.00")
+        self.variant_a.sale_percent = Decimal("30.00")
         self.variant_a.price_is_manual = True
         self.variant_a.price_uah = Decimal("1000.00")
         self.variant_a.save()
@@ -172,7 +172,7 @@ class FilterCatalogTests(CatalogFiltersTestCase):
         # retail 1000 → global 800
         self.variant_a.price_is_manual = True
         self.variant_a.price_uah = Decimal("1000.00")
-        self.variant_a.sale_price_uah = Decimal("0.00")
+        self.variant_a.sale_percent = Decimal("0.00")
         self.variant_a.save()
 
         qs = selectors.filter_catalog(price_min=Decimal("750"), price_max=Decimal("850"))

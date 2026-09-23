@@ -84,6 +84,27 @@ def apply_auto_prices(variant, settings_obj=None) -> None:
         )
 
 
+def personal_sale_amount(base, percent, step=CENTS) -> Decimal | None:
+    """Сума персональної акції: роздріб мінус відсоток, або None якщо знижки немає."""
+    base = Decimal(base or 0)
+    percent = Decimal(percent or 0)
+    if percent <= 0 or percent >= HUNDRED or base <= 0:
+        return None
+    amount = round_to_step(base * (HUNDRED - percent) / HUNDRED, step)
+    if amount <= 0 or amount >= base:
+        return None
+    return amount
+
+
+def sync_personal_sale_price(variant, settings_obj=None) -> None:
+    """Записати в sale_price_uah суму з sale_percent (кеш для фільтрів і списку)."""
+    conf = settings_obj or PricingSettings.get_solo()
+    amount = personal_sale_amount(
+        variant.price_uah, getattr(variant, "sale_percent", 0), conf.rounding_step
+    )
+    variant.sale_price_uah = amount if amount is not None else Decimal("0.00")
+
+
 def recalculate_all(queryset=None) -> int:
     """Масовий перерахунок автоцін. Ручні ціни лишаються недоторканими."""
     from apps.catalog.models import Variant
@@ -91,12 +112,13 @@ def recalculate_all(queryset=None) -> int:
     conf = PricingSettings.get_solo()
     changed = []
     for variant in queryset if queryset is not None else Variant.objects.all():
-        before = (variant.price_uah, variant.price_pro_uah)
+        before = (variant.price_uah, variant.price_pro_uah, variant.sale_price_uah)
         apply_auto_prices(variant, conf)
-        if (variant.price_uah, variant.price_pro_uah) != before:
+        sync_personal_sale_price(variant, conf)
+        if (variant.price_uah, variant.price_pro_uah, variant.sale_price_uah) != before:
             changed.append(variant)
     if changed:
-        Variant.objects.bulk_update(changed, ["price_uah", "price_pro_uah"])
+        Variant.objects.bulk_update(changed, ["price_uah", "price_pro_uah", "sale_price_uah"])
     return len(changed)
 
 
@@ -146,11 +168,10 @@ def global_sale_amount(base: Decimal, state: GlobalSaleState) -> Decimal | None:
     return amount
 
 
-def sale_is_active(variant) -> bool:
-    """Персональна акція варіанта: > 0 і менша за роздрібну."""
+def sale_is_active(variant, *, step=CENTS) -> bool:
+    """Персональна акція: відсоток > 0 і сума після округлення менша за роздрібну."""
     base = Decimal(getattr(variant, "price_uah", 0) or 0)
-    sale = Decimal(getattr(variant, "sale_price_uah", 0) or 0)
-    return sale > 0 and sale < base
+    return personal_sale_amount(base, getattr(variant, "sale_percent", 0), step) is not None
 
 
 def get_price(variant, user=None, *, global_sale: GlobalSaleState | None = None) -> PriceInfo:
@@ -167,12 +188,9 @@ def get_price(variant, user=None, *, global_sale: GlobalSaleState | None = None)
         if amount is not None:
             return PriceInfo(amount=amount, source=GLOBAL_SALE, base_amount=base)
 
-    if sale_is_active(variant):
-        return PriceInfo(
-            amount=Decimal(variant.sale_price_uah).quantize(CENTS),
-            source=SALE,
-            base_amount=base,
-        )
+    personal = personal_sale_amount(base, getattr(variant, "sale_percent", 0), state.rounding_step)
+    if personal is not None:
+        return PriceInfo(amount=personal, source=SALE, base_amount=base)
 
     return PriceInfo(amount=base, source=RETAIL, base_amount=base)
 

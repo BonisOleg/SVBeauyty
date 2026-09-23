@@ -32,10 +32,12 @@ class VariantInline(TabularInline):
         "price_is_manual",
         "price_pro_uah",
         "price_pro_is_manual",
+        "sale_percent",
         "sale_price_uah",
         "stock_qty",
         "is_active",
     ]
+    readonly_fields = ["sale_price_uah"]
 
 
 class ProductImageInline(StackedInline):
@@ -115,10 +117,20 @@ class ProductAttributeAdmin(ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(ModelAdmin):
-    list_display = ["preview", "name_uk", "brand", "category", "price_summary", "is_active", "is_hit", "is_new"]
+    list_display = [
+        "preview",
+        "name_uk",
+        "brand",
+        "category",
+        "price_summary",
+        "is_active",
+        "is_hit",
+        "is_new",
+        "pro_only",
+    ]
     list_display_links = ["preview", "name_uk"]
-    list_editable = ["is_active", "is_hit", "is_new"]
-    list_filter = ["category", "brand", "is_active", "is_hit", "is_new", "filter_attrs__group"]
+    list_editable = ["is_active", "is_hit", "is_new", "pro_only"]
+    list_filter = ["category", "brand", "is_active", "is_hit", "is_new", "pro_only", "filter_attrs__group"]
     search_fields = ["name_uk", "name_ru", "variants__sku"]
     prepopulated_fields = {"slug": ("name_uk",)}
     filter_horizontal = ["filter_attrs"]
@@ -128,7 +140,7 @@ class ProductAdmin(ModelAdmin):
     fieldsets = bilingual_fieldsets(
         [
             (None, {"fields": ["brand", "category", "slug"]}),
-            ("Позначки", {"fields": ["is_hit", "is_new", "is_active", "sort_order"]}),
+            ("Позначки", {"fields": ["is_hit", "is_new", "pro_only", "is_active", "sort_order"]}),
             (
                 "Характеристики (фільтри)",
                 {
@@ -198,10 +210,12 @@ class VariantAdmin(ModelAdmin):
         "purchase_price_uah",
         "price_uah",
         "price_pro_uah",
+        "sale_percent",
         "sale_price_uah",
         "stock_qty",
         "is_active",
     ]
+    readonly_fields = ["sale_price_uah"]
     # На планшеті (~768) changelist — картки: ціни редагуємо у формі, тут лише оперативні поля.
     list_editable = ["stock_qty", "is_active"]
     list_filter = ["is_active", "price_is_manual", "price_pro_is_manual", "product__category"]
@@ -229,9 +243,10 @@ class VariantAdmin(ModelAdmin):
         (
             "Акція (роздріб)",
             {
-                "fields": ["sale_price_uah"],
+                "fields": ["sale_percent", "sale_price_uah"],
                 "description": (
-                    "Акційна ціна для гостей і звичайних клієнтів (менша за роздрібну). "
+                    "Знижка у відсотках від роздрібної для гостей і звичайних клієнтів. "
+                    "Сума в гривнях рахується після збереження. "
                     "Косметологи завжди бачать pro-ціну. 0 — без акції."
                 ),
             },

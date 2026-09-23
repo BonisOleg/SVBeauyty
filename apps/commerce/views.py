@@ -1,7 +1,7 @@
 import json
 
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
@@ -57,7 +57,13 @@ def _cart_htmx_response(request, *, open_popup: bool = False):
 
 @require_POST
 def cart_add(request):
-    variant = get_object_or_404(Variant, pk=request.POST.get("variant_id"), is_active=True)
+    variant = get_object_or_404(
+        Variant.objects.select_related("product"),
+        pk=request.POST.get("variant_id"),
+        is_active=True,
+    )
+    if not variant.product.visible_to(_current_user(request)):
+        raise Http404()
     cart = services.get_cart(request)
     try:
         services.add_item(cart, variant, request.POST.get("quantity", 1))

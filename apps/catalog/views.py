@@ -19,7 +19,9 @@ def catalog(request):
     return render(
         request,
         "catalog/catalog.html",
-        selectors.catalog_page_context(request, queryset=selectors.active_products()),
+        selectors.catalog_page_context(
+            request, queryset=selectors.active_products(request.user)
+        ),
     )
 
 
@@ -30,7 +32,7 @@ def category(request, slug):
         "catalog/catalog.html",
         selectors.catalog_page_context(
             request,
-            queryset=selectors.active_products(),
+            queryset=selectors.active_products(request.user),
             category=category_obj,
         ),
     )
@@ -38,7 +40,7 @@ def category(request, slug):
 
 def product(request, slug):
     product_obj = get_object_or_404(
-        selectors.active_products().prefetch_related("images", "reviews"),
+        selectors.active_products(request.user).prefetch_related("images", "reviews"),
         slug=slug,
     )
     recently_viewed = selectors.recently_viewed_products(request, exclude_id=product_obj.pk)
@@ -54,8 +56,8 @@ def product(request, slug):
         "catalog/product.html",
         {
             "product": product_obj,
-            "related": selectors.related_products(product_obj),
-            "also_bought": selectors.also_bought_products(product_obj),
+            "related": selectors.related_products(product_obj, user=request.user),
+            "also_bought": selectors.also_bought_products(product_obj, user=request.user),
             "recently_viewed": recently_viewed,
             "in_wishlist": in_wishlist,
             "reviews": reviews,
@@ -68,7 +70,7 @@ def product(request, slug):
 def review_add(request, slug):
     if not settings.REVIEWS_ENABLED:
         raise Http404()
-    product_obj = get_object_or_404(selectors.active_products(), slug=slug)
+    product_obj = get_object_or_404(selectors.active_products(request.user), slug=slug)
     try:
         rating = int(request.POST.get("rating") or 0)
     except (TypeError, ValueError):
@@ -99,7 +101,7 @@ def search(request):
         "catalog/catalog.html",
         selectors.catalog_page_context(
             request,
-            queryset=selectors.search_products(query),
+            queryset=selectors.search_products(query, request.user),
             query=query,
             is_search=True,
         ),
@@ -111,7 +113,7 @@ def search_suggest(request):
     query = selectors.normalize_search_query(request.GET.get("q"))
     if len(query) < 2:
         return JsonResponse({"results": [], "query": query})
-    products = selectors.search_suggest_products(query, limit=8)
+    products = selectors.search_suggest_products(query, limit=8, user=request.user)
     results = []
     for product in products:
         image = product.main_image

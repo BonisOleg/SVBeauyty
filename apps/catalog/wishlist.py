@@ -1,12 +1,17 @@
 from django.db import IntegrityError, transaction
 from django.db.models import Prefetch
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 
 from apps.catalog.models import Product, Variant, WishlistItem
+from apps.pricing.services import is_pro
 
 
-def _product_queryset():
-    return Product.objects.filter(is_active=True).select_related("brand", "category").prefetch_related(
+def _product_queryset(user=None):
+    qs = Product.objects.filter(is_active=True)
+    if not is_pro(user):
+        qs = qs.filter(pro_only=False)
+    return qs.select_related("brand", "category").prefetch_related(
         Prefetch(
             "variants",
             queryset=Variant.objects.filter(is_active=True).order_by("sort_order", "id"),
@@ -24,12 +29,18 @@ def product_ids_for(user) -> set[int]:
 def count_for(user) -> int:
     if not getattr(user, "is_authenticated", False):
         return 0
-    return WishlistItem.objects.filter(user=user).count()
+    qs = WishlistItem.objects.filter(user=user, product__is_active=True)
+    if not is_pro(user):
+        qs = qs.filter(product__pro_only=False)
+    return qs.count()
 
 
 def list_products_for(user):
+    items = WishlistItem.objects.filter(user=user, product__is_active=True)
+    if not is_pro(user):
+        items = items.filter(product__pro_only=False)
     items = (
-        WishlistItem.objects.filter(user=user, product__is_active=True)
+        items
         .select_related("product__brand", "product__category")
         .prefetch_related(
             Prefetch(
@@ -66,6 +77,8 @@ def list_products_by_ids(ids: list[int]):
 def toggle(user, product_id: int) -> tuple[bool, int]:
     """Додає або прибирає товар. Повертає (in_wishlist, count)."""
     product = get_object_or_404(Product, pk=product_id, is_active=True)
+    if not product.visible_to(user):
+        raise Http404()
     existing = WishlistItem.objects.filter(user=user, product=product).first()
     if existing:
         existing.delete()

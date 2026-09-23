@@ -1,6 +1,7 @@
 from django.shortcuts import render
 
-from apps.catalog.models import Category, Product
+from apps.catalog import selectors
+from apps.catalog.models import Category
 from apps.content.models import Banner
 
 HOME_CATEGORIES_LIMIT = 8
@@ -8,11 +9,7 @@ HOME_CATEGORIES_LIMIT = 8
 
 def home(request):
     user = request.user if request.user.is_authenticated else None
-    base_qs = (
-        Product.objects.filter(is_active=True)
-        .select_related("brand", "category")
-        .prefetch_related("variants", "images")
-    )
+    base_qs = selectors.active_products(request.user)
     context = {
         "banners": Banner.objects.filter(is_active=True).order_by("sort_order", "id"),
         "categories": Category.objects.filter(is_active=True).order_by("sort_order", "id")[

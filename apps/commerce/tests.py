@@ -142,8 +142,10 @@ class PricingTests(ShopTestCase):
         self.assertEqual(get_price(self.variant, self.regular).source, RETAIL)
 
     def test_active_sale_for_guest_and_regular(self):
-        self.variant.sale_price_uah = Decimal("800.00")
+        self.variant.sale_percent = Decimal("20.00")
         self.variant.save()
+        self.variant.refresh_from_db()
+        self.assertEqual(self.variant.sale_price_uah, Decimal("800.00"))
 
         for user in (None, self.regular):
             price = get_price(self.variant, user)
@@ -154,7 +156,7 @@ class PricingTests(ShopTestCase):
             self.assertTrue(price.has_discount)
 
     def test_sale_does_not_apply_to_cosmetologist(self):
-        self.variant.sale_price_uah = Decimal("800.00")
+        self.variant.sale_percent = Decimal("20.00")
         self.variant.save()
 
         price = get_price(self.variant, self.pro)
@@ -162,17 +164,31 @@ class PricingTests(ShopTestCase):
         self.assertEqual(price.amount, Decimal("700.00"))
         self.assertFalse(price.is_sale)
 
-    def test_sale_equal_or_above_retail_is_inactive(self):
-        self.variant.sale_price_uah = Decimal("1000.00")
+    def test_zero_sale_percent_is_inactive(self):
+        self.variant.sale_percent = Decimal("0.00")
         self.variant.save()
-        price = get_price(self.variant, self.regular)
-        self.assertEqual(price.source, RETAIL)
-        self.assertEqual(price.amount, Decimal("1000.00"))
-
-    def test_zero_sale_price_is_inactive(self):
-        self.variant.sale_price_uah = Decimal("0.00")
-        self.variant.save()
+        self.assertEqual(get_price(self.variant, self.regular).source, RETAIL)
         self.assertEqual(get_price(self.variant, None).source, RETAIL)
+
+    def test_sale_percent_above_99_is_rejected(self):
+        form = VariantAdminForm(
+            instance=self.variant,
+            data={
+                "product": self.product.id,
+                "sku": self.variant.sku,
+                "volume": self.variant.volume,
+                "purchase_price_uah": "500.00",
+                "price_uah": "1000.00",
+                "price_is_manual": "on",
+                "price_pro_uah": "700.00",
+                "sale_percent": "100",
+                "stock_qty": 10,
+                "sort_order": 0,
+                "is_active": "on",
+            },
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn("sale_percent", form.errors)
 
     def _enable_global_sale(self, percent="20.00", **extra):
         conf = PricingSettings.get_solo()
@@ -197,7 +213,7 @@ class PricingTests(ShopTestCase):
             self.assertTrue(price.is_sale)
 
     def test_global_sale_overrides_personal_sale(self):
-        self.variant.sale_price_uah = Decimal("500.00")
+        self.variant.sale_percent = Decimal("50.00")
         self.variant.save()
         self._enable_global_sale("20.00")
         price = get_price(self.variant, self.regular)
@@ -211,7 +227,7 @@ class PricingTests(ShopTestCase):
         self.assertEqual(price.amount, Decimal("700.00"))
 
     def test_global_sale_respects_product_exclude(self):
-        self.variant.sale_price_uah = Decimal("600.00")
+        self.variant.sale_percent = Decimal("40.00")
         self.variant.save()
         self._enable_global_sale("20.00", exclude_product=self.product)
         price = get_price(self.variant, self.regular)
@@ -348,7 +364,7 @@ class CheckoutTests(ShopTestCase):
         self.assertEqual(item.unit_purchase_price_uah, Decimal("500.00"))
 
     def test_guest_order_uses_active_sale_price(self):
-        self.variant.sale_price_uah = Decimal("800.00")
+        self.variant.sale_percent = Decimal("20.00")
         self.variant.save()
 
         self.client.post(reverse("commerce:cart_add"), {"variant_id": self.variant.id, "quantity": 1})

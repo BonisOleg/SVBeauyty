@@ -100,6 +100,8 @@ def cart_rows(cart: Cart | None, user=None) -> list[dict]:
     global_sale = get_global_sale_state()
     rows = []
     for item in items:
+        if not item.variant.product.visible_to(user):
+            continue
         price = get_price(item.variant, user, global_sale=global_sale)
         rows.append(
             {
@@ -138,6 +140,7 @@ def create_order(request, cart: Cart, data: dict, redeem_points: int = 0) -> Ord
     cart_items = list(
         cart.items.select_related("variant__product__brand").select_for_update().order_by("id")
     )
+    cart_items = [item for item in cart_items if item.variant.product.visible_to(user)]
     if not cart_items:
         raise CartError(_("Кошик порожній."))
 

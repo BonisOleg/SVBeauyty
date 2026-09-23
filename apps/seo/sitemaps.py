@@ -36,7 +36,7 @@ class ProductSitemap(Sitemap):
     limit = 2000
 
     def items(self):
-        return Product.objects.filter(is_active=True)
+        return Product.objects.filter(is_active=True, pro_only=False)
 
     def lastmod(self, obj):
         return obj.updated_at

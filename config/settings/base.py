@@ -102,6 +102,8 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+# Квитанції чату. Каталог не віддає nginx: лише view з перевіркою діалогу.
+PRIVATE_MEDIA_ROOT = BASE_DIR / "private_media"
 
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},

@@ -181,6 +181,158 @@ html.dark .admin-chat__label {
   align-items: end;
 }
 
+.admin-chat__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.admin-chat__clip {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  color: #111827;
+  background: #fff;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html.dark .admin-chat__clip {
+  border-color: #374151;
+  background: #0b1220;
+  color: #f9fafb;
+}
+
+.admin-chat__clip svg {
+  pointer-events: none;
+}
+
+.admin-chat__file-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.admin-chat__hint {
+  margin: 0.45rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: #6b7280;
+}
+
+html.dark .admin-chat__hint {
+  color: #9ca3af;
+}
+
+.admin-chat__clip.has-files {
+  border-color: var(--admin-chat-accent);
+  background: #d1fae5;
+}
+
+html.dark .admin-chat__clip.has-files {
+  background: #064e3b;
+  color: #ecfdf5;
+}
+
+.admin-chat__draft {
+  display: flex;
+  gap: 0.45rem;
+  margin-top: 0.65rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-chat__draft[hidden] {
+  display: none;
+}
+
+.admin-chat__draft-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  max-width: 100%;
+  padding: 4px 6px 4px 4px;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  background: #f9fafb;
+}
+
+html.dark .admin-chat__draft-item {
+  border-color: #374151;
+  background: #0b1220;
+  color: #f9fafb;
+}
+
+.admin-chat__draft-item img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex: 0 0 40px;
+}
+
+.admin-chat__draft-name {
+  font-size: 0.75rem;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-chat__draft-remove {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border: 0;
+  background: transparent;
+  color: #6b7280;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.admin-chat__files {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+}
+
+.admin-chat__file,
+.admin-chat__file-link {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.admin-chat__file img {
+  display: block;
+  max-width: min(220px, 100%);
+  height: auto;
+  border-radius: 0.35rem;
+}
+
+.admin-chat__file-link {
+  color: inherit;
+  text-decoration: underline;
+  word-break: break-word;
+}
+
 .admin-chat__input {
   width: 100%;
   min-height: 44px;
@@ -245,7 +397,104 @@ html.dark .admin-chat__error {
     grid-template-columns: 1fr;
   }
 
-  .admin-chat__send {
+  .admin-chat__actions {
     width: 100%;
   }
+
+  .admin-chat__send {
+    flex: 1 1 auto;
+    width: auto;
+  }
+}
+
+.file-preview {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: calc(env(safe-area-inset-top, 0px) + 0.75rem) 0.75rem calc(env(safe-area-inset-bottom, 0px) + 0.75rem);
+  background: rgba(7, 24, 23, 0.92);
+}
+
+.file-preview[hidden] {
+  display: none;
+}
+
+html.file-preview-open,
+html.file-preview-open body {
+  overflow: hidden;
+}
+
+.file-preview__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+  min-height: 44px;
+  color: #fff;
+}
+
+.file-preview__name {
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-preview button.file-preview__close,
+a.file-preview__download {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 0.5rem;
+  color: #111827;
+  background: #fff;
+  border: 1px solid #fff;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  box-shadow: none;
+}
+
+.file-preview__close {
+  width: 44px;
+  padding: 0;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.file-preview__stage {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-preview__img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.file-preview__frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0.5rem;
+  background: #fff;
+}
+
+.file-preview__img[hidden],
+.file-preview__frame[hidden] {
+  display: none;
 }

@@ -1,11 +1,12 @@
 {% load i18n %}
 <div class="chat__msg chat__msg--customer" data-msg-id="{{ message.id }}">
-  {{ message.text }}
+  {% if message.text %}<span class="chat__text">{{ message.text }}</span>{% endif %}
+  <span class="chat__files">{% include "chat/_message_files.html" with message=message %}</span>
   <span class="chat__time">{{ message_time }}</span>
 </div>
 {% if reply_message %}
 <div class="chat__msg chat__msg--manager" data-msg-id="{{ reply_message.id }}">
-  {{ reply_message.text }}
+  {% if reply_message.text %}<span class="chat__text">{{ reply_message.text }}</span>{% endif %}
   <span class="chat__time">{{ reply_time }}</span>
 </div>
 {% endif %}

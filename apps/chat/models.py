@@ -1,7 +1,10 @@
+import uuid
+
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from apps.chat.storage import chat_upload_to, private_chat_storage
 from apps.core.models import TimeStampedModel
 
 
@@ -42,7 +45,7 @@ class ChatMessage(TimeStampedModel):
         ChatSession, on_delete=models.CASCADE, related_name="messages", verbose_name=_("Діалог")
     )
     author = models.CharField(_("Автор"), max_length=10, choices=MessageAuthor.choices)
-    text = models.TextField(_("Повідомлення"))
+    text = models.TextField(_("Повідомлення"), blank=True)
     is_read = models.BooleanField(_("Прочитано"), default=False)
     is_deleted = models.BooleanField(_("Видалено"), default=False, db_index=True)
     deleted_at = models.DateTimeField(_("Видалено о"), null=True, blank=True)
@@ -73,4 +76,36 @@ class ChatMessage(TimeStampedModel):
         self.is_deleted = True
         self.deleted_at = timezone.now()
         self.save(update_fields=["is_deleted", "deleted_at", "updated_at"])
+
+
+class AttachmentKind(models.TextChoices):
+    IMAGE = "image", _("Зображення")
+    PDF = "pdf", _("PDF")
+
+
+class ChatAttachment(TimeStampedModel):
+    public_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    message = models.ForeignKey(
+        ChatMessage,
+        on_delete=models.CASCADE,
+        related_name="attachments",
+        verbose_name=_("Повідомлення"),
+    )
+    file = models.FileField(
+        _("Файл"),
+        upload_to=chat_upload_to,
+        storage=private_chat_storage,
+        max_length=240,
+    )
+    original_name = models.CharField(_("Назва"), max_length=180)
+    kind = models.CharField(_("Тип"), max_length=8, choices=AttachmentKind.choices)
+    size = models.PositiveIntegerField(_("Розмір, байти"), default=0)
+
+    class Meta:
+        verbose_name = _("Вкладення")
+        verbose_name_plural = _("Вкладення")
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return self.original_name
 

@@ -1,5 +1,6 @@
 from django.contrib import admin
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
+from django.db import transaction
 from django.db.models import Count, OuterRef, Q, Subquery
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
@@ -10,7 +11,9 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from unfold.admin import ModelAdmin
 
+from apps.chat.files import rules_text, save_attachments
 from apps.chat.models import ChatMessage, ChatSession, MessageAuthor
+from apps.chat.views import _attachment_public
 from apps.core.admin_list_markers import unread_badge
 
 MAX_REPLY_LENGTH = 2000
@@ -46,6 +49,9 @@ def _serialize_message(message: ChatMessage, *, viewer) -> dict:
         and not message.is_deleted
         and message.created_by_id == viewer.pk
     )
+    files = []
+    if not message.is_deleted:
+        files = [_attachment_public(item) for item in message.attachments.all()]
     return {
         "id": message.id,
         "author": message.author,
@@ -55,6 +61,7 @@ def _serialize_message(message: ChatMessage, *, viewer) -> dict:
         "is_read": message.is_read,
         "is_deleted": message.is_deleted,
         "can_delete": can_delete,
+        "attachments": files,
     }
 
 
@@ -83,7 +90,7 @@ class ChatSessionAdmin(ModelAdmin):
 
     class Media:
         css = {"all": ("css/admin/chat.css",)}
-        js = ("js/admin/chat-reply.js",)
+        js = ("js/file-preview.js", "js/admin/chat-reply.js")
 
     def get_ordering(self, request):
         return ("-unread_ann", "-updated_at")
@@ -120,9 +127,10 @@ class ChatSessionAdmin(ModelAdmin):
 
     @admin.display(description=_("Останнє повідомлення"))
     def last_message_preview(self, obj):
-        text = (getattr(obj, "last_text_ann", None) or "").strip()
-        if not text:
+        raw = getattr(obj, "last_text_ann", None)
+        if raw is None:
             return "—"
+        text = raw.strip() or str(_("Вкладення"))
         if len(text) > PREVIEW_LEN:
             text = text[: PREVIEW_LEN - 1] + "…"
         unread = int(getattr(obj, "unread_ann", 0) or 0)
@@ -175,7 +183,7 @@ class ChatSessionAdmin(ModelAdmin):
         if request.method != "GET":
             return JsonResponse({"error": "method"}, status=405)
         session = self._get_session_for_staff(request, object_id)
-        qs = session.messages.order_by("created_at")[:POLL_LIMIT]
+        qs = session.messages.prefetch_related("attachments").order_by("created_at")[:POLL_LIMIT]
         messages_list = list(qs)
         unread_ids = [
             m.pk for m in messages_list if m.author == MessageAuthor.CUSTOMER and not m.is_read
@@ -191,18 +199,28 @@ class ChatSessionAdmin(ModelAdmin):
             return JsonResponse({"error": "method"}, status=405)
         session = self._get_session_for_staff(request, object_id)
         text = (request.POST.get("text") or "").strip()[:MAX_REPLY_LENGTH]
-        if not text:
-            return JsonResponse({"error": str(_("Порожнє повідомлення."))}, status=400)
+        uploads = request.FILES.getlist("files")
+        if not text and not uploads:
+            return JsonResponse(
+                {"error": str(_("Напишіть відповідь або додайте файл. %(rules)s") % {"rules": rules_text()})},
+                status=400,
+            )
         if session.is_closed:
             return JsonResponse({"error": str(_("Діалог закрито."))}, status=400)
 
-        message = ChatMessage.objects.create(
-            session=session,
-            author=MessageAuthor.MANAGER,
-            text=text,
-            is_read=True,
-            created_by=request.user,
-        )
+        try:
+            with transaction.atomic():
+                message = ChatMessage.objects.create(
+                    session=session,
+                    author=MessageAuthor.MANAGER,
+                    text=text,
+                    is_read=True,
+                    created_by=request.user,
+                )
+                if uploads:
+                    save_attachments(message, uploads)
+        except ValidationError as exc:
+            return JsonResponse({"error": " ".join(exc.messages)}, status=400)
         ChatSession.objects.filter(pk=session.pk).update(updated_at=timezone.now())
         return JsonResponse({"message": _serialize_message(message, viewer=request.user)})
 

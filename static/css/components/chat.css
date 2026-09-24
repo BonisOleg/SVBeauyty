@@ -229,6 +229,10 @@
   display: grid;
   gap: var(--sp-2);
   background: var(--c-card);
+  flex: 0 0 auto;
+  max-height: 48%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .chat__lead {
@@ -255,8 +259,215 @@
 
 .chat__row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 44px;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
   gap: var(--sp-2);
+  align-items: center;
+}
+
+.chat__clip {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius-md);
+  color: var(--c-head);
+  background: var(--c-paper);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.chat__clip svg {
+  pointer-events: none;
+}
+
+.chat__file-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.chat__hint {
+  margin: 0;
+  font-size: var(--fs-xs);
+  line-height: 1.4;
+  color: var(--c-muted);
+}
+
+.chat__draft {
+  display: flex;
+  gap: var(--sp-2);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.chat__draft[hidden] {
+  display: none;
+}
+
+.chat__draft-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  max-width: 100%;
+  padding: 4px 6px 4px 4px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius-md);
+  background: var(--c-paper);
+}
+
+.chat__draft-item img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex: 0 0 40px;
+}
+
+.chat__draft-name {
+  font-size: var(--fs-xs);
+  line-height: 1.3;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat__draft-remove {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border-radius: 6px;
+  color: var(--c-muted);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.chat__files {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  margin-top: var(--sp-1);
+}
+
+.chat__file {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.chat__file img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm, 6px);
+}
+
+.chat__file--pdf {
+  text-decoration: underline;
+}
+
+.file-preview {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: calc(var(--safe-top, 0px) + var(--sp-3)) var(--sp-3) calc(var(--safe-bottom, 0px) + var(--sp-3));
+  background: rgba(7, 24, 23, 0.88);
+}
+
+.file-preview[hidden] {
+  display: none;
+}
+
+html.file-preview-open,
+html.file-preview-open body {
+  overflow: hidden;
+}
+
+.file-preview__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: 44px;
+  color: #fff;
+}
+
+.file-preview__name {
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fs-sm);
+}
+
+.file-preview button.file-preview__close,
+a.file-preview__download {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+  color: #111827;
+  background: #fff;
+  border: 1px solid #fff;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.file-preview__close {
+  width: 44px;
+  padding: 0;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.file-preview__stage {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-preview__img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.file-preview__frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: #fff;
+}
+
+.file-preview__img[hidden],
+.file-preview__frame[hidden] {
+  display: none;
 }
 
 .chat__send {

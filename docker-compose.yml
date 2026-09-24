@@ -25,6 +25,7 @@ services:
     volumes:
       - static_files:/app/staticfiles
       - media_files:/app/media
+      - private_files:/app/private_media
     depends_on:
       db:
         condition: service_healthy
@@ -60,3 +61,4 @@ volumes:
   pgdata:
   static_files:
   media_files:
+  private_files:

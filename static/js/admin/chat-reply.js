@@ -67,6 +67,7 @@
         `<span class="admin-chat__author">${author}</span>` +
         delBtn +
         `<div class="admin-chat__text">${text}</div>` +
+        renderFilesHtml(msg) +
         `<span class="admin-chat__time">${time}</span>`
       );
     };
@@ -111,30 +112,112 @@
       }
     };
 
+    const fileInput = root.querySelector("[data-admin-chat-file]");
+    const picked = root.querySelector("[data-admin-chat-picked]");
+    const draftUrls = [];
+    const removeLabel = root.dataset.removeFile || "Прибрати файл";
+    const allowedExt = new Set(["jpg", "jpeg", "png", "webp", "pdf"]);
+
+    const renderFilesHtml = (msg) => {
+      if (msg.is_deleted || !msg.attachments || !msg.attachments.length) return "";
+      const items = msg.attachments
+        .map((file) => {
+          const url = escapeHtml(file.url || "");
+          const name = escapeHtml(file.name || "PDF");
+          if (file.kind === "image") {
+            return `<button type="button" class="admin-chat__file" data-admin-preview data-preview-url="${url}" data-preview-name="${name}" data-preview-kind="image"><img src="${url}" alt="${name}"></button>`;
+          }
+          return `<button type="button" class="admin-chat__file-link" data-admin-preview data-preview-url="${url}" data-preview-name="${name}" data-preview-kind="pdf">${name}</button>`;
+        })
+        .join("");
+      return `<div class="admin-chat__files">${items}</div>`;
+    };
+
+    const selectedFiles = () => (fileInput && fileInput.files ? Array.from(fileInput.files) : []);
+
+    const syncFiles = (files) => {
+      if (!fileInput) return;
+      const bag = new DataTransfer();
+      files.forEach((file) => bag.items.add(file));
+      fileInput.files = bag.files;
+      renderPicked();
+    };
+
+    const renderPicked = () => {
+      if (!picked) return;
+      draftUrls.splice(0).forEach((url) => URL.revokeObjectURL(url));
+      picked.replaceChildren();
+    const files = selectedFiles();
+    const clip = fileInput && fileInput.closest(".admin-chat__clip");
+    if (clip) clip.classList.toggle("has-files", files.length > 0);
+    picked.hidden = files.length === 0;
+      files.forEach((file, index) => {
+        const item = document.createElement("div");
+        item.className = "admin-chat__draft-item";
+        if ((file.type || "").startsWith("image/")) {
+          const img = document.createElement("img");
+          const url = URL.createObjectURL(file);
+          draftUrls.push(url);
+          img.src = url;
+          img.alt = file.name;
+          item.appendChild(img);
+        }
+        const name = document.createElement("span");
+        name.className = "admin-chat__draft-name";
+        name.textContent = file.name;
+        item.appendChild(name);
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.className = "admin-chat__draft-remove";
+        remove.setAttribute("aria-label", removeLabel);
+        remove.textContent = "×";
+        remove.addEventListener("click", () => {
+          syncFiles(selectedFiles().filter((_, fileIndex) => fileIndex !== index));
+        });
+        item.appendChild(remove);
+        picked.appendChild(item);
+      });
+    };
+
+    const localFileError = () => {
+      const files = selectedFiles();
+      if (!files.length) return "";
+      if (files.length > 3) return root.dataset.errorEmpty || "";
+      for (const file of files) {
+        const ext = (file.name.split(".").pop() || "").toLowerCase();
+        if (!allowedExt.has(ext) || file.size > 5 * 1024 * 1024) return root.dataset.errorEmpty || "";
+      }
+      return "";
+    };
+
+    if (fileInput) fileInput.addEventListener("change", renderPicked);
+
     const sendReply = async () => {
       if (closed || !replyUrl || !input) return;
       const text = (input.value || "").trim();
-      if (!text) {
-        showError(root.dataset.errorEmpty || "");
-        input.focus();
+      const files = selectedFiles();
+      const problem = localFileError();
+      if (problem || (!text && !files.length)) {
+        showError(problem || root.dataset.errorEmpty || "");
+        if (!text) input.focus();
         return;
       }
       showError("");
       const btn = root.querySelector("[data-admin-chat-send]");
       if (btn) btn.disabled = true;
       try {
-        const bodyData = new URLSearchParams();
+        const bodyData = new FormData();
         bodyData.set("text", text);
+        files.forEach((file) => bodyData.append("files", file));
         const response = await fetch(replyUrl, {
           method: "POST",
           headers: {
             Accept: "application/json",
             "X-Requested-With": "XMLHttpRequest",
             "X-CSRFToken": csrfToken(),
-            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
           },
           credentials: "same-origin",
-          body: bodyData.toString(),
+          body: bodyData,
         });
         const data = await response.json().catch(() => ({}));
         if (!response.ok) {
@@ -148,6 +231,8 @@
           /* ignore */
         }
         input.value = "";
+        if (fileInput) fileInput.value = "";
+        renderPicked();
         input.focus();
       } catch (_err) {
         showError(root.dataset.errorSend || "");
@@ -204,6 +289,20 @@
 
     if (body) {
       body.addEventListener("click", (event) => {
+        const preview = event.target.closest("[data-admin-preview]");
+        if (preview && typeof window.svOpenFilePreview === "function") {
+          event.preventDefault();
+          window.svOpenFilePreview({
+            url: preview.dataset.previewUrl,
+            name: preview.dataset.previewName,
+            kind: preview.dataset.previewKind,
+            labels: {
+              close: root.dataset.previewClose || "Закрити перегляд",
+              download: root.dataset.previewDownload || "Завантажити",
+            },
+          });
+          return;
+        }
         const btn = event.target.closest("[data-admin-chat-delete]");
         if (!btn) return;
         event.preventDefault();

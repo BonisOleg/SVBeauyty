@@ -27,7 +27,8 @@ def notify_new_message(message) -> None:
         f"Нове повідомлення в чаті сайту.\n\n"
         f"Клієнт: {session.name or '—'}\n"
         f"Телефон: {session.phone or '—'}\n"
-        f"Текст: {message.text}\n\n"
+        f"Текст: {message.text or '—'}\n"
+        f"Вкладення: {message.attachments.count()}\n\n"
         f"Відповісти в адмінці: /admin/chat/chatsession/{session.pk}/change/"
     )
     try:

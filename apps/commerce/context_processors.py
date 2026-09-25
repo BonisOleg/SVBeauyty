@@ -1,8 +1,10 @@
+from django.conf import settings
+
 from apps.commerce.services import cart_summary, get_cart
 
 
 def cart_context(request):
-    if request.path.startswith(("/admin/", "/static/", "/media/")):
+    if request.path.startswith((f"/{settings.ADMIN_URL}", "/static/", "/media/")):
         return {}
     cart = get_cart(request, create=False)
     user = request.user if request.user.is_authenticated else None

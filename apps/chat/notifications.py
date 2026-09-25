@@ -3,6 +3,7 @@ import logging
 from django.conf import settings
 from django.core.cache import cache
 from django.core.mail import send_mail
+from django.urls import reverse
 
 from apps.content.models import SiteSettings
 
@@ -29,7 +30,7 @@ def notify_new_message(message) -> None:
         f"Телефон: {session.phone or '—'}\n"
         f"Текст: {message.text or '—'}\n"
         f"Вкладення: {message.attachments.count()}\n\n"
-        f"Відповісти в адмінці: /admin/chat/chatsession/{session.pk}/change/"
+        f"Відповісти в адмінці: {reverse('admin:chat_chatsession_change', args=[session.pk])}"
     )
     try:
         send_mail(

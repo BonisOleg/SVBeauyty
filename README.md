@@ -28,7 +28,7 @@ python3 manage.py compilemessages
 python3 manage.py runserver
 ```
 
-Сайт: http://127.0.0.1:8000/uk/ · Адмінка: http://127.0.0.1:8000/admin/
+Сайт: http://127.0.0.1:8000/uk/ · Адмінка: http://127.0.0.1:8000/sv-desk/
 
 ## Структура
 

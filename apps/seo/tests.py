@@ -63,3 +63,17 @@ class FaviconTests(TestCase):
         self.assertIn("apple-touch-icon", rels)
         href = settings.UNFOLD["SITE_FAVICONS"][0]["href"]
         self.assertEqual(href(None), staticfiles_storage.url("favicons/favicon.ico"))
+
+
+class AdminPathTests(TestCase):
+    def test_default_admin_path_is_closed(self):
+        self.assertEqual(settings.ADMIN_URL, "sv-desk/")
+        self.assertEqual(self.client.get("/admin/").status_code, 404)
+        response = self.client.get("/sv-desk/")
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/sv-desk/login/", response["Location"])
+
+    def test_robots_disallow_admin_prefix(self):
+        response = self.client.get(reverse("robots"))
+        self.assertContains(response, "Disallow: /sv-desk/")
+        self.assertNotContains(response, "Disallow: /admin/")

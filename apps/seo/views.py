@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.templatetags.static import static
@@ -43,7 +44,7 @@ def robots_txt(request):
     sitemap_url = request.build_absolute_uri("/sitemap.xml")
     lines = [
         "User-agent: *",
-        "Disallow: /admin/",
+        f"Disallow: /{settings.ADMIN_URL}",
         "Disallow: /cabinet/",
         "Disallow: /cart/",
         "Disallow: /checkout/",

@@ -83,6 +83,12 @@ LOGIN_URL = "accounts:login"
 LOGIN_REDIRECT_URL = "accounts:profile"
 LOGOUT_REDIRECT_URL = "core:home"
 
+# ERR-132: не /admin/. Порожнє і літерал admin заборонені.
+_admin_path = config("ADMIN_URL", default="sv-desk").strip().strip("/")
+if not _admin_path or _admin_path.lower() == "admin":
+    _admin_path = "sv-desk"
+ADMIN_URL = f"{_admin_path}/"
+
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},

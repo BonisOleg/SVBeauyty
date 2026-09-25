@@ -54,3 +54,7 @@ if ! grep -q '^LIQPAY_ENABLED=False$' "$DST"; then
   echo "FATAL: LIQPAY_ENABLED must stay False until real FOP keys"
   exit 1
 fi
+if ! grep -q '^ADMIN_URL=sv-desk$' "$DST"; then
+  echo "FATAL: ADMIN_URL must be sv-desk, not admin"
+  exit 1
+fi

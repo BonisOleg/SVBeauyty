@@ -13,8 +13,8 @@ from apps.seo.views import favicon_redirect, robots_txt, site_webmanifest
 
 urlpatterns = [
     path("healthz/", lambda request: HttpResponse("ok"), name="healthz"),
-    path("admin/alerts/", admin_alerts_json, name="admin_alerts"),
-    path("admin/", admin.site.urls),
+    path(f"{settings.ADMIN_URL}alerts/", admin_alerts_json, name="admin_alerts"),
+    path(settings.ADMIN_URL, admin.site.urls),
     path("tinymce/", include("tinymce.urls")),
     path("i18n/", include("django.conf.urls.i18n")),
     path("sitemap.xml", sitemap, {"sitemaps": SITEMAPS}, name="sitemap"),

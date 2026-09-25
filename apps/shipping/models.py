@@ -5,17 +5,11 @@ from apps.core.models import SingletonModel, TimeStampedModel
 
 
 class ShippingSettings(SingletonModel, TimeStampedModel):
-    np_api_key = models.CharField(
-        _("API-ключ Нової Пошти"),
-        max_length=255,
-        blank=True,
-        help_text=_(
-            "Порожнє поле — ключ з .env (NOVAPOSHTA_API_KEY). "
-            "Після збереження ключа запустіть sync_novaposhta. "
-            "«Примусово тестові дані» ігнорує і адмінку, і .env."
-        ),
+    use_test_data = models.BooleanField(
+        _("Примусово тестові дані"),
+        default=False,
+        help_text=_("Увімкнено — чекаут читає тестовий довідник, ключ з .env ігнорується."),
     )
-    use_test_data = models.BooleanField(_("Примусово тестові дані"), default=False)
 
     pickup_enabled = models.BooleanField(_("Самовивіз увімкнено"), default=True)
     pickup_address_uk = models.CharField(

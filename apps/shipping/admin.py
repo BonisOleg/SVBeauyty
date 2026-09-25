@@ -12,7 +12,7 @@ class ShippingSettingsAdmin(SingletonAdmin):
         [
             (
                 "Нова Пошта",
-                {"fields": ["np_api_key", "use_test_data"]},
+                {"fields": ["use_test_data"]},
             ),
             ("Самовивіз", {"fields": ["pickup_enabled"]}),
             ("Таксі", {"fields": ["taxi_enabled"]}),

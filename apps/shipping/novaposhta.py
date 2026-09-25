@@ -26,10 +26,10 @@ def _fixture() -> dict:
 
 
 def _api_key() -> str:
-    conf = ShippingSettings.get_solo()
-    if conf.use_test_data:
+    """Ключ лише з .env. Адмінка його не зберігає (скіл: один відправник)."""
+    if ShippingSettings.get_solo().use_test_data:
         return ""
-    return conf.np_api_key or settings.NOVAPOSHTA_API_KEY
+    return (settings.NOVAPOSHTA_API_KEY or "").strip()
 
 
 class NovaPoshtaError(Exception):
@@ -55,8 +55,13 @@ def api_call(model: str, method: str, props: dict, *, timeout: int = TIMEOUT) ->
         logger.warning("Nova Poshta API error: %s", exc)
         raise NovaPoshtaError("Нова Пошта не відповіла") from exc
     if not data.get("success"):
+        logger.warning(
+            "Nova Poshta API rejected model=%s method=%s response=%s",
+            model,
+            method,
+            {k: v for k, v in data.items() if k != "data"},
+        )
         errors = data.get("errors") or []
-        logger.warning("Nova Poshta API rejected: %s", errors)
         raise NovaPoshtaError("; ".join(str(item) for item in errors) or "Нова Пошта відхилила запит")
     return data.get("data") or []
 

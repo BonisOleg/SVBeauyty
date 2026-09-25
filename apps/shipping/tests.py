@@ -5,9 +5,10 @@ from apps.shipping.novaposhta import get_branches, search_cities
 from apps.shipping.sync import _pages
 
 
+@override_settings(NOVAPOSHTA_API_KEY="env-key")
 class CityRankTests(TestCase):
     def setUp(self):
-        ShippingSettings.objects.update_or_create(pk=1, defaults={"use_test_data": False, "np_api_key": "key"})
+        ShippingSettings.objects.update_or_create(pk=1, defaults={"use_test_data": False})
         kyiv = NPCity.objects.create(ref="kyiv", name="Київ", area="Київська")
         NPCity.objects.create(ref="village", name="Андріївка (Київська обл.)", area="Київська")
         NPWarehouse.objects.create(
@@ -37,12 +38,13 @@ class CityRankTests(TestCase):
 @override_settings(NOVAPOSHTA_API_KEY="")
 class FixtureFallbackTests(TestCase):
     def test_fixture_when_directory_and_key_are_empty(self):
-        ShippingSettings.objects.update_or_create(pk=1, defaults={"use_test_data": False, "np_api_key": ""})
+        ShippingSettings.objects.update_or_create(pk=1, defaults={"use_test_data": False})
         rows = search_cities("київ")
         self.assertEqual(rows[0]["ref"], "city-kyiv")
 
-    def test_admin_key_does_not_use_fixture_before_sync(self):
-        ShippingSettings.objects.update_or_create(pk=1, defaults={"use_test_data": False, "np_api_key": "from-admin"})
+    @override_settings(NOVAPOSHTA_API_KEY="env-key")
+    def test_env_key_does_not_use_fixture_before_sync(self):
+        ShippingSettings.objects.update_or_create(pk=1, defaults={"use_test_data": False})
         self.assertEqual(search_cities("київ"), [])
 
 

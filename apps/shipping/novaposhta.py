@@ -2,6 +2,8 @@
 
 import json
 import logging
+import re
+import time
 from functools import lru_cache
 from pathlib import Path
 
@@ -14,6 +16,8 @@ logger = logging.getLogger(__name__)
 
 API_URL = "https://api.novaposhta.ua/v2.0/json/"
 TIMEOUT = 6
+RATE_LIMIT_CODE = "20000401501"
+MAX_RATE_RETRIES = 8
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "np_test_data.json"
 
 
@@ -47,14 +51,21 @@ def api_call(model: str, method: str, props: dict, *, timeout: int = TIMEOUT) ->
         "calledMethod": method,
         "methodProperties": props,
     }
-    try:
-        response = requests.post(API_URL, json=payload, timeout=timeout)
-        response.raise_for_status()
-        data = response.json()
-    except (requests.RequestException, ValueError) as exc:
-        logger.warning("Nova Poshta API error: %s", exc)
-        raise NovaPoshtaError("Нова Пошта не відповіла") from exc
-    if not data.get("success"):
+    for attempt in range(MAX_RATE_RETRIES + 1):
+        try:
+            response = requests.post(API_URL, json=payload, timeout=timeout)
+            response.raise_for_status()
+            data = response.json()
+        except (requests.RequestException, ValueError) as exc:
+            logger.warning("Nova Poshta API error: %s", exc)
+            raise NovaPoshtaError("Нова Пошта не відповіла") from exc
+        if data.get("success"):
+            return data.get("data") or []
+        if _is_rate_limited(data) and attempt < MAX_RATE_RETRIES:
+            delay = _retry_after(data)
+            logger.warning("Nova Poshta rate limit, retry in %s s", delay)
+            time.sleep(delay)
+            continue
         logger.warning(
             "Nova Poshta API rejected model=%s method=%s response=%s",
             model,
@@ -63,7 +74,23 @@ def api_call(model: str, method: str, props: dict, *, timeout: int = TIMEOUT) ->
         )
         errors = data.get("errors") or []
         raise NovaPoshtaError("; ".join(str(item) for item in errors) or "Нова Пошта відхилила запит")
-    return data.get("data") or []
+    raise NovaPoshtaError("Нова Пошта відхилила запит")
+
+
+def _is_rate_limited(data: dict) -> bool:
+    codes = {str(code) for code in (data.get("errorCodes") or [])}
+    if RATE_LIMIT_CODE in codes:
+        return True
+    text = " ".join(str(item) for item in (data.get("errors") or [])).casefold()
+    return "many request" in text
+
+
+def _retry_after(data: dict) -> float:
+    for item in data.get("info") or []:
+        match = re.search(r"(\d+(?:\.\d+)?)", str(item))
+        if match:
+            return max(0.5, float(match.group(1)))
+    return 0.5
 
 
 def _use_fixture() -> bool:

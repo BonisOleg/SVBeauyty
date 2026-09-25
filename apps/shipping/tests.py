@@ -1,7 +1,7 @@
 from django.test import TestCase, override_settings
 
 from apps.shipping.models import NPCity, NPWarehouse, ShippingSettings
-from apps.shipping.novaposhta import get_branches, search_cities
+from apps.shipping.novaposhta import _is_rate_limited, _retry_after, get_branches, search_cities
 from apps.shipping.sync import _pages
 
 
@@ -64,6 +64,15 @@ class SyncPageTests(TestCase):
             list(_pages("Address", "getCities"))
         finally:
             sync.api_call = original
+        self.assertTrue(
+            _is_rate_limited(
+                {"errorCodes": ["20000401501"], "errors": ["To many requests"]}
+            )
+        )
+        self.assertEqual(
+            _retry_after({"info": ["Try again after 0.5 seconds"]}),
+            0.5,
+        )
         self.assertEqual(calls[0]["Page"], "1")
         self.assertEqual(calls[0]["Limit"], "500")
         self.assertIsInstance(calls[0]["Page"], str)

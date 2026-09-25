@@ -1,5 +1,7 @@
 """Синк довідника Нової Пошти. Page і Limit — рядки, інакше API віддає 0 рядків."""
 
+import time
+
 from apps.shipping.models import NPCity, NPWarehouse
 from apps.shipping.novaposhta import api_call
 
@@ -39,6 +41,7 @@ def _pages(model: str, method: str):
         if fresh == 0 or len(rows) < int(PAGE_LIMIT):
             break
         page += 1
+        time.sleep(0.6)
 
 
 def _save_cities(rows: list[dict]) -> None:

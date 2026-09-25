@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.db.models import Case, IntegerField, Value, When
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
@@ -40,8 +41,27 @@ class CosmetologistRequestAdmin(ModelAdmin):
     list_display = ["full_name_display", "user", "phone", "workplace", "status", "created_at"]
     list_filter = ["status", "created_at"]
     search_fields = ["full_name", "phone", "user__email"]
-    readonly_fields = ["user", "created_at", "updated_at"]
+    fields = [
+        "user",
+        "full_name",
+        "phone",
+        "workplace",
+        "document_link",
+        "comment",
+        "status",
+        "admin_note",
+        "created_at",
+        "updated_at",
+    ]
+    readonly_fields = ["user", "document_link", "created_at", "updated_at"]
     actions = ["approve_requests", "reject_requests"]
+
+    @admin.display(description=_("Документ"))
+    def document_link(self, obj):
+        if not obj or not obj.pk or not obj.document:
+            return "—"
+        url = reverse("cosmetologist_document", args=[obj.pk])
+        return format_html('<a href="{}">{}</a>', url, _("Відкрити документ"))
 
     @admin.display(description=_("ПІБ"), ordering="full_name")
     def full_name_display(self, obj):

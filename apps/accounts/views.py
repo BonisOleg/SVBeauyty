@@ -2,8 +2,11 @@ from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
+from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.http import content_disposition_header
 from django.utils.translation import gettext as _
+from django.views.decorators.http import require_GET
 
 from apps.accounts.forms import CosmetologistRequestForm, LoginForm, ProfileForm, RegisterForm
 from apps.accounts.models import ClientType, CosmetologistRequest, RequestStatus
@@ -131,3 +134,38 @@ def cosmetologist_request(request):
             initial={"full_name": request.user.display_name, "phone": request.user.phone}
         )
     return render(request, "accounts/cosmetologist.html", {"form": form, "existing": existing})
+
+
+_DOCUMENT_TYPES = {
+    ".pdf": "application/pdf",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".png": "image/png",
+    ".webp": "image/webp",
+}
+
+
+def _can_read_document(request, application) -> bool:
+    user = request.user
+    if not user.is_authenticated:
+        return False
+    if user.is_staff:
+        return True
+    return application.user_id == user.pk
+
+
+@require_GET
+def cosmetologist_document(request, pk):
+    """Документ заявки. Не віддається через /media/."""
+    application = (
+        CosmetologistRequest.objects.filter(pk=pk).exclude(document="").first()
+    )
+    if application is None or not _can_read_document(request, application):
+        raise Http404
+    suffix = application.document.name.rsplit(".", 1)[-1].lower() if "." in application.document.name else ""
+    content_type = _DOCUMENT_TYPES.get(f".{suffix}", "application/octet-stream")
+    response = FileResponse(application.document.open("rb"), content_type=content_type)
+    response["Content-Disposition"] = content_disposition_header(True, application.document.name.rsplit("/", 1)[-1])
+    response["X-Content-Type-Options"] = "nosniff"
+    response["Cache-Control"] = "private, no-store"
+    return response

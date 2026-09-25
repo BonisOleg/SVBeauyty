@@ -124,35 +124,28 @@ python3 manage.py compilemessages
 Контент (назви товарів, описи, сторінки) перекладається в адмінці —
 поля `_uk` / `_ru`. Слаг один на сутність, мова живе лише в префіксі URL.
 
-## Продакшен (тестовий Droplet — HTTP по IP)
-
-Канон: `django-droplet-http-first` → пізніше SSL (`django-docker-ssl`).
+## Продакшен (svbeauty.com.ua)
 
 | | |
 |---|---|
-| IP | `161.35.65.129` |
-| SSH | `ssh svbeauty` (`~/.ssh/id_svbeauty_do`) |
+| IP | `201.79.15.126` |
+| Домен | `svbeauty.com.ua`, `www` |
+| SSH | `ssh svbeauty-prod` |
 | Шлях | `/var/www/svbeauty` |
-| URL | `http://161.35.65.129/` |
+| URL | `https://svbeauty.com.ua/` |
+
+Перший запуск — HTTP (`deploy/nginx/docker.conf`), щоб випустити сертифікат. Щойно з’явиться `/etc/letsencrypt/live/svbeauty.com.ua/fullchain.pem`, `deploy.sh` сам підключає `docker-compose.ssl.yml`.
 
 ```bash
-# На Droplet (Ubuntu 24.04, shop ≥2 GB; 1 GB → 2G swap)
 git clone https://github.com/BonisOleg/SVBeauyty.git /var/www/svbeauty
 cd /var/www/svbeauty
 bash deploy/docker/install-docker.sh
-bash deploy/docker/gen-env.sh   # .env з IP 161.35.65.129 + унікальні SECRET_KEY/DB_PASSWORD
+bash deploy/docker/gen-env.sh
 bash deploy/docker/deploy.sh
-curl -sI -H "Host: 161.35.65.129" http://127.0.0.1/ | head -5
-curl -sf -H "Host: 161.35.65.129" http://127.0.0.1/healthz/
-
-# Mac → дамп (після healthz, ДО createsuperuser)
-./deploy/docker/sync-data.sh push svbeauty:/var/www/svbeauty --yes
-ssh svbeauty 'cd /var/www/svbeauty && docker compose -f docker-compose.yml -f docker-compose.prod.yml exec -T web python manage.py createsuperuser'
+curl -sf http://127.0.0.1/healthz/
 ```
 
-- HTTP: `deploy/nginx/docker.conf` (без SSL redirect)
-- HTTPS пізніше: `docker.prod.conf` + `docker-compose.ssl.yml`
-- У `.env` не має бути літерала `DROPLET_IP` (`grep ALLOWED_HOSTS .env`)
+Після сертифіката знову `bash deploy/docker/deploy.sh`. У `.env` домен і `https://` у `CSRF_TRUSTED_ORIGINS`, `LIQPAY_ENABLED=False`. `SECRET_KEY` і `DB_PASSWORD` після першого запуску не змінювати.
 
 ## Не входить у цей реліз
 

@@ -6,6 +6,7 @@ from django.contrib.sitemaps.views import sitemap
 from django.http import HttpResponse
 from django.urls import include, path
 
+from apps.accounts.views import cosmetologist_document
 from apps.core.admin_alerts_views import admin_alerts_json
 from apps.seo.sitemaps import SITEMAPS
 from apps.seo.views import favicon_redirect, robots_txt, site_webmanifest
@@ -21,6 +22,11 @@ urlpatterns = [
     path("favicon.ico", favicon_redirect, name="favicon"),
     path("site.webmanifest", site_webmanifest, name="webmanifest"),
     path("chat/", include("apps.chat.urls")),
+    path(
+        "cabinet/cosmetologist/document/<int:pk>/",
+        cosmetologist_document,
+        name="cosmetologist_document",
+    ),
     path("shipping/", include("apps.shipping.urls")),
 ]
 

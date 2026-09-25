@@ -1,3 +1,7 @@
+from pathlib import Path
+
+from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
 
@@ -68,6 +72,46 @@ class CosmetologistStatusTests(TestCase):
         self.assertEqual(request_obj.status, RequestStatus.APPROVED)
         self.assertTrue(self.user.is_pro)
         self.assertIsNotNone(self.user.client_type_changed_at)
+
+
+class CosmetologistDocumentTests(TestCase):
+    def setUp(self):
+        self.owner = User.objects.create_user("owner@test.local", "Pass12345!")
+        self.other = User.objects.create_user("other@test.local", "Pass12345!")
+        self.staff = User.objects.create_user("staff@test.local", "Pass12345!", is_staff=True)
+        upload = SimpleUploadedFile("diploma.pdf", b"%PDF-1.4 test", content_type="application/pdf")
+        self.application = CosmetologistRequest.objects.create(
+            user=self.owner,
+            full_name="Ірина Тест",
+            phone="+380671234567",
+            document=upload,
+        )
+
+    def tearDown(self):
+        path = Path(self.application.document.path)
+        if path.is_file():
+            path.unlink()
+
+    def test_owner_and_staff_can_open_document(self):
+        url = reverse("cosmetologist_document", args=[self.application.pk])
+        self.client.force_login(self.owner)
+        owner_response = self.client.get(url)
+        self.assertEqual(owner_response.status_code, 200)
+        self.assertEqual(owner_response["X-Content-Type-Options"], "nosniff")
+        self.client.force_login(self.staff)
+        self.assertEqual(self.client.get(url).status_code, 200)
+
+    def test_strangers_get_404(self):
+        url = reverse("cosmetologist_document", args=[self.application.pk])
+        self.assertEqual(self.client.get(url).status_code, 404)
+        self.client.force_login(self.other)
+        self.assertEqual(self.client.get(url).status_code, 404)
+
+    def test_file_is_outside_public_media(self):
+        stored = Path(self.application.document.path)
+        self.assertEqual(stored.parent, Path(settings.PRIVATE_MEDIA_ROOT) / "cosmetologist")
+        self.assertTrue(stored.is_file())
+        self.assertFalse((Path(settings.MEDIA_ROOT) / self.application.document.name).exists())
 
 
 class CabinetAccessTests(TestCase):

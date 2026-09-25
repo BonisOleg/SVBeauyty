@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from apps.accounts.storage import document_upload_to, private_document_storage
 from apps.accounts.validators import validate_cosmetologist_document
 from apps.core.models import TimeStampedModel
 
@@ -86,10 +87,11 @@ class CosmetologistRequest(TimeStampedModel):
     workplace = models.CharField(_("Місце роботи"), max_length=255, blank=True)
     document = models.FileField(
         _("Документ"),
-        upload_to="cosmetologist/",
+        upload_to=document_upload_to,
+        storage=private_document_storage,
         blank=True,
         validators=[validate_cosmetologist_document],
-        help_text=_("PDF або зображення до 5 МБ."),
+        help_text=_("PDF або зображення до 5 МБ. Файл не публічний."),
     )
     comment = models.TextField(_("Коментар"), blank=True)
     status = models.CharField(

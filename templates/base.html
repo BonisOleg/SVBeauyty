@@ -11,7 +11,10 @@
   {% language_absolute_url 'uk' as url_uk %}
   {% language_absolute_url 'ru' as url_ru %}
   {% language_absolute_url 'uk' as url_default %}
-  <link rel="canonical" href="{% block canonical %}{{ request.build_absolute_uri }}{% endblock %}">
+  {% canonical_url as canon %}
+  {% robots_directive as robots_content %}
+  {% if robots_content %}<meta name="robots" content="{{ robots_content }}">{% endif %}
+  <link rel="canonical" href="{% block canonical %}{{ canon }}{% endblock %}">
   <link rel="alternate" hreflang="uk" href="{{ url_uk }}">
   <link rel="alternate" hreflang="ru" href="{{ url_ru }}">
   <link rel="alternate" hreflang="x-default" href="{{ url_default }}">
@@ -21,10 +24,8 @@
   <meta property="og:locale" content="{% if LANGUAGE_CODE == 'ru' %}ru_UA{% else %}uk_UA{% endif %}">
   <meta property="og:title" content="{% block og_title %}{{ site_settings.site_name }}{% endblock %}">
   <meta property="og:description" content="{% block og_description %}{{ site_settings.meta_description }}{% endblock %}">
-  <meta property="og:url" content="{% block og_url %}{{ request.build_absolute_uri }}{% endblock %}">
+  <meta property="og:url" content="{% block og_url %}{{ canon }}{% endblock %}">
   <meta property="og:image" content="{% block og_image %}{% if request.is_secure %}https{% else %}http{% endif %}://{{ request.get_host }}{% static 'images/logo.png' %}{% endblock %}">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
 
   {% include "components/favicons.html" %}
   {% block meta_extra %}{% endblock %}

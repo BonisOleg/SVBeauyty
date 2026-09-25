@@ -45,12 +45,12 @@ def robots_txt(request):
     lines = [
         "User-agent: *",
         f"Disallow: /{settings.ADMIN_URL}",
-        "Disallow: /cabinet/",
-        "Disallow: /cart/",
-        "Disallow: /checkout/",
         "Disallow: /chat/",
-        "Allow: /",
-        "",
-        f"Sitemap: {sitemap_url}",
+        "Disallow: /wishlist/",
+        "Disallow: /shipping/",
     ]
+    for code, _label in settings.LANGUAGES:
+        for prefix in ("cabinet/", "cart/", "checkout/", "thanks/", "search/"):
+            lines.append(f"Disallow: /{code}/{prefix}")
+    lines.extend(["Allow: /", "", f"Sitemap: {sitemap_url}"])
     return HttpResponse("\n".join(lines), content_type="text/plain; charset=utf-8")

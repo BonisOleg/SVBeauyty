@@ -3,6 +3,35 @@
 
 {% block title %}{{ site_settings.site_name }} — {% translate "професійна косметика" %}{% endblock %}
 
+{% block structured_data %}
+{% url 'catalog:search' as search_path %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "{{ site_settings.site_name|escapejs }}",
+  "url": "{{ request.scheme }}://{{ request.get_host }}/uk/",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "{{ request.scheme }}://{{ request.get_host }}{{ search_path }}?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+    "@type": "ListItem",
+    "position": 1,
+    "name": "{% translate 'Головна' %}",
+    "item": "{{ request.scheme }}://{{ request.get_host }}{{ request.path }}"
+  }]
+}
+</script>
+{% endblock %}
+
 {% block content %}
   {% if banners %}
     <section

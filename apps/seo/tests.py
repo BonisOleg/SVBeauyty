@@ -76,4 +76,7 @@ class AdminPathTests(TestCase):
     def test_robots_disallow_admin_prefix(self):
         response = self.client.get(reverse("robots"))
         self.assertContains(response, "Disallow: /sv-desk/")
+        self.assertContains(response, "Disallow: /uk/cart/")
+        self.assertContains(response, "Disallow: /ru/checkout/")
         self.assertNotContains(response, "Disallow: /admin/")
+        self.assertNotContains(response, "Disallow: /cart/\n")

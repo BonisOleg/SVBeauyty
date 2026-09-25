@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from apps.core.utils import localized
+
 
 class TimeStampedModel(models.Model):
     created_at = models.DateTimeField(_("Створено"), auto_now_add=True)
@@ -18,6 +20,14 @@ class SeoModel(models.Model):
 
     class Meta:
         abstract = True
+
+    @property
+    def seo_title(self):
+        return localized(self, "seo_title")
+
+    @property
+    def seo_description(self):
+        return localized(self, "seo_description")
 
 
 class PublishedModel(models.Model):

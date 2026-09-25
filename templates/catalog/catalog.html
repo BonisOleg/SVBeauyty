@@ -3,9 +3,10 @@
 
 {% block title %}
   {% if is_search %}{% translate "Пошук" %}: {{ query }} — {{ site_settings.site_name }}
-  {% elif category %}{% if category.seo_title_uk %}{{ category.seo_title_uk }}{% else %}{{ category.name }} — {{ site_settings.site_name }}{% endif %}
+  {% elif category %}{% if category.seo_title %}{{ category.seo_title }}{% else %}{{ category.name }} — {{ site_settings.site_name }}{% endif %}
   {% else %}{% translate "Каталог" %} — {{ site_settings.site_name }}{% endif %}
 {% endblock %}
+{% block description %}{% if category and category.seo_description %}{{ category.seo_description }}{% else %}{{ block.super }}{% endif %}{% endblock %}
 
 {% block content %}
   <nav class="breadcrumbs" aria-label="{% translate 'Навігація' %}">

@@ -9,6 +9,8 @@ class StaticSitemap(Sitemap):
     changefreq = "weekly"
     priority = 1.0
     i18n = True
+    alternates = True
+    x_default = True
 
     def items(self):
         return ["core:home", "catalog:catalog"]
@@ -21,6 +23,8 @@ class CategorySitemap(Sitemap):
     changefreq = "weekly"
     priority = 0.8
     i18n = True
+    alternates = True
+    x_default = True
 
     def items(self):
         return Category.objects.filter(is_active=True)
@@ -33,6 +37,8 @@ class ProductSitemap(Sitemap):
     changefreq = "weekly"
     priority = 0.7
     i18n = True
+    alternates = True
+    x_default = True
     limit = 2000
 
     def items(self):
@@ -46,6 +52,8 @@ class PageSitemap(Sitemap):
     changefreq = "monthly"
     priority = 0.4
     i18n = True
+    alternates = True
+    x_default = True
 
     def items(self):
         return Page.objects.filter(is_active=True)

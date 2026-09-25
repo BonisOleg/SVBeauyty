@@ -32,6 +32,35 @@ def switch_language_url(context, language_code):
 
 
 @register.simple_tag(takes_context=True)
+def canonical_url(context):
+    """Абсолютний URL без фасетів і utm. ?page=2 лишається своїм canonical."""
+    request = context.get("request")
+    if not request:
+        return "/"
+    url = request.build_absolute_uri(request.path)
+    page = (request.GET.get("page") or "").strip()
+    extra = [key for key in request.GET if key != "page"]
+    if extra or not page.isdigit() or int(page) <= 1:
+        return url
+    return f"{url}?page={int(page)}"
+
+
+@register.simple_tag(takes_context=True)
+def robots_directive(context):
+    """noindex для кабінету, кошика, пошуку і фасетів. Порожньо — індексувати."""
+    request = context.get("request")
+    if not request:
+        return ""
+    path = request.path
+    private = ("/cabinet/", "/cart/", "/checkout/", "/thanks/", "/search/")
+    if any(part in path for part in private):
+        return "noindex, follow"
+    if any(key != "page" for key in request.GET):
+        return "noindex, follow"
+    return ""
+
+
+@register.simple_tag(takes_context=True)
 def language_absolute_url(context, language_code):
     """Абсолютний URL без query — для hreflang / canonical."""
     request = context.get("request")

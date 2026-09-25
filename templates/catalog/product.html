@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% load i18n static catalog_tags %}
 
-{% block title %}{% if product.seo_title_uk %}{{ product.seo_title_uk }}{% else %}{{ product.name }} — {{ site_settings.site_name }}{% endif %}{% endblock %}
-{% block description %}{{ product.seo_description_uk|default:product.short_description }}{% endblock %}
+{% block title %}{% if product.seo_title %}{{ product.seo_title }}{% else %}{{ product.name }} — {{ site_settings.site_name }}{% endif %}{% endblock %}
+{% block description %}{{ product.seo_description|default:product.short_description }}{% endblock %}
 {% block og_type %}product{% endblock %}
 {% block og_title %}{{ product.name }}{% endblock %}
-{% block og_description %}{{ product.seo_description_uk|default:product.short_description }}{% endblock %}
+{% block og_description %}{{ product.seo_description|default:product.short_description }}{% endblock %}
 {% block og_image %}{% if product.main_image %}{{ request.scheme }}://{{ request.get_host }}{{ product.main_image.image.url }}{% else %}{{ block.super }}{% endif %}{% endblock %}
 
 {% block structured_data %}
@@ -17,14 +17,14 @@
   "name": "{{ product.name|escapejs }}",
   "sku": "{{ product.default_variant.sku|default:''|escapejs }}",
   "brand": {"@type": "Brand", "name": "{{ product.brand.name|escapejs }}"},
-  "description": "{{ product.short_description|default:''|escapejs }}",
+  "description": "{{ product.seo_description|default:product.short_description|escapejs }}",
   "image": "{% if product.main_image %}{{ request.scheme }}://{{ request.get_host }}{{ product.main_image.image.url }}{% endif %}",
   "offers": {
     "@type": "Offer",
     "priceCurrency": "UAH",
     "price": "{{ default_price.amount|default:'0' }}",
     "availability": "https://schema.org/{% if product.in_stock %}InStock{% else %}OutOfStock{% endif %}",
-    "url": "{{ request.build_absolute_uri }}"
+    "url": "{{ request.build_absolute_uri(request.path) }}"
   }
 }
 </script>

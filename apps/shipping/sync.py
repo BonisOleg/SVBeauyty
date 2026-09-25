@@ -10,7 +10,13 @@ MAX_PAGES = 400
 
 
 def sync_directory() -> dict:
-    cities = list(_pages("Address", "getCities"))
+    # SvitPC: усі міста одним викликом. Page лишається рядком.
+    cities = api_call(
+        "Address",
+        "getCities",
+        {"Page": "1", "Limit": "50000"},
+        timeout=60,
+    )
     _save_cities(cities)
     city_ids = dict(NPCity.objects.values_list("ref", "id"))
     warehouses = list(_pages("Address", "getWarehouses"))

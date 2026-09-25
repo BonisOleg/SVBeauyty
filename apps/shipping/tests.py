@@ -76,3 +76,22 @@ class SyncPageTests(TestCase):
         self.assertEqual(calls[0]["Page"], "1")
         self.assertEqual(calls[0]["Limit"], "500")
         self.assertIsInstance(calls[0]["Page"], str)
+
+    def test_cities_sync_is_a_single_request(self):
+        from apps.shipping import sync
+
+        calls = []
+
+        def fake_call(model, method, props, *, timeout):
+            calls.append((method, props))
+            return []
+
+        original = sync.api_call
+        sync.api_call = fake_call
+        try:
+            sync.sync_directory()
+        finally:
+            sync.api_call = original
+        city_calls = [props for method, props in calls if method == "getCities"]
+        self.assertEqual(len(city_calls), 1)
+        self.assertEqual(city_calls[0], {"Page": "1", "Limit": "50000"})

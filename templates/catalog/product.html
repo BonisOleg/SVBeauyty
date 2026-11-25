@@ -24,7 +24,7 @@
     "priceCurrency": "UAH",
     "price": "{{ default_price.amount|default:'0' }}",
     "availability": "https://schema.org/{% if product.in_stock %}InStock{% else %}OutOfStock{% endif %}",
-    "url": "{{ request.build_absolute_uri(request.path) }}"
+    "url": "{{ request.scheme }}://{{ request.get_host }}{{ request.path }}"
   }
 }
 </script>
